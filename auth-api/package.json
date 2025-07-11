@@ -14,6 +14,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@prisma/client": "6.11.1",
     "bcryptjs": "3.0.2",
     "dotenv": "17.2.0",
     "fastify": "5.4.0",

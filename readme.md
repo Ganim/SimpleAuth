@@ -24,10 +24,8 @@ Permite cadastro, login, encerramento de sessão e gerenciamento do perfil de fo
 - **Rotas:** Fastify  
 - **Banco de Dados:** PrismaORM (Postgres), Docker  
 - **Validação:** Zod  
-- **Segurança:** Bcrypt, JSON Web Token (JWT)  
+- **Segurança:** BcryptJs, JSON Web Token (JWT)  
 - **Testes Automatizados:** Vitest
-
----
 
 ### Requisitos Funcionais
 - [ ] Deve ser possível se cadastrar;
