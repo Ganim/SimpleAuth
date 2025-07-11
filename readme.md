@@ -24,24 +24,23 @@ Permite cadastro, login, encerramento de sessão e gerenciamento do perfil de fo
 - **Rotas:** Fastify  
 - **Banco de Dados:** PrismaORM (Postgres), Docker  
 - **Validação:** Zod  
-- **Segurança:** Bcrypt, JSON Web Token (JWT)  
+- **Segurança:** BcryptJs, JSON Web Token (JWT)  
 - **Testes Automatizados:** Vitest
 
----
-
 ### Requisitos Funcionais
-- [ ] Deve ser possível se cadastrar;
+- [x] Deve ser possível se cadastrar;
 - [ ] Deve ser possível se autenticar;
 - [ ] Deve ser possível encerrar sua sessão;
 - [ ] Deve ser possível obter o perfil do usuário logado;
 
 ### Regras de Negócio
-- [ ] O usuário não pode se cadastrar com um e-mail duplicado;
+- [x] O usuário não pode se cadastrar com um e-mail duplicado;
 
 ### Requisitos Não Funcionais
-- [ ] A senha do usuário deve estar criptografada;
-- [ ] Os dados da aplicação precisam estar persistidos em um banco de dados PostgreSQL;
+- [x] A senha do usuário deve estar criptografada;
+- [x] Os dados da aplicação precisam estar persistidos em um banco de dados PostgreSQL;
 - [ ] O usuário deve ser identificado por um JWT (JSON Web Token);
+- [ ] Todos os casos de usos devem ser testados de forma automatizada;
 - [ ] Não se deve utilizar nenhum sistema pronto de autenticação para facilitar o processo;
 
 ## INSTALAÇÃO
@@ -78,6 +77,16 @@ Permite cadastro, login, encerramento de sessão e gerenciamento do perfil de fo
   - Utilize o Docker para subir o PostgreSQL dentro do backend (auth-api):
     ```sh
     docker-compose up -d
+    ```
+
+  - Crie os arquivos de tipagem e conexões do prisma:
+    ```sh
+    npx prisma genarate
+    ```
+    
+  - Envie as migrations do prisma para o banco de dados no docker:
+    ```sh
+    npx prisma migrate dev
     ```
 
 5. Execute o projeto em terminais separados:

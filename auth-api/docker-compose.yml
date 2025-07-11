@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  api-simpleauth-pg:
+  apisimpleauth:
     image: bitnami/postgresql
     environment:
       POSTGRESQL_USER: docker
