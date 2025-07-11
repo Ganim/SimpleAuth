@@ -1,24 +1,98 @@
-# APP
-Simple Authentication 
+# Simple Authentication
 
-## Techs
+Uma aplicação web simplificada para autenticação de usuários.  
+Utiliza tecnologias modernas e princípios de design para garantir **Segurança** e **Eficiência**
+Permite cadastro, login, encerramento de sessão e gerenciamento do perfil de forma simples e segura.
+
+## O PROJETO
+
+### Arquitetura
+- **Princípios:**  
+  - SOLID  
+  - Clean Code
+
+- **Padrões de Projeto:**  
+  - Repository Pattern  
+  - Factory Pattern
 
 ### Frontend
-NextJs, Tailwind
-### Backend
-Fastify, PrismaORM, JWT
+- **Framework:** NextJs  
+- **Estilização:** Tailwind  
+- **Componentes:** Shadcn
 
-## Requisitos funcionais
+### Backend
+- **Rotas:** Fastify  
+- **Banco de Dados:** PrismaORM (Postgres), Docker  
+- **Validação:** Zod  
+- **Segurança:** Bcrypt, JSON Web Token (JWT)  
+- **Testes Automatizados:** Vitest
+
+---
+
+### Requisitos Funcionais
 - [ ] Deve ser possível se cadastrar;
 - [ ] Deve ser possível se autenticar;
-- [ ] Deve ser possível encessar sua sessão;
+- [ ] Deve ser possível encerrar sua sessão;
 - [ ] Deve ser possível obter o perfil do usuário logado;
 
-## Regras de Negócio
+### Regras de Negócio
 - [ ] O usuário não pode se cadastrar com um e-mail duplicado;
 
-## Requisitos não funcionais
+### Requisitos Não Funcionais
 - [ ] A senha do usuário deve estar criptografada;
 - [ ] Os dados da aplicação precisam estar persistidos em um banco de dados PostgreSQL;
 - [ ] O usuário deve ser identificado por um JWT (JSON Web Token);
 - [ ] Não se deve utilizar nenhum sistema pronto de autenticação para facilitar o processo;
+
+## INSTALAÇÃO
+
+### Pré-requisitos
+- Node.js (v14 ou superior)
+- Node Package Manager (npm)
+- Docker (para o PostgreSQL)
+
+### Passo a Passo
+
+1. Clone o repositório:
+    ```sh
+    git clone https://github.com/Ganim/SimpleAuth.git
+    cd SimpleAuth
+    ```
+
+2. Instale as dependências:
+  - Para o frontend (interface):
+    ```sh
+    cd auth-app
+    npm install
+    ```
+  - Para o backend (servidor):
+    ```sh
+    cd auth-api
+    npm install
+    ```
+
+3. Configure as variáveis de ambiente:
+  - Crie um arquivo `.env` na raiz de cada diretório (frontend e backend) e ajuste as configurações conforme necessário (ver `.env.local` como exemplo).
+
+4. Inicialize o banco de dados:
+  - Utilize o Docker para subir o PostgreSQL dentro do backend (auth-api):
+    ```sh
+    docker-compose up -d
+    ```
+
+5. Execute o projeto em terminais separados:
+  - No backend:
+    ```sh
+    npm run dev
+    ```
+  - No frontend:
+    ```sh
+    npm run dev
+    ```
+
+6. Acesse a aplicação:
+  - Abra o navegador e acesse http://localhost:3000
+
+### Notas Adicionais
+- Certifique-se de que as portas necessárias estejam liberadas no seu sistema.
+- Consulte a documentação específica de cada ferramenta para eventuais configurações adicionais.
