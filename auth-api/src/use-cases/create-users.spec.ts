@@ -1,15 +1,20 @@
 import { InMemoryUsersRepository } from '@/repositories/in-memory/in-memory-users-repository';
 import { compare } from 'bcryptjs';
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { CreteUserUseCase } from './create-user';
 import { UserAlreadyExistsError } from './errors/user-already-exists-error';
 
-describe('Create Users Use Case', () => {
-  it('should be able to create an user', async () => {
-    const usersRepository = new InMemoryUsersRepository();
-    const createUserUseCase = new CreteUserUseCase(usersRepository);
+let usersRepository: InMemoryUsersRepository;
+let sut: CreteUserUseCase;
 
-    const { user } = await createUserUseCase.execute({
+describe('Create Users Use Case', () => {
+  beforeEach(() => {
+    usersRepository = new InMemoryUsersRepository();
+    sut = new CreteUserUseCase(usersRepository);
+  });
+
+  it('should be able to create an user', async () => {
+    const { user } = await sut.execute({
       email: 'johndoe@example.com',
       password: '123456',
     });
@@ -18,10 +23,7 @@ describe('Create Users Use Case', () => {
   });
 
   it('should has user password upon registration', async () => {
-    const usersRepository = new InMemoryUsersRepository();
-    const createUserUseCase = new CreteUserUseCase(usersRepository);
-
-    const { user } = await createUserUseCase.execute({
+    const { user } = await sut.execute({
       email: 'johndoe@example.com',
       password: '123456',
     });
@@ -32,18 +34,15 @@ describe('Create Users Use Case', () => {
   });
 
   it('should not be able to create an user with same email', async () => {
-    const usersRepository = new InMemoryUsersRepository();
-    const createUserUseCase = new CreteUserUseCase(usersRepository);
-
     const email = 'johndoe@example.com';
 
-    await createUserUseCase.execute({
+    await sut.execute({
       email,
       password: '123456',
     });
 
     await expect(
-      createUserUseCase.execute({
+      sut.execute({
         email,
         password: '123456',
       }),

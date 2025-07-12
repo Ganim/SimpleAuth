@@ -1,3 +1,4 @@
+import { env } from '@/env';
 import type { UsersRepository } from '@/repositories/users-repository';
 import { hash } from 'bcryptjs';
 import type { User } from 'generated/prisma';
@@ -19,8 +20,7 @@ export class CreteUserUseCase {
     email,
     password,
   }: createUserUseCaseRequest): Promise<createUserUseCaseResponse> {
-    const hashRounds = 6;
-    const password_hash = await hash(password, hashRounds);
+    const password_hash = await hash(password, env.HASH_ROUNDS);
 
     const userWithSameEmail = await this.userRespository.findByEmail(email);
 
