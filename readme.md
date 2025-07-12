@@ -24,12 +24,12 @@ Permite cadastro, login, encerramento de sessão e gerenciamento do perfil de fo
 - **Rotas:** Fastify  
 - **Banco de Dados:** PrismaORM (Postgres), Docker  
 - **Validação:** Zod  
-- **Segurança:** BcryptJs, JSON Web Token (JWT)  
-- **Testes Automatizados:** Vitest
+- **Segurança:** BcryptJs, JSON Web Token (JWT), Refresh Token, Cookies
+- **Testes Automatizados:** Vitest, supertest
 
 ### Requisitos Funcionais
 - [x] Deve ser possível se cadastrar;
-- [ ] Deve ser possível se autenticar;
+- [x] Deve ser possível se autenticar;
 - [ ] Deve ser possível encerrar sua sessão;
 - [ ] Deve ser possível obter o perfil do usuário logado;
 
@@ -39,7 +39,8 @@ Permite cadastro, login, encerramento de sessão e gerenciamento do perfil de fo
 ### Requisitos Não Funcionais
 - [x] A senha do usuário deve estar criptografada;
 - [x] Os dados da aplicação precisam estar persistidos em um banco de dados PostgreSQL;
-- [ ] O usuário deve ser identificado por um JWT (JSON Web Token);
+- [x] O usuário deve ser identificado por um JWT (JSON Web Token);
+- [x] Deve haver um Refresh Token revalidando o token JWT;
 - [ ] Todos os casos de usos devem ser testados de forma automatizada;
 - [ ] Não se deve utilizar nenhum sistema pronto de autenticação para facilitar o processo;
 
