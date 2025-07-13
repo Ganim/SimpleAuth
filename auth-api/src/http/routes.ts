@@ -1,8 +1,8 @@
 import { app } from '@/app';
-import { authenticate } from './controllers/authenticate';
-import { createUser } from './controllers/create-user';
-import { profile } from './controllers/profile';
-import { refresh } from './controllers/refresh';
+import { authenticate } from './controllers/users/authenticate';
+import { createUser } from './controllers/users/create-user';
+import { profile } from './controllers/users/profile';
+import { refresh } from './controllers/users/refresh';
 import { verifyJwt } from './middlewares/verify-jwt';
 
 export async function appRoutes() {

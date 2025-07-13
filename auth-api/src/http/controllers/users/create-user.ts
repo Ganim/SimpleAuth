@@ -35,5 +35,5 @@ export async function createUser(request: FastifyRequest, reply: FastifyReply) {
     throw error;
   }
 
-  return reply.status(201).send();
+  return reply.status(201).send({ user });
 }
