@@ -32,7 +32,7 @@ Permite cadastro, login, encerramento de sessão e gerenciamento do perfil de fo
 - [x] Deve ser possível se cadastrar;
 - [x] Deve ser possível se autenticar;
 - [ ] Deve ser possível encerrar sua sessão;
-- [ ] Deve ser possível obter o perfil do usuário logado;
+- [x] Deve ser possível obter o perfil do usuário logado;
 
 ### Regras de Negócio
 - [x] O usuário não pode se cadastrar com um e-mail duplicado;
@@ -43,7 +43,7 @@ Permite cadastro, login, encerramento de sessão e gerenciamento do perfil de fo
 - [x] O usuário deve ser identificado por um JWT (JSON Web Token);
 - [x] Deve haver um Refresh Token revalidando o token JWT;
 - [ ] Todos os casos de usos devem ser testados de forma automatizada;
-- [ ] Não se deve utilizar nenhum sistema pronto de autenticação para facilitar o processo;
+- [x] Não se deve utilizar nenhum sistema pronto de autenticação para facilitar o processo;
 
 ## INSTALAÇÃO
 
