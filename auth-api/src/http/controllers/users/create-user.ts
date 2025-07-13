@@ -1,6 +1,7 @@
-import { UserAlreadyExistsError } from '@/use-cases/errors/user-already-exists-error';
-import { makeCreateProfileUseCase } from '@/use-cases/factories/make-create-profile-use-case';
-import { makeCreateUserUseCase } from '@/use-cases/factories/make-create-user-use-case';
+import { UserAlreadyExistsError } from '@/use-cases/@errors/user-already-exists-error';
+import { makeCreateProfileUseCase } from '@/use-cases/auth/factories/make-create-profile-use-case';
+import { makeCreateUserUseCase } from '@/use-cases/users/factories/make-create-user-use-case';
+
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import type { User } from 'generated/prisma';
 import z from 'zod';

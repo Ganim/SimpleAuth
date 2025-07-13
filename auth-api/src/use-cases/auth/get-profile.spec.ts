@@ -1,6 +1,6 @@
 import { InMemoryProfilesRepository } from '@/repositories/in-memory/in-memory-profiles-repository';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { ResourceNotFoundError } from './errors/resource-not-found-error';
+import { ResourceNotFoundError } from '../@errors/resource-not-found-error';
 import { GetProfileUseCase } from './get-profile';
 
 let profileRepository: InMemoryProfilesRepository;
