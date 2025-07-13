@@ -31,7 +31,6 @@ Permite cadastro, login, encerramento de sessão e gerenciamento do perfil de fo
 ### Requisitos Funcionais
 - [x] Deve ser possível se cadastrar;
 - [x] Deve ser possível se autenticar;
-- [ ] Deve ser possível encerrar sua sessão;
 - [x] Deve ser possível obter o perfil do usuário logado;
 
 ### Regras de Negócio
@@ -42,7 +41,7 @@ Permite cadastro, login, encerramento de sessão e gerenciamento do perfil de fo
 - [x] Os dados da aplicação precisam estar persistidos em um banco de dados PostgreSQL;
 - [x] O usuário deve ser identificado por um JWT (JSON Web Token);
 - [x] Deve haver um Refresh Token revalidando o token JWT;
-- [ ] Todos os casos de usos devem ser testados de forma automatizada;
+- [x] Todos os casos de usos devem ser testados de forma automatizada;
 - [x] Não se deve utilizar nenhum sistema pronto de autenticação para facilitar o processo;
 
 ## INSTALAÇÃO
