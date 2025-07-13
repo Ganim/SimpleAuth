@@ -18,6 +18,12 @@ export async function createAndAuthenticateUser(
     },
   });
 
+  await prisma.profile.create({
+    data: {
+      userId: userResponse.id,
+    },
+  });
+
   const authResponse = await request(app.server).post('/sessions').send({
     email: 'johndoe@example.com',
     password: '123456',
