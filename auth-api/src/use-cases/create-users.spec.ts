@@ -1,16 +1,16 @@
 import { InMemoryUsersRepository } from '@/repositories/in-memory/in-memory-users-repository';
 import { compare } from 'bcryptjs';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { CreteUserUseCase } from './create-user';
+import { CreateUserUseCase } from './create-user';
 import { UserAlreadyExistsError } from './errors/user-already-exists-error';
 
 let usersRepository: InMemoryUsersRepository;
-let sut: CreteUserUseCase;
+let sut: CreateUserUseCase;
 
 describe('Create Users Use Case', () => {
   beforeEach(() => {
     usersRepository = new InMemoryUsersRepository();
-    sut = new CreteUserUseCase(usersRepository);
+    sut = new CreateUserUseCase(usersRepository);
   });
 
   it('should be able to create an user', async () => {
