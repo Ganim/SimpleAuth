@@ -10,6 +10,7 @@ Permite cadastro, login, encerramento de sessão e gerenciamento do perfil de fo
 - **Princípios:**  
   - SOLID  
   - Clean Code
+  - Test-Driven Development (TDD)
 
 - **Padrões de Projeto:**  
   - Repository Pattern  
