@@ -36,4 +36,12 @@ export class InMemoryUsersRepository implements UsersRepository {
 
     return user;
   }
+
+  async listAll() {
+    if (this.items.length === 0) {
+      return null;
+    }
+
+    return this.items;
+  }
 }

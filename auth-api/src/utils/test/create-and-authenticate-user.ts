@@ -1,5 +1,6 @@
 import { env } from '@/env';
 import { prisma } from '@/lib/prisma';
+import { faker } from '@faker-js/faker';
 import { hash } from 'bcryptjs';
 import type { FastifyInstance } from 'fastify';
 import type { Role } from 'generated/prisma';
@@ -10,9 +11,11 @@ export async function createAndAuthenticateUser(
   app: FastifyInstance,
   role: Role = 'USER',
 ) {
+  const fakerEmail = faker.internet.email();
+
   const userResponse = await prisma.user.create({
     data: {
-      email: 'johndoe@example.com',
+      email: fakerEmail,
       password_hash: await hash('123456', env.HASH_ROUNDS),
       role,
     },
@@ -25,7 +28,7 @@ export async function createAndAuthenticateUser(
   });
 
   const authResponse = await request(app.server).post('/sessions').send({
-    email: 'johndoe@example.com',
+    email: fakerEmail,
     password: '123456',
   });
 

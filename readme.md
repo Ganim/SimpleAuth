@@ -32,15 +32,18 @@ Permite cadastro, login, encerramento de sessão e gerenciamento do perfil de fo
 - [x] Deve ser possível se cadastrar;
 - [x] Deve ser possível se autenticar;
 - [x] Deve ser possível obter o perfil do usuário logado;
+- [x] Deve ser possível obter a lista de todos os usuários;
 
 ### Regras de Negócio
 - [x] O usuário não pode se cadastrar com um e-mail duplicado;
+- [x] A lista de todos os usuários só é acessivel se a role for **MANAGER** ou **ADMIN**;
 
 ### Requisitos Não Funcionais
 - [x] A senha do usuário deve estar criptografada;
 - [x] Os dados da aplicação precisam estar persistidos em um banco de dados PostgreSQL;
 - [x] O usuário deve ser identificado por um JWT (JSON Web Token);
 - [x] Deve haver um Refresh Token revalidando o token JWT;
+- [x] A autenticação deve ter um Role Based Access Control (RBAC) com as roles: USER | MANAGER | ADMIN;
 - [x] Todos os casos de usos devem ser testados de forma automatizada;
 - [x] Não se deve utilizar nenhum sistema pronto de autenticação para facilitar o processo;
 
