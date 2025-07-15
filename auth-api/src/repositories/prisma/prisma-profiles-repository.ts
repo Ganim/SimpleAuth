@@ -2,10 +2,12 @@ import { prisma } from '@/lib/prisma';
 import type { ProfilesRepository } from '../profiles-repository';
 
 export class PrismaProfilesRepository implements ProfilesRepository {
-  async create(userId: string) {
+  async create(userId: string, name?: string, surname?: string) {
     const profile = await prisma.profile.create({
       data: {
         userId,
+        name,
+        surname,
       },
     });
     return profile;

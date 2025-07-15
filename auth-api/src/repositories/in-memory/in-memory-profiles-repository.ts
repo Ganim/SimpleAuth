@@ -4,10 +4,12 @@ import type { ProfilesRepository } from '../profiles-repository';
 export class InMemoryProfilesRepository implements ProfilesRepository {
   private items: Profile[] = [];
 
-  async create(userId: string) {
+  async create(userId: string, name?: string, surname?: string) {
     const profile = {
       id: String(this.items.length + 1),
-      userId: userId,
+      userId,
+      name,
+      surname,
       createdAt: new Date(),
       updatedAt: new Date(),
     } as Profile;
