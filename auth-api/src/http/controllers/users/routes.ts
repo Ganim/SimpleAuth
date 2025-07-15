@@ -6,9 +6,10 @@ import { listAllUsers } from './list-all-users';
 
 export async function usersRoutes() {
   app.post('/users', createUser);
+
   app.get(
     '/users',
-    { onRequest: [verifyJwt, verifyUserManager] },
+    { preHandler: [verifyJwt, verifyUserManager] },
     listAllUsers,
   );
 }
