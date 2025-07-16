@@ -1,6 +1,6 @@
 import { InMemoryProfilesRepository } from '@/repositories/in-memory/in-memory-profiles-repository';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { ResourceNotFoundError } from '../@errors/resource-not-found-error';
+import { BadRequestError } from '../@errors/bad-request-error';
 import { GetProfileUseCase } from './get-profile';
 
 let profileRepository: InMemoryProfilesRepository;
@@ -28,6 +28,6 @@ describe('Get user profile Use Case', () => {
       sut.execute({
         userId: 'user-id-that-does-not-exist',
       }),
-    ).rejects.toBeInstanceOf(ResourceNotFoundError);
+    ).rejects.toBeInstanceOf(BadRequestError);
   });
 });

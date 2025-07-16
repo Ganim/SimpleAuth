@@ -2,7 +2,7 @@ import { env } from '@/env';
 import { InMemoryUsersRepository } from '@/repositories/in-memory/in-memory-users-repository';
 import { hash } from 'bcryptjs';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { ResourceNotFoundError } from '../@errors/resource-not-found-error';
+import { BadRequestError } from '../@errors/bad-request-error';
 import { ListAllUserUseCase } from './list-all-users';
 
 let usersRepository: InMemoryUsersRepository;
@@ -39,6 +39,6 @@ describe('List All Users Use Case', () => {
   });
 
   it('should return resource not found if no users exist', async () => {
-    await expect(sut.execute()).rejects.toBeInstanceOf(ResourceNotFoundError);
+    await expect(sut.execute()).rejects.toBeInstanceOf(BadRequestError);
   });
 });

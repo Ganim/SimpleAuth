@@ -1,4 +1,4 @@
-import { UserAlreadyExistsError } from '@/use-cases/@errors/user-already-exists-error';
+import { BadRequestError } from '@/use-cases/@errors/bad-request-error';
 import { makeCreateProfileUseCase } from '@/use-cases/auth/factories/make-create-profile-use-case';
 import { makeCreateUserUseCase } from '@/use-cases/users/factories/make-create-user-use-case';
 
@@ -9,32 +9,38 @@ import z from 'zod';
 const registerUserBodySchema = z.object({
   email: z.email(),
   password: z.string().min(6),
+  name: z.string().min(1).max(50).optional(),
+  surname: z.string().min(1).max(50).optional(),
 });
 
 export async function registerUser(
   request: FastifyRequest,
   reply: FastifyReply,
 ) {
-  const { email, password } = registerUserBodySchema.parse(request.body);
+  const { email, password, name, surname } = registerUserBodySchema.parse(
+    request.body,
+  );
 
   let user: User;
 
+  // Create user
   try {
     const createUserUseCase = makeCreateUserUseCase();
     ({ user } = await createUserUseCase.execute({ email, password }));
   } catch (error) {
-    if (error instanceof UserAlreadyExistsError) {
-      return reply.status(409).send(error.message);
+    if (error instanceof BadRequestError) {
+      return reply.status(400).send(error.message);
     }
     throw error;
   }
 
+  // Create profile
   try {
     const createProfileUseCase = makeCreateProfileUseCase();
-    await createProfileUseCase.execute({ userId: user.id });
+    await createProfileUseCase.execute({ userId: user.id, name, surname });
   } catch (error) {
-    if (error instanceof UserAlreadyExistsError) {
-      return reply.status(409).send(error.message);
+    if (error instanceof BadRequestError) {
+      return reply.status(400).send(error.message);
     }
     throw error;
   }

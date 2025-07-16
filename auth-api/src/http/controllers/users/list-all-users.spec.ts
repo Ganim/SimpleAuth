@@ -24,6 +24,6 @@ describe('List all Users (e2e)', () => {
       .set('Authorization', `Bearer ${token}`)
       .send();
 
-    expect(response.statusCode).toEqual(201);
+    expect(response.statusCode).toEqual(200);
   });
 });

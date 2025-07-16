@@ -1,7 +1,7 @@
 import { InMemoryUsersRepository } from '@/repositories/in-memory/in-memory-users-repository';
 import { compare } from 'bcryptjs';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { UserAlreadyExistsError } from '../@errors/user-already-exists-error';
+import { BadRequestError } from '../@errors/bad-request-error';
 import { CreateUserUseCase } from './create-user';
 
 let usersRepository: InMemoryUsersRepository;
@@ -46,6 +46,6 @@ describe('Create Users Use Case', () => {
         email,
         password: '123456',
       }),
-    ).rejects.toBeInstanceOf(UserAlreadyExistsError);
+    ).rejects.toBeInstanceOf(BadRequestError);
   });
 });

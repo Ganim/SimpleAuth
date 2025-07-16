@@ -1,4 +1,4 @@
-import { InvalidCredentialsError } from '@/use-cases/@errors/invalide-credentials-error';
+import { BadRequestError } from '@/use-cases/@errors/bad-request-error';
 import { makeAuthenticateUseCase } from '@/use-cases/auth/factories/make-authenticate-use-case';
 
 import type { FastifyReply, FastifyRequest } from 'fastify';
@@ -39,7 +39,7 @@ export async function authenticate(
       .status(200)
       .send({ token });
   } catch (error) {
-    if (error instanceof InvalidCredentialsError) {
+    if (error instanceof BadRequestError) {
       return reply.status(400).send(error.message);
     }
     throw error;

@@ -1,6 +1,6 @@
 import type { ProfilesRepository } from '@/repositories/profiles-repository';
 import type { Profile } from 'generated/prisma';
-import { ResourceNotFoundError } from '../@errors/resource-not-found-error';
+import { BadRequestError } from '../@errors/bad-request-error';
 
 interface GetProfileUseCaseRequest {
   userId: string;
@@ -19,7 +19,7 @@ export class GetProfileUseCase {
     const profile = await this.profilesRepository.findByUserId(userId);
 
     if (!profile) {
-      throw new ResourceNotFoundError();
+      throw new BadRequestError('Profile not found');
     }
 
     return { profile };
