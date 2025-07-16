@@ -1,12 +1,10 @@
-import type { FastifyReply, FastifyRequest } from 'fastify';
+import { UnauthorizedError } from '@/use-cases/@errors/unauthorized-error';
+import type { FastifyRequest } from 'fastify';
 
-export async function verifyUserAdmin(
-  request: FastifyRequest,
-  reply: FastifyReply,
-) {
+export async function verifyUserAdmin(request: FastifyRequest) {
   const { role } = request.user;
 
   if (role !== 'ADMIN') {
-    return reply.status(401).send({ message: 'Unauthorized' });
+    throw new UnauthorizedError('User not authorized');
   }
 }
