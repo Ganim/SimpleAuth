@@ -22,7 +22,7 @@ export async function createUser(request: FastifyRequest, reply: FastifyReply) {
     ({ user } = await createUserUseCase.execute({ email, password }));
   } catch (error) {
     if (error instanceof BadRequestError) {
-      return reply.status(400).send(error.message);
+      return reply.status(400).send({ message: error.message });
     }
     throw error;
   }
@@ -33,7 +33,7 @@ export async function createUser(request: FastifyRequest, reply: FastifyReply) {
     await createProfileUseCase.execute({ userId: user.id });
   } catch (error) {
     if (error instanceof BadRequestError) {
-      return reply.status(400).send(error.message);
+      return reply.status(400).send({ message: error.message });
     }
     throw error;
   }

@@ -1,20 +1,40 @@
+'use client'
+
 import { signInWithEmailAndPassword } from "@/app/(auth)/sign-in/actions"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { useFormState } from "@/hooks/use-form-state"
 import { cn } from "@/lib/utils"
+import { AlertCircleIcon, Loader2 } from "lucide-react"
 import Link from "next/link"
+import { Alert, AlertDescription, AlertTitle } from "../../ui/alert"
 
-export function LoginForm({
+export function SignInForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+
+  const [{ success, message, errors }, handleSubmit, isPending] = useFormState(signInWithEmailAndPassword)
+
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
+
+      {success === false && message && (
+        <Alert variant="destructive">
+          <AlertCircleIcon />
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>
+            {message}
+          </AlertDescription>
+        </Alert>
+      )}
+
       <Card className="overflow-hidden p-0">
         <CardContent className="grid p-0 md:grid-cols-2">
-          <form action={signInWithEmailAndPassword} className="p-6 md:p-8">
+
+          <form onSubmit={handleSubmit} className="p-6 md:p-8">
             <div className="flex flex-col gap-6">
               <div className="flex flex-col items-center text-center">
                 <h1 className="text-2xl font-bold">Welcome Back</h1>
@@ -32,6 +52,11 @@ export function LoginForm({
                   autoFocus
                   required
                 />
+                {errors?.email && (
+                  <p className="text-sm font-medium text-red-500 dark:text-red-400">
+                    {errors.email.errors[0]}
+                  </p>
+                )}
               </div>
               <div className="grid gap-3">
                 <div className="flex items-center">
@@ -43,9 +68,14 @@ export function LoginForm({
                   </Link>
                 </div>
                 <Input id="password" name="password" type="password" required />
+                {errors?.password && (
+                  <p className="text-sm font-medium text-red-500 dark:text-red-400">
+                    {errors.password.errors[0]}
+                  </p>
+                )}
               </div>
-              <Button type="submit" className="w-full">
-                Login
+              <Button type="submit" className="w-full" disabled={isPending}>
+                {isPending ? <Loader2 className="size-4 animate-spin" /> : "Login"}
               </Button>
               <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
                 <span className="bg-card text-muted-foreground relative z-10 px-2">

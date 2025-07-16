@@ -12,24 +12,26 @@ describe('Create Profiles Use Case', () => {
   });
 
   it('should be able to create an profile', async () => {
-    const { profile } = await sut.execute({
+    const { createdProfile } = await sut.execute({
       userId: 'id-of-existing-user',
     });
 
-    expect(profile.id).toEqual(expect.any(String));
-    expect(profile.userId).toEqual('id-of-existing-user');
+    expect(createdProfile.id).toEqual(expect.any(String));
+    expect(createdProfile.userId).toEqual('id-of-existing-user');
   });
 
   it('should be able to create an profile with name and surname', async () => {
-    const { profile } = await sut.execute({
+    const { createdProfile } = await sut.execute({
       userId: 'id-of-existing-user',
-      name: 'John',
-      surname: 'Doe',
+      profile: {
+        name: 'John',
+        surname: 'Doe',
+      },
     });
 
-    expect(profile.id).toEqual(expect.any(String));
-    expect(profile.userId).toEqual('id-of-existing-user');
-    expect(profile.name).toEqual('John');
-    expect(profile.surname).toEqual('Doe');
+    expect(createdProfile.id).toEqual(expect.any(String));
+    expect(createdProfile.userId).toEqual('id-of-existing-user');
+    expect(createdProfile.name).toEqual('John');
+    expect(createdProfile.surname).toEqual('Doe');
   });
 });
