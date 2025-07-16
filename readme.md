@@ -31,14 +31,22 @@ Permite cadastro, login, encerramento de sessão e gerenciamento do perfil de fo
 ### Requisitos Funcionais
 - [x] Deve ser possível se cadastrar;
 - [x] Deve ser possível se autenticar;
-- [x] Deve ser possível obter o perfil do usuário logado;
+- [ ] Deve ser possível alterar a senha;
+- [ ] Deve ser possível recuperar o usuário via e-mail;
 - [x] Deve ser possível obter a lista de todos os usuários;
+- [x] Deve ser possível obter o perfil do usuário logado;
+- [ ] Deve ser possível atualizar o próprio perfil;
+- [ ] Deve ser possível editar usuários quando for **MANAGER** ou **ADMIN**
+- [ ] Deve ser possível editar perfil quando for **MANAGER** ou **ADMIN**
+
 
 ### Regras de Negócio
 - [x] O usuário não pode se cadastrar com um e-mail duplicado;
 - [x] A lista de todos os usuários só é acessivel se a role for **MANAGER** ou **ADMIN**;
 
 ### Requisitos Não Funcionais
+- [ ] A API deve ser documentada pelo Swagger;
+- [ ] As operações de criar e excluir perfil devem ser feitas junto com a de usuários;
 - [x] A senha do usuário deve estar criptografada;
 - [x] Os dados da aplicação precisam estar persistidos em um banco de dados PostgreSQL;
 - [x] O usuário deve ser identificado por um JWT (JSON Web Token);
