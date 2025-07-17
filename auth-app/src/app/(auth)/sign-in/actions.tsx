@@ -3,7 +3,6 @@
 import { HTTPSignInWithEmailAndPassword } from "@/http/sign-in-with-password";
 import { HTTPError } from "ky";
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
 import z from "zod";
 
 const signInFormSchema = z.object({
@@ -36,8 +35,9 @@ export async function signInWithEmailAndPassword(data: FormData) {
       return { success: false, message, errors: null };
     }
 
+    console.error("Unexpected error during sign-in:", error);
     return { success: false, message: 'Unexpected error occurred. Try again later.', errors: null };
   }
 
-  return redirect('/dashboard');
+  return { success: true, message: null, errors: null };
 }

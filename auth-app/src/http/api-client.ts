@@ -1,32 +1,28 @@
-import { getCookies } from "cookies-next";
 import ky from "ky";
 import { env } from "process";
 
 export const api = ky.create({
   prefixUrl: env.API_URL,
-  throwHttpErrors: false,
-  credentials: "include", // envia cookies automaticamente
   hooks: {
     beforeRequest: [
       async (request) => {
+        let token: string | undefined;
+
         if (typeof window !== 'undefined') {
-
-          const {cookies: serverCookies} = await import('next/headers');
-          const token = getCookies('token', { cookies: serverCookies });
-
-          if (token) {
-            request.headers.set('Authorization', `Bearer ${token}`);
-          }
+          // Client-side: busca do cookie via document.cookie
+          const match = document.cookie.match(/(^|;) ?token=([^;]*)(;|$)/);
+          token = match ? match[2] : undefined;
+        } else {
+          // Server-side: usa cookies() do next/headers
+          const { cookies } = await import('next/headers');
+          const cookieStore = await cookies();
+          token = cookieStore.get('token')?.value;
         }
-        else{
-          const token = getCookies('token');
 
-          if (token) {
-            request.headers.set('Authorization', `Bearer ${token}`);
-          }
-            
+        if (token) {
+          request.headers.set('Authorization', `Bearer ${token}`);
         }
-      }
+      },
     ],
     afterResponse: [
       async (request, options, response) => {

@@ -1,4 +1,6 @@
-import { AppSidebar } from "@/components/app-sidebar"
+import { getUserProfile } from "@/auth/get-user-profile";
+import { getUserRule } from "@/auth/get-user-rule";
+import { AppSidebar } from "@/components/app-sidebar";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -6,18 +8,26 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
-import { Separator } from "@/components/ui/separator"
+} from "@/components/ui/breadcrumb";
+import { Separator } from "@/components/ui/separator";
 import {
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/sidebar";
 
-export default function Page() {
+export default async function Page() {
+
+  const { profile } = await getUserProfile();
+  const role = await getUserRule();
+  
+  if (!profile || !role) {
+    return <div>Error loading user data</div>;
+  }
+  
   return (
     <SidebarProvider>
-      <AppSidebar />
+      <AppSidebar userProfile={profile} UserRule={role} />
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
           <div className="flex items-center gap-2 px-4">

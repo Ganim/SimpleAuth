@@ -2,7 +2,6 @@
 
 import { HTTPSignUpWithEmailAndPassword } from "@/http/sign-up-with-password";
 import { HTTPError } from "ky";
-import { redirect } from "next/navigation";
 import { z } from "zod";
 
 const signUpFormSchema = z.object({
@@ -50,5 +49,5 @@ export async function signUpWithEmailAndPassword(data: FormData) {
       return { success: false, message: 'Unexpected error occurred. Try again later.', errors: null };
   }
 
-  redirect('/sign-in');
+  return { success: true, message: null, errors: null };
 }
