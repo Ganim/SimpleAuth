@@ -23,7 +23,7 @@ export class PrismaUsersRepository implements UsersRepository {
   }
 
   async listAll() {
-    const users = await prisma.user.findMany();
+    const users = await prisma.user.findMany({ orderBy: { email: 'asc' } });
     return users;
   }
 }

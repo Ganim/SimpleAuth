@@ -3,12 +3,14 @@ import type { Profile } from 'generated/prisma';
 
 interface createProfileUseCaseRequest {
   userId: string;
-  name?: string;
-  surname?: string;
+  profile?: {
+    name: string;
+    surname: string;
+  };
 }
 
 interface createProfileUseCaseResponse {
-  profile: Profile;
+  createdProfile: Profile;
 }
 
 export class CreateProfileUseCase {
@@ -16,11 +18,14 @@ export class CreateProfileUseCase {
 
   async execute({
     userId,
-    name,
-    surname,
+    profile = { name: '', surname: '' },
   }: createProfileUseCaseRequest): Promise<createProfileUseCaseResponse> {
-    const profile = await this.profileRespository.create(userId, name, surname);
+    const createdProfile = await this.profileRespository.create(
+      userId,
+      profile.name,
+      profile.surname,
+    );
 
-    return { profile };
+    return { createdProfile };
   }
 }

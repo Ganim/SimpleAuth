@@ -9,15 +9,17 @@ import z from 'zod';
 const registerUserBodySchema = z.object({
   email: z.email(),
   password: z.string().min(6),
-  name: z.string().min(1).max(50).optional(),
-  surname: z.string().min(1).max(50).optional(),
+  profile: z.object({
+    name: z.string().min(1).max(50),
+    surname: z.string().min(1).max(50),
+  }),
 });
 
 export async function registerUser(
   request: FastifyRequest,
   reply: FastifyReply,
 ) {
-  const { email, password, name, surname } = registerUserBodySchema.parse(
+  const { email, password, profile } = registerUserBodySchema.parse(
     request.body,
   );
 
@@ -29,7 +31,7 @@ export async function registerUser(
     ({ user } = await createUserUseCase.execute({ email, password }));
   } catch (error) {
     if (error instanceof BadRequestError) {
-      return reply.status(400).send(error.message);
+      return reply.status(400).send({ message: error.message });
     }
     throw error;
   }
@@ -37,10 +39,10 @@ export async function registerUser(
   // Create profile
   try {
     const createProfileUseCase = makeCreateProfileUseCase();
-    await createProfileUseCase.execute({ userId: user.id, name, surname });
+    await createProfileUseCase.execute({ userId: user.id, profile });
   } catch (error) {
     if (error instanceof BadRequestError) {
-      return reply.status(400).send(error.message);
+      return reply.status(400).send({ message: error.message });
     }
     throw error;
   }

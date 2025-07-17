@@ -1,87 +1,85 @@
-import { signUpWithEmailAndPassword } from "@/app/(auth)/sign-up/actions"
+'use client'
+
+import { signInWithEmailAndPassword } from "@/app/(auth)/sign-in/actions"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { useFormState } from "@/hooks/use-form-state"
 import { cn } from "@/lib/utils"
+import { AlertCircleIcon, Loader2 } from "lucide-react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { Alert, AlertDescription, AlertTitle } from "../../../components/ui/alert"
 
-export function RegisterForm({
+export function SignInForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+
+  const router = useRouter()
+  const [{ success, message, errors }, handleSubmit, isPending] = useFormState(signInWithEmailAndPassword, () =>{
+    router.push('/dashboard')
+  })
+
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
+
+      {success === false && message && (
+        <Alert variant="destructive">
+          <AlertCircleIcon />
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>
+            {message}
+          </AlertDescription>
+        </Alert>
+      )}
+
       <Card className="overflow-hidden p-0">
-        <CardContent className="grid p-0 md:grid-cols-1">
-          <form action={signUpWithEmailAndPassword} className="p-6 md:p-8">
+        <CardContent className="grid p-0 md:grid-cols-2">
+
+          <form onSubmit={handleSubmit} className="p-6 md:p-8">
             <div className="flex flex-col gap-6">
               <div className="flex flex-col items-center text-center">
-                <h1 className="text-2xl font-bold">Welcome</h1>
+                <h1 className="text-2xl font-bold">Welcome Back</h1>
                 <p className="text-muted-foreground text-balance">
-                  Register a new Simple Auth account
+                  Login to your Simple Auth account
                 </p>
               </div>
-              <div className="grid p-0 gap-6 md:grid-cols-2">
-                <div className="grid gap-3">
-                  <Label htmlFor="name">Name</Label>
-                  <Input
-                    id="name"
-                    name="name"
-                    type="text"
-                    placeholder="John"
-                    autoFocus
-                    required
-                  />
-                </div>
-                <div className="grid gap-3">
-                  <Label htmlFor="surname">Surname</Label>
-                  <Input
-                    id="surname"
-                    name="surname"
-                    type="text"
-                    placeholder="Doe"
-                    required
-                  />
-                </div>
-              </div>
-              <div className="grid p-0 gap-6 md:grid-cols-2">
-                <div className="grid gap-3">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    placeholder="email@example.com"
-                    required
-          
-                  />
-                </div>
-                <div className="grid gap-3">
-                  <Label htmlFor="emailConfirmation">Confirm your email</Label>
-                  <Input
-                  id="emailConfirmation"
-                  name="emailConfirmation"
+              <div className="grid gap-3">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  name="email"
                   type="email"
                   placeholder="email@example.com"
-                  autoComplete="off" 
+                  autoFocus
                   required
-                  />
-                </div>
+                />
+                {errors?.email && (
+                  <p className="text-sm font-medium text-red-500 dark:text-red-400">
+                    {errors.email.errors[0]}
+                  </p>
+                )}
               </div>
-              <div className="grid p-0 gap-6 md:grid-cols-2">
-                <div className="grid gap-3">
+              <div className="grid gap-3">
+                <div className="flex items-center">
                   <Label htmlFor="password">Password</Label>
-                  <Input id="password" name="password" type="password" required />
+                  <Link href="/forgot-password"
+                    className="ml-auto text-sm underline-offset-2 hover:underline"
+                  >
+                    Forgot your password?
+                  </Link>
                 </div>
-                <div className="grid gap-3">
-                  <Label htmlFor="passwordConfirmation">Confirm your password</Label>
-                  <Input id="passwordConfirmation" name="passwordConfirmation" type="password" autoComplete="off"  required />
-                </div>
+                <Input id="password" name="password" type="password" required />
+                {errors?.password && (
+                  <p className="text-sm font-medium text-red-500 dark:text-red-400">
+                    {errors.password.errors[0]}
+                  </p>
+                )}
               </div>
-              
-              <Button type="submit" className="w-full cursor-pointer">
-                Create Account
+              <Button type="submit" className="w-full" disabled={isPending}>
+                {isPending ? <Loader2 className="size-4 animate-spin" /> : "Login"}
               </Button>
               <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
                 <span className="bg-card text-muted-foreground relative z-10 px-2">
@@ -118,14 +116,20 @@ export function RegisterForm({
                 </Button>
               </div>
               <div className="text-center text-sm">
-                Don&apos;t have an account?{" "}
-                <Link href="/sign-in" className="underline underline-offset-4">
-                  Sign in
+                Do you have an account?{" "}
+                <Link href="/sign-up" className="underline underline-offset-4">
+                  Sign up
                 </Link>
               </div>
             </div>
           </form>
-          
+          <div className="bg-black relative hidden md:block ">
+            <div className="flex h-full w-full items-center justify-center ">
+              <span className="text-4xl font-bold text-white select-none">
+                <span className="text-gray-800">/</span> SimpleAuth
+              </span>
+            </div>
+          </div>
         </CardContent>
       </Card>
       <div className="text-muted-foreground *:[a]:hover:text-primary text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4">

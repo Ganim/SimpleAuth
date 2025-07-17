@@ -8,7 +8,7 @@ export async function listAllUsers(
   request: FastifyRequest,
   reply: FastifyReply,
 ) {
-  let users: User[];
+  let users: Array<Pick<User, 'id' | 'email' | 'role'>>;
 
   try {
     const listAllUsersUseCase = makeListAllUsersUseCase();
@@ -16,7 +16,7 @@ export async function listAllUsers(
     ({ users } = await listAllUsersUseCase.execute());
   } catch (error) {
     if (error instanceof BadRequestError) {
-      return reply.status(400).send(error.message);
+      return reply.status(400).send({ message: error.message });
     }
     throw error;
   }

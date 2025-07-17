@@ -1,11 +1,8 @@
 "use client"
 
-import {
-  ShieldUser,
-  Users
-} from "lucide-react"
-import * as React from "react"
-
+import { checkUserRole } from "@/auth/check-user-role"
+import type { ProfileProps } from "@/auth/get-user-profile"
+import type { UserRole } from "@/auth/get-user-role"
 import { NavMain } from "@/components/nav-main"
 import { NavUser } from "@/components/nav-user"
 import { TeamSwitcher } from "@/components/team-switcher"
@@ -16,23 +13,27 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar"
+import { ShieldUser, Users } from "lucide-react"
 
-// This is sample data.
-const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
-  teams: [
-    {
-      name: "Simple Auth",
-      logo: ShieldUser,
-      plan: "Project",
-    },
-  ],
-  navMain: [
-    {
+interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
+  userProfile: ProfileProps
+  UserRole: UserRole
+}
+
+export function AppSidebar({ userProfile, UserRole, ...props }: AppSidebarProps) {
+
+const menuTree = []
+
+menuTree.push({
+      title: "Dashboard",
+      url: "/dashboard",
+      icon: ShieldUser,
+      isActive: false,
+    }
+)
+
+if(checkUserRole("ADMIN", UserRole) || checkUserRole("MANAGER", UserRole)) {
+  menuTree.push({
       title: "Users",
       url: "#",
       icon: Users,
@@ -40,7 +41,7 @@ const data = {
       items: [
         {
           title: "See All Users",
-          url: "#",
+          url: "/dashboard/users",
         },
         {
           title: "Create New",
@@ -51,12 +52,36 @@ const data = {
           url: "#",
         },
       ],
+    })
+}
+
+menuTree.push({
+      title: "Settings",
+      url: "/settings",
+      icon: Users,
+      isActive: false,
+    }
+)
+
+// This is sample data.
+const data = {
+  user: {
+    name: "John",
+    surname: "Doe",
+    email: "m@example.com",
+    avatar: "/avatars/shadcn.jpg",
+  },
+  teams: [
+    {
+      name: "Simple Auth",
+      logo: ShieldUser,
+      plan: "Project",
     },
   ],
+  navMain: menuTree,
   
 }
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
@@ -66,7 +91,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavMain items={data.navMain} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser userProfile={userProfile} UserRole={UserRole} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

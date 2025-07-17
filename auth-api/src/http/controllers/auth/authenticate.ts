@@ -40,7 +40,7 @@ export async function authenticate(
       .send({ token });
   } catch (error) {
     if (error instanceof BadRequestError) {
-      return reply.status(400).send(error.message);
+      return reply.status(400).send({ message: error.message });
     }
     throw error;
   }
