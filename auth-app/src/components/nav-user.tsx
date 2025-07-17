@@ -10,8 +10,8 @@ import {
 } from "lucide-react"
 
 import type { ProfileProps } from "@/auth/get-user-profile"
-import type { UserRule } from "@/auth/get-user-rule"
-import { printUserRule } from "@/auth/print-user-rule"
+import type { UserRole } from "@/auth/get-user-role"
+import { printUserRole } from "@/auth/print-user-role"
 import {
   Avatar,
   AvatarFallback,
@@ -36,12 +36,12 @@ import { redirect } from "next/navigation"
 
 interface NavUserProps {
   userProfile: ProfileProps
-  UserRule: UserRule
+  UserRole: UserRole
 }
 
-export function NavUser({userProfile, UserRule}: NavUserProps) {
+export function NavUser({userProfile, UserRole}: NavUserProps) {
 
-  const role = printUserRule(UserRule);
+  const role = printUserRole(UserRole);
 
   const { isMobile } = useSidebar()
 

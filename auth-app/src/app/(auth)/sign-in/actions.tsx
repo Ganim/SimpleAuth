@@ -1,6 +1,6 @@
 'use server'
 
-import { HTTPSignInWithEmailAndPassword } from "@/http/sign-in-with-password";
+import { HTTPSignInWithEmailAndPassword } from "@/http/auth/sign-in-with-password";
 import { HTTPError } from "ky";
 import { cookies } from "next/headers";
 import z from "zod";

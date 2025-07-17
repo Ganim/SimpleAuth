@@ -1,9 +1,8 @@
 "use client"
 
-
-import { checkUserRule } from "@/auth/check-user-rule"
+import { checkUserRole } from "@/auth/check-user-role"
 import type { ProfileProps } from "@/auth/get-user-profile"
-import type { UserRule } from "@/auth/get-user-rule"
+import type { UserRole } from "@/auth/get-user-role"
 import { NavMain } from "@/components/nav-main"
 import { NavUser } from "@/components/nav-user"
 import { TeamSwitcher } from "@/components/team-switcher"
@@ -18,10 +17,10 @@ import { ShieldUser, Users } from "lucide-react"
 
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
   userProfile: ProfileProps
-  UserRule: UserRule
+  UserRole: UserRole
 }
 
-export function AppSidebar({ userProfile, UserRule, ...props }: AppSidebarProps) {
+export function AppSidebar({ userProfile, UserRole, ...props }: AppSidebarProps) {
 
 const menuTree = []
 
@@ -33,7 +32,7 @@ menuTree.push({
     }
 )
 
-if(checkUserRule("ADMIN", UserRule) || checkUserRule("MANAGER", UserRule)) {
+if(checkUserRole("ADMIN", UserRole) || checkUserRole("MANAGER", UserRole)) {
   menuTree.push({
       title: "Users",
       url: "#",
@@ -42,7 +41,7 @@ if(checkUserRule("ADMIN", UserRule) || checkUserRule("MANAGER", UserRule)) {
       items: [
         {
           title: "See All Users",
-          url: "#",
+          url: "/dashboard/users",
         },
         {
           title: "Create New",
@@ -92,7 +91,7 @@ const data = {
         <NavMain items={data.navMain} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser userProfile={userProfile} UserRule={UserRule} />
+        <NavUser userProfile={userProfile} UserRole={UserRole} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

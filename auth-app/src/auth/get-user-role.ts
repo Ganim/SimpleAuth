@@ -1,9 +1,9 @@
 
 import { cookies } from "next/headers";
 
-export type UserRule = "USER" | "MANAGER" | "ADMIN";
+export type UserRole = "USER" | "MANAGER" | "ADMIN";
 
-export async function getUserRule(): Promise<UserRule | null> {
+export async function getUserRole(): Promise<UserRole | null> {
   const cookieStore = await cookies();
   const token = cookieStore.get('token')?.value;
   if (!token) return null;

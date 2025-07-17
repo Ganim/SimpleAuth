@@ -1,6 +1,6 @@
 'use server'
 
-import { HTTPSignUpWithEmailAndPassword } from "@/http/sign-up-with-password";
+import { HTTPSignUpWithEmailAndPassword } from "@/http/auth/sign-up-with-password";
 import { HTTPError } from "ky";
 import { z } from "zod";
 

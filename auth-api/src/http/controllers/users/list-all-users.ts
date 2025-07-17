@@ -8,7 +8,7 @@ export async function listAllUsers(
   request: FastifyRequest,
   reply: FastifyReply,
 ) {
-  let users: User[];
+  let users: Array<Pick<User, 'id' | 'email' | 'role'>>;
 
   try {
     const listAllUsersUseCase = makeListAllUsersUseCase();

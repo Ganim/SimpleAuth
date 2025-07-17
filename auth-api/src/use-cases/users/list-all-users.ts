@@ -3,7 +3,7 @@ import type { User } from 'generated/prisma';
 import { BadRequestError } from '../@errors/bad-request-error';
 
 interface listAllUserUseCaseResponse {
-  users: User[];
+  users: Array<Pick<User, 'id' | 'email' | 'role'>>;
 }
 
 export class ListAllUserUseCase {
@@ -16,6 +16,12 @@ export class ListAllUserUseCase {
       throw new BadRequestError('No users found');
     }
 
-    return { users };
+    const filteredUsers = users.map(({ id, email, role }) => ({
+      id,
+      email,
+      role,
+    }));
+
+    return { users: filteredUsers };
   }
 }

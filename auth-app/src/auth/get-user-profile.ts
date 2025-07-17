@@ -1,4 +1,5 @@
-import { HTTPGetProfile } from "@/http/get-profile";
+
+import { HTTPGetProfile } from "@/http/auth/get-profile";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -19,7 +20,7 @@ export async function getUserProfile(){
   const token = cookieStore.get('token')?.value;
 
   if (!token) {
-    redirect ('/sign-in');
+    redirect (process.env.BASE_URL + '/sign-in');
   }
 
   try {
@@ -31,5 +32,5 @@ export async function getUserProfile(){
     console.error("Error fetching user profile:", error);
   }
 
-  redirect ('api/auth/sign-out');
+  redirect (process.env.BASE_URL + 'api/auth/sign-out');
 } 
