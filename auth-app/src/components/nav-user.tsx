@@ -46,7 +46,7 @@ export function NavUser({userProfile, UserRole}: NavUserProps) {
   const { isMobile } = useSidebar()
 
   function handleLogOut() {
-    redirect('api/auth/sign-out')
+    redirect('/api/auth/sign-out')
   }
 
   return (
