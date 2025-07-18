@@ -35,6 +35,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { useToast } from "@/hooks/use-toast"
+import { DeleteUserModal } from "./delete-user-modal"
 
 
 
@@ -97,10 +99,25 @@ export const columns: ColumnDef<Users>[] = [
   {
     id: "actions",
     enableHiding: false,
-    cell: ({ row }) => {
-      const payment = row.original
+  cell: function ActionsCell({ row }) {
+    const user = row.original;
+    const [open, setOpen] = React.useState(false);
+    const toast = useToast();
 
-      return (
+    async function handleDelete() {
+      try {
+        const { HTTPDeleteUser } = await import("@/http/users/delete-user");
+        await HTTPDeleteUser(user.id);
+        setOpen(false);
+        toast.success("Usuário excluído com sucesso!");
+        setTimeout(() => window.location.reload(), 1200);
+      } catch {
+        toast.error("Erro ao excluir usuário.");
+      }
+    }
+
+    return (
+      <>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="h-8 w-8 p-0">
@@ -111,27 +128,27 @@ export const columns: ColumnDef<Users>[] = [
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(payment.id)}
+              onClick={() => navigator.clipboard.writeText(user.id)}
             >
               Copy user ID
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>View user</DropdownMenuItem>
-            <DropdownMenuItem>Edit user</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => window.location.href = `/dashboard/users/${user.id}`}>View user</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => window.location.href = `/dashboard/users/${user.id}/edit`}>Edit user</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setOpen(true)} className="text-destructive">Delete user</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-      )
-    },
+        <DeleteUserModal open={open} onOpenChange={setOpen} email={user.email} onConfirm={handleDelete} />
+      </>
+    );
+  },
   },
 ]
 
 export function UsersDataTable({data}: { data: Users[] }) {
   const [sorting, setSorting] = React.useState<SortingState>([])
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
-  )
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({})
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
+  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = React.useState({})
 
   const table = useReactTable({
@@ -198,18 +215,16 @@ export function UsersDataTable({data}: { data: Users[] }) {
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
-                  )
-                })}
+                {headerGroup.headers.map((header) => (
+                  <TableHead key={header.id}>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                  </TableHead>
+                ))}
               </TableRow>
             ))}
           </TableHeader>

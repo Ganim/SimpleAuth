@@ -45,6 +45,10 @@ export function NavUser({userProfile, UserRole}: NavUserProps) {
 
   const { isMobile } = useSidebar()
 
+  function handleAccount() {
+    redirect('/dashboard/me')
+  }
+
   function handleLogOut() {
     redirect('/api/auth/sign-out')
   }
@@ -96,7 +100,7 @@ export function NavUser({userProfile, UserRole}: NavUserProps) {
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={handleAccount}>
                 <BadgeCheck />
                 Account
               </DropdownMenuItem>
