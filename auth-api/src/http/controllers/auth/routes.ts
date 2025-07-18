@@ -3,6 +3,7 @@ import { verifyJwt } from '@/http/middlewares/verify-jwt';
 import { authenticate } from '../auth/authenticate';
 import { profile } from '../auth/profile';
 import { refresh } from '../auth/refresh';
+import { editMe } from './edit-me';
 import { registerUser } from './register';
 
 export async function authRoutes() {
@@ -13,4 +14,5 @@ export async function authRoutes() {
 
   // Rotas autenticadas
   app.get('/me', { preHandler: [verifyJwt] }, profile);
+  app.patch('/me', { preHandler: [verifyJwt] }, editMe);
 }

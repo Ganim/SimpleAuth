@@ -23,6 +23,8 @@ export default defineConfig([
   },
   globalIgnores(['build/**/*'], 'Ignore Build Directory'),
   globalIgnores(['node_modules/*'], 'Ignore Node Modules Directory'),
+  globalIgnores(['generated/*'], 'Ignore Generated Prisma Directory'),
+  globalIgnores(['prisma/*'], 'Ignore Generated Prisma Directory'),
   tseslint.configs.recommended,
   eslintPluginPrettierRecommended,
 ]);
