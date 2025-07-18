@@ -47,6 +47,29 @@ describe('Edit User (e2e)', () => {
     );
   });
 
+  it('should not allow MANAGER to edit user role', async () => {
+    // Cria usuário
+    const createResponse = await request(app.server).post('/users').send({
+      email: 'editmanager@example.com',
+      password: '123456',
+    });
+    const userId = createResponse.body.user.id;
+
+    // Autentica como MANAGER
+    const { token } = await createAndAuthenticateUser(app, 'MANAGER');
+
+    // Tenta editar role
+    const response = await request(app.server)
+      .patch(`/users/${userId}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        role: 'ADMIN',
+      });
+
+    expect(response.statusCode).toBe(403);
+    expect(response.body.message).toBe('Only ADMIN can edit user roles');
+  });
+
   it('should return 400 if user does not exist', async () => {
     const { token } = await createAndAuthenticateUser(app, 'ADMIN');
     const response = await request(app.server)

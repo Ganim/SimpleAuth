@@ -24,6 +24,13 @@ export async function editUser(request: FastifyRequest, reply: FastifyReply) {
   // Valida e extrai os dados do corpo da requisição
   const { email, role, profile } = editUserBodySchema.parse(request.body);
 
+  // Validação: apenas ADMIN pode editar a role
+  if (role && request.user.role !== 'ADMIN') {
+    return reply
+      .status(403)
+      .send({ message: 'Only ADMIN can edit user roles' });
+  }
+
   try {
     // Edita dados do usuário
     const editUserUseCase = makeEditUserUseCase();
