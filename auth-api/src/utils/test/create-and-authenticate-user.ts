@@ -12,16 +12,18 @@ export async function createAndAuthenticateUser(
   role: Role = 'USER',
 ) {
   const fakerEmail = faker.internet.email();
+  const username = `user${Date.now()}`;
 
   const userResponse = await prisma.user.create({
     data: {
       email: fakerEmail,
       password_hash: await hash('123456', env.HASH_ROUNDS),
       role,
+      username,
     },
   });
 
-  await prisma.profile.create({
+  await prisma.userProfile.create({
     data: {
       userId: userResponse.id,
     },

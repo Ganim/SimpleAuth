@@ -1,4 +1,5 @@
 import { BadRequestError } from '@/use-cases/@errors/bad-request-error';
+import { ForbiddenError } from '@/use-cases/@errors/forbidden-error';
 import { UnauthorizedError } from '@/use-cases/@errors/unauthorized-error';
 import type { FastifyInstance } from 'fastify';
 import { env } from 'process';
@@ -22,6 +23,18 @@ export const errorHandler: FastifyErrorHandler = (error, _, reply) => {
 
   if (error instanceof UnauthorizedError) {
     return reply.status(401).send({
+      message: error.message,
+    });
+  }
+
+  if (error instanceof ForbiddenError) {
+    return reply.status(403).send({
+      message: error.message,
+    });
+  }
+
+  if (error instanceof ForbiddenError) {
+    return reply.status(403).send({
       message: error.message,
     });
   }

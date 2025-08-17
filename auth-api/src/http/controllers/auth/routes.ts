@@ -10,12 +10,10 @@ import { registerUser } from './register';
 import { updateMyProfile } from './update-my-profile';
 
 export async function authRoutes() {
-  // Rotas públicas
   app.post('/register', registerUser);
   app.post('/sessions', authenticate);
   app.patch('/token/refresh', refresh);
 
-  // Rotas autenticadas
   app.get('/me', { preHandler: [verifyJwt] }, getMyProfile);
 
   app.patch('/me/update/profile', { preHandler: [verifyJwt] }, updateMyProfile);

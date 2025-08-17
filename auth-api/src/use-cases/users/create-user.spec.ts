@@ -37,6 +37,18 @@ describe('Create User Use Case', () => {
     expect(profile.userId).toBe(user.id);
   });
 
+  it('should generate a unique username if not provided', async () => {
+    const { user } = await sut.execute({
+      email: 'uniqueuser@example.com',
+      password: '123456',
+    });
+    expect(user.username).toMatch(/^user[0-9a-f]{8}$/);
+    // Garante que não existe outro usuário com esse username
+    const found = await usersRepository.findByUsername(user.username ?? '');
+    expect(found).toBeDefined();
+    expect(found?.id).toBe(user.id);
+  });
+
   it('should hash user password upon registration', async () => {
     const { user } = await sut.execute({
       email: 'johndoe@example.com',

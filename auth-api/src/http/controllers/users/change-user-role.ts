@@ -14,7 +14,6 @@ export async function changeUserRole(
   const { id } = request.params as { id: string };
   const { role } = changeUserRoleBodySchema.parse(request.body);
 
-  // Apenas ADMIN pode alterar role
   if (request.user.role !== 'ADMIN') {
     return reply
       .status(403)

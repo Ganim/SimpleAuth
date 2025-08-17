@@ -11,13 +11,13 @@ describe('Change User Email (e2e)', () => {
     await app.close();
   });
 
-  it('should allow user to change email', async () => {
+  it('should allow ADMIN to change email of another user', async () => {
     const createResponse = await request(app.server).post('/users').send({
       email: 'user@example.com',
       password: '123456',
     });
     const userId = createResponse.body.user.id;
-    const { token } = await createAndAuthenticateUser(app, 'USER');
+    const { token } = await createAndAuthenticateUser(app, 'ADMIN');
     const response = await request(app.server)
       .patch(`/users/${userId}/email`)
       .set('Authorization', `Bearer ${token}`)
@@ -28,12 +28,26 @@ describe('Change User Email (e2e)', () => {
     );
   });
 
-  it('should return 400 if user does not exist', async () => {
-    const { token } = await createAndAuthenticateUser(app, 'USER');
+  it('should return 400 if user does not exist (ADMIN)', async () => {
+    const { token } = await createAndAuthenticateUser(app, 'ADMIN');
     const response = await request(app.server)
       .patch(`/users/nonexistentid/email`)
       .set('Authorization', `Bearer ${token}`)
       .send({ email: 'fail@example.com' });
     expect(response.statusCode).toBe(400);
+  });
+  it('should return 403 if USER tries to change email of another user', async () => {
+    const createResponse = await request(app.server).post('/users').send({
+      email: 'user2@example.com',
+      password: '123456',
+    });
+    expect(createResponse.body.user).toBeDefined();
+    const userId = createResponse.body.user.id;
+    const { token } = await createAndAuthenticateUser(app, 'USER');
+    const response = await request(app.server)
+      .patch(`/users/${userId}/email`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ email: 'new@example.com' });
+    expect(response.statusCode).toBe(403);
   });
 });

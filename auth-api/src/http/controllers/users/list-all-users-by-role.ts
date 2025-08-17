@@ -29,12 +29,11 @@ export async function listAllUsersByRole(
     ({ users } = await listAllUsersByRoleUseCase.execute({
       role: role as UserRole,
     }));
+    return reply.status(200).send({ users });
   } catch (error) {
     if (error instanceof BadRequestError) {
       return reply.status(400).send({ message: error.message });
     }
     throw error;
   }
-
-  return reply.status(200).send({ users });
 }

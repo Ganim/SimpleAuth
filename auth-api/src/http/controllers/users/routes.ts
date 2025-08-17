@@ -11,12 +11,11 @@ import { deleteUser } from './delete-user';
 import { getUser } from './get-user';
 import { listAllUsers } from './list-all-users';
 import { listAllUsersByRole } from './list-all-users-by-role';
+import { updateUserProfile } from './update-user-profile';
 
 export async function usersRoutes() {
-  // ROTAS PUBLICAS
   app.post('/users', createUser);
 
-  // ROTAS GERENCIADAS
   app.get(
     '/users',
     { preHandler: [verifyJwt, verifyUserManager] },
@@ -29,7 +28,11 @@ export async function usersRoutes() {
     getUser,
   );
 
-  // ROTAS EXCLUSIVAS DE ADMIN
+  app.patch(
+    '/users/:id',
+    { preHandler: [verifyJwt, verifyUserManager] },
+    updateUserProfile,
+  );
 
   app.get(
     '/users/by-role/:role',

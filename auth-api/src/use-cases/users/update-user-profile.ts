@@ -31,7 +31,7 @@ export class UpdateUserProfileUseCase {
     const profile = await this.profilesRepository.findByUserId(userId);
     if (!profile) throw new BadRequestError('Profile not found');
     const updatedProfile = await this.profilesRepository.update({
-      user: { connect: { id: userId } },
+      userId,
       name,
       surname,
       birthday,

@@ -31,12 +31,12 @@ export class PrismaProfilesRepository implements ProfilesRepository {
     const profile = await prisma.userProfile.update({
       where: { userId },
       data: {
-        ...(name && { name }),
-        ...(surname && { surname }),
-        ...(birthday && { birthday }),
-        ...(location && { location }),
-        ...(bio && { bio }),
-        ...(avatarUrl && { avatarUrl }),
+        ...(name !== undefined && { name }),
+        ...(surname !== undefined && { surname }),
+        ...(birthday !== undefined && { birthday }),
+        ...(location !== undefined && { location }),
+        ...(bio !== undefined && { bio }),
+        ...(avatarUrl !== undefined && { avatarUrl }),
       },
     });
     return profile;

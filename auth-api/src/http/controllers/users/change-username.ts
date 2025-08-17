@@ -22,6 +22,9 @@ export async function changeUsername(
     if (error instanceof BadRequestError) {
       return reply.status(400).send({ message: error.message });
     }
+    if (error instanceof Error && error.message === 'User not found') {
+      return reply.status(400).send({ message: 'User not found' });
+    }
     throw error;
   }
 }

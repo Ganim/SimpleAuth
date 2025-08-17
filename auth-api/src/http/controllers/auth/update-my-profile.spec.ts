@@ -1,35 +1,20 @@
 import { app } from '@/app';
-import { prisma } from '@/lib/prisma';
-import { hash } from 'bcryptjs';
-// ...existing code...
+
+import { createAndAuthenticateUser } from '@/utils/test/create-and-authenticate-user';
 import request from 'supertest';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 let token: string;
 
 describe('E2E - /me/profile', () => {
-  beforeEach(async () => {
-    await prisma.user.deleteMany();
-    const user = await prisma.user.create({
-      data: {
-        email: 'e2eprofile@example.com',
-        password_hash: await hash('123456', 8),
-        username: 'e2eprofile',
-        role: 'USER',
-        profile: {
-          create: {
-            name: 'Old',
-            surname: 'Name',
-            location: 'Brazil',
-          },
-        },
-      },
-      include: { profile: true },
-    });
-    const response = await request(app.server)
-      .post('/sessions')
-      .send({ email: user.email, password: '123456' });
-    token = response.body.token;
+  beforeAll(async () => {
+    await app.ready();
+    const { token: userToken } = await createAndAuthenticateUser(app, 'USER');
+    token = userToken;
+  });
+
+  afterAll(async () => {
+    await app.close();
   });
 
   it('deve atualizar o perfil do próprio usuário', async () => {

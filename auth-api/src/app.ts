@@ -14,12 +14,16 @@ app.setErrorHandler(errorHandler);
 // Authentication
 app.register(fastifyJwt, {
   secret: env.JWT_SECRET,
+  sign: {
+    algorithm: 'HS256',
+    expiresIn: '10m',
+  },
+  verify: {
+    algorithms: ['HS256'],
+  },
   cookie: {
     cookieName: 'refreshToken',
     signed: false,
-  },
-  sign: {
-    expiresIn: '10m',
   },
 });
 

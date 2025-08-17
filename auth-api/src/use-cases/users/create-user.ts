@@ -4,6 +4,7 @@ import type { ProfilesRepository } from '@/repositories/profiles-repository';
 import type { UsersRepository } from '@/repositories/users-repository';
 import { hash } from 'bcryptjs';
 import type { User, UserProfile } from 'generated/prisma';
+import { randomUUID } from 'node:crypto';
 import { BadRequestError } from '../@errors/bad-request-error';
 
 interface CreateUserUseCaseRequest {
@@ -32,7 +33,7 @@ export class CreateUserUseCase {
   ) {}
 
   async execute({
-    username = '',
+    username,
     email,
     password,
     role = 'USER',
@@ -41,13 +42,18 @@ export class CreateUserUseCase {
     const password_hash = await hash(password, env.HASH_ROUNDS);
 
     const userWithSameEmail = await this.userRespository.findByEmail(email);
-
     if (userWithSameEmail) {
       throw new BadRequestError('User already exists');
     }
 
+    // Gera username único se não informado
+    let finalUsername = username;
+    if (!finalUsername || finalUsername.trim() === '') {
+      finalUsername = `user${randomUUID().slice(0, 8)}`;
+    }
+
     const user = await this.userRespository.create({
-      username,
+      username: finalUsername,
       email,
       password_hash,
       role,

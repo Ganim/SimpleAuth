@@ -27,7 +27,9 @@ export async function createUser(request: FastifyRequest, reply: FastifyReply) {
       password,
       profile,
     });
-    return reply.status(201).send({ user, profile: createdProfile });
+    return reply
+      .status(201)
+      .send({ user, email: user.email, profile: createdProfile });
   } catch (error) {
     if (error instanceof BadRequestError) {
       return reply.status(400).send({ message: error.message });
