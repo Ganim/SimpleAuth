@@ -56,4 +56,21 @@ describe('Authenticate Use Case', () => {
       }),
     ).rejects.toBeInstanceOf(BadRequestError);
   });
+
+  it('should not authenticate deleted user', async () => {
+    const { user } = await makeUser({
+      email: 'deleted@example.com',
+      password: '123456',
+      usersRepository,
+      profilesRepository,
+    });
+    // Simula deleção
+    user.deletedAt = new Date();
+    await expect(
+      sut.execute({
+        email: 'deleted@example.com',
+        password: '123456',
+      }),
+    ).rejects.toBeInstanceOf(BadRequestError);
+  });
 });

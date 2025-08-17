@@ -19,7 +19,7 @@ export class ChangeUserRoleUseCase {
     role,
   }: ChangeUserRoleUseCaseRequest): Promise<ChangeUserRoleUseCaseResponse> {
     const user = await this.usersRepository.findById(id);
-    if (!user) throw new BadRequestError('User not found');
+    if (!user || user.deletedAt) throw new BadRequestError('User not found');
     const updatedUser = await this.usersRepository.update({ id, role });
     return { user: updatedUser };
   }

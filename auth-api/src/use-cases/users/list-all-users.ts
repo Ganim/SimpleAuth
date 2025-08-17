@@ -32,25 +32,27 @@ export class ListAllUserUseCase {
       throw new BadRequestError('No users found');
     }
     const filteredUsers = await Promise.all(
-      users.map(async (user) => {
-        const profile = await this.profilesRepository.findByUserId(user.id);
-        const safeProfile = profile
-          ? {
-              name: profile.name ?? null,
-              surname: profile.surname ?? null,
-              birthday: profile.birthday ?? null,
-              location: profile.location ?? null,
-              avatarUrl: profile.avatarUrl ?? null,
-            }
-          : undefined;
-        return {
-          id: user.id,
-          username: user.username ?? '',
-          email: user.email,
-          role: String(user.role),
-          profile: safeProfile,
-        };
-      }),
+      users
+        .filter((user) => !user.deletedAt)
+        .map(async (user) => {
+          const profile = await this.profilesRepository.findByUserId(user.id);
+          const safeProfile = profile
+            ? {
+                name: profile.name ?? null,
+                surname: profile.surname ?? null,
+                birthday: profile.birthday ?? null,
+                location: profile.location ?? null,
+                avatarUrl: profile.avatarUrl ?? null,
+              }
+            : undefined;
+          return {
+            id: user.id,
+            username: user.username ?? '',
+            email: user.email,
+            role: String(user.role),
+            profile: safeProfile,
+          };
+        }),
     );
     return { users: filteredUsers };
   }

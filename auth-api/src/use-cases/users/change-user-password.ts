@@ -20,7 +20,7 @@ export class ChangeUserPasswordUseCase {
     password,
   }: ChangeUserPasswordUseCaseRequest): Promise<ChangeUserPasswordUseCaseResponse> {
     const user = await this.usersRepository.findById(id);
-    if (!user) throw new BadRequestError('User not found');
+    if (!user || user.deletedAt) throw new BadRequestError('User not found');
     const password_hash = await hash(password, 8);
     const updatedUser = await this.usersRepository.update({
       id,

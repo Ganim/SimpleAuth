@@ -19,7 +19,7 @@ export class ChangeUserEmailUseCase {
     email,
   }: ChangeUserEmailUseCaseRequest): Promise<ChangeUserEmailUseCaseResponse> {
     const user = await this.usersRepository.findById(id);
-    if (!user) throw new BadRequestError('User not found');
+    if (!user || user.deletedAt) throw new BadRequestError('User not found');
 
     // Validação de unicidade do email
     const existing = await this.usersRepository.findByEmail(email);

@@ -22,7 +22,7 @@ export class GetUserUseCase {
     id,
   }: GetUserUseCaseRequest): Promise<GetUserUseCaseResponse> {
     const user = await this.usersRepository.findById(id);
-    if (!user) throw new BadRequestError('User not found');
+    if (!user || user.deletedAt) throw new BadRequestError('User not found');
     const profile = await this.profilesRepository.findByUserId(id);
     return { user, profile };
   }

@@ -19,7 +19,7 @@ export class ChangeUsernameUseCase {
     username,
   }: ChangeUsernameUseCaseRequest): Promise<ChangeUsernameUseCaseResponse> {
     const user = await this.usersRepository.findById(id);
-    if (!user) throw new BadRequestError('User not found');
+    if (!user || user.deletedAt) throw new BadRequestError('User not found');
 
     // Validação de unicidade do username
     const existing = await this.usersRepository.findByUsername(username);

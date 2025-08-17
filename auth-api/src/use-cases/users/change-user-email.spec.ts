@@ -50,4 +50,17 @@ describe('ChangeUserEmailUseCase', () => {
       sut.execute({ id: user2.id, email: 'user1@example.com' }),
     ).rejects.toBeInstanceOf(BadRequestError);
   });
+
+  it('should not allow email change for deleted user', async () => {
+    const { user } = await makeUser({
+      email: 'deleted@example.com',
+      password: '123456',
+      usersRepository,
+      profilesRepository,
+    });
+    user.deletedAt = new Date();
+    await expect(() =>
+      sut.execute({ id: user.id, email: 'new@example.com' }),
+    ).rejects.toBeInstanceOf(BadRequestError);
+  });
 });

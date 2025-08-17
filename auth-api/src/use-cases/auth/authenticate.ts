@@ -19,17 +19,13 @@ export class AuthenticateUseCase {
     password,
   }: AuthenticateUseCaseRequest): Promise<AuthenticateUseCaseResponse> {
     const user = await this.usersRepository.findByEmail(email);
-
-    if (!user) {
+    if (!user || user.deletedAt) {
       throw new BadRequestError('Invalid credentials');
     }
-
     const doesPasswordMatches = await compare(password, user.password_hash);
-
     if (!doesPasswordMatches) {
       throw new BadRequestError('Invalid credentials');
     }
-
     return { user };
   }
 }

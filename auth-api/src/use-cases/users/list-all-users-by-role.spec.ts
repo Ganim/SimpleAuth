@@ -88,4 +88,27 @@ describe('List All Users By Role Use Case', () => {
       sut.execute({ role: 'MANAGER' as UserRole }),
     ).rejects.toThrowError('No users found');
   });
+
+  it('should not list deleted users by role', async () => {
+    const { user: deletedUser } = await makeUser({
+      email: 'deleted-manager@example.com',
+      password: 'hash',
+      role: 'MANAGER',
+      usersRepository,
+      profilesRepository,
+    });
+    deletedUser.deletedAt = new Date();
+    await makeUser({
+      email: 'active-manager@example.com',
+      password: 'hash',
+      role: 'MANAGER',
+      usersRepository,
+      profilesRepository,
+    });
+    const { users } = await sut.execute({ role: 'MANAGER' });
+    expect(users.map((u) => u.email)).not.toContain(
+      'deleted-manager@example.com',
+    );
+    expect(users.map((u) => u.email)).toContain('active-manager@example.com');
+  });
 });

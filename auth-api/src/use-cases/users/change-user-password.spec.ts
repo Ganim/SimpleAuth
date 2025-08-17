@@ -37,4 +37,17 @@ describe('ChangeUserPasswordUseCase', () => {
       sut.execute({ id: 'notfound', password: 'fail' }),
     ).rejects.toBeInstanceOf(BadRequestError);
   });
+
+  it('should not allow password change for deleted user', async () => {
+    const { user } = await makeUser({
+      email: 'deleted@example.com',
+      password: 'oldpass',
+      usersRepository,
+      profilesRepository,
+    });
+    user.deletedAt = new Date();
+    await expect(() =>
+      sut.execute({ id: user.id, password: 'newpass' }),
+    ).rejects.toBeInstanceOf(BadRequestError);
+  });
 });

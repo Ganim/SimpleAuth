@@ -86,6 +86,27 @@ describe('List All Users Use Case', () => {
     expect(users.map((user) => user.email)).not.toContain('user-1@example.com');
   });
 
+  it('should not list deleted users', async () => {
+    const { user: deletedUser } = await makeUser({
+      email: 'deleted@example.com',
+      password: '123456',
+      profile: { name: 'Deleted User' },
+      usersRepository,
+      profilesRepository,
+    });
+    deletedUser.deletedAt = new Date();
+    await makeUser({
+      email: 'active@example.com',
+      password: '123456',
+      profile: { name: 'Active User' },
+      usersRepository,
+      profilesRepository,
+    });
+    const { users } = await sut.execute();
+    expect(users.map((u) => u.email)).not.toContain('deleted@example.com');
+    expect(users.map((u) => u.email)).toContain('active@example.com');
+  });
+
   it('should return resource not found if no users exist', async () => {
     await expect(sut.execute()).rejects.toBeInstanceOf(BadRequestError);
   });

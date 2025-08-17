@@ -17,15 +17,15 @@ export async function usersRoutes() {
   app.post('/users', createUser);
 
   app.get(
-    '/users',
-    { preHandler: [verifyJwt, verifyUserManager] },
-    listAllUsers,
-  );
-
-  app.get(
     '/users/:id',
     { preHandler: [verifyJwt, verifyUserManager] },
     getUser,
+  );
+
+  app.get(
+    '/users',
+    { preHandler: [verifyJwt, verifyUserManager] },
+    listAllUsers,
   );
 
   app.patch(

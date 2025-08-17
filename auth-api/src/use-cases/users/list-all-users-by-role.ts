@@ -41,33 +41,33 @@ export class ListAllUserByRoleUseCase {
     }
 
     const users = await this.userRespository.listAllByRole(role);
-
     if (!users || users.length === 0) {
       throw new BadRequestError('No users found');
     }
-
     const filteredUsers = await Promise.all(
-      users.map(async (user) => {
-        const profile = await this.profilesRepository.findByUserId(user.id);
+      users
+        .filter((user) => !user.deletedAt)
+        .map(async (user) => {
+          const profile = await this.profilesRepository.findByUserId(user.id);
 
-        const safeProfile = profile
-          ? {
-              name: profile.name ?? null,
-              surname: profile.surname ?? null,
-              birthday: profile.birthday ?? null,
-              location: profile.location ?? null,
-              avatarUrl: profile.avatarUrl ?? null,
-            }
-          : undefined;
+          const safeProfile = profile
+            ? {
+                name: profile.name ?? null,
+                surname: profile.surname ?? null,
+                birthday: profile.birthday ?? null,
+                location: profile.location ?? null,
+                avatarUrl: profile.avatarUrl ?? null,
+              }
+            : undefined;
 
-        return {
-          id: user.id,
-          username: user.username ?? '',
-          email: user.email,
-          role: String(user.role),
-          profile: safeProfile,
-        };
-      }),
+          return {
+            id: user.id,
+            username: user.username ?? '',
+            email: user.email,
+            role: String(user.role),
+            profile: safeProfile,
+          };
+        }),
     );
     return { users: filteredUsers };
   }
