@@ -34,13 +34,13 @@ Permite cadastro, login, encerramento de sessão e gerenciamento do perfil de fo
 - [ ] Deve ser possível alterar a senha;
 - [ ] Deve ser possível recuperar a senha via e-mail;
 - [x] Deve ser possível obter a lista de todos os usuários;
-- [ ] Deve ser possível obter a lista de todos os usuários filtrados por role;
+- [x] Deve ser possível obter a lista de todos os usuários filtrados por role quando for **ADMIN**;
 - [x] Deve ser possível obter o perfil do usuário logado;
 - [ ] Deve ser possível obter o perfil de um usuário qualquer;
 - [ ] Deve ser possível atualizar o próprio perfil;
 - [ ] Deve ser possível editar usuários quando for **MANAGER** ou **ADMIN**
 - [ ] Deve ser possível editar perfil quando for **MANAGER** ou **ADMIN**
-- [ ] Deve ser possível deletar um usuário quando for **MANAGER** ou **ADMIN**
+- [x] Deve ser possível deletar um usuário quando for **MANAGER** ou **ADMIN**
 
 
 ### Regras de Negócio
