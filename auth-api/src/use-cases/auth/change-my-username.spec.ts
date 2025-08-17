@@ -1,0 +1,56 @@
+import { InMemoryProfilesRepository } from '@/repositories/in-memory/in-memory-profiles-repository';
+import { InMemoryUsersRepository } from '@/repositories/in-memory/in-memory-users-repository';
+import { makeUser } from '@/tests/factories/make-user';
+import { beforeEach, describe, expect, it } from 'vitest';
+import { BadRequestError } from '../@errors/bad-request-error';
+import { ChangeMyUsernameUseCase } from './change-my-username';
+
+let usersRepository: InMemoryUsersRepository;
+let profilesRepository: InMemoryProfilesRepository;
+let sut: ChangeMyUsernameUseCase;
+
+describe('ChangeMyUsernameUseCase', () => {
+  beforeEach(() => {
+    usersRepository = new InMemoryUsersRepository();
+    profilesRepository = new InMemoryProfilesRepository();
+    sut = new ChangeMyUsernameUseCase(usersRepository);
+  });
+
+  it('deve alterar o username do próprio usuário', async () => {
+    const { user } = await makeUser({
+      email: 'user@example.com',
+      password: '123456',
+      username: 'olduser',
+      usersRepository,
+      profilesRepository,
+    });
+    const result = await sut.execute({ userId: user.id, username: 'newuser' });
+    expect(result.user.username).toBe('newuser');
+  });
+
+  it('deve lançar erro se usuário não existir', async () => {
+    await expect(() =>
+      sut.execute({ userId: 'notfound', username: 'fail' }),
+    ).rejects.toBeInstanceOf(BadRequestError);
+  });
+
+  it('não deve permitir alterar para um username já existente', async () => {
+    await makeUser({
+      email: 'user1@example.com',
+      password: '123456',
+      username: 'userone',
+      usersRepository,
+      profilesRepository,
+    });
+    const { user: user2 } = await makeUser({
+      email: 'user2@example.com',
+      password: '123456',
+      username: 'usertwo',
+      usersRepository,
+      profilesRepository,
+    });
+    await expect(() =>
+      sut.execute({ userId: user2.id, username: 'userone' }),
+    ).rejects.toBeInstanceOf(BadRequestError);
+  });
+});
