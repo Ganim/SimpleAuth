@@ -57,6 +57,13 @@ export class PrismaUsersRepository implements UsersRepository {
     return user;
   }
 
+  async findByUsername(username: string) {
+    const user = await prisma.user.findFirst({
+      where: { username, deletedAt: null },
+    });
+    return user;
+  }
+
   // LIST
   async listAll() {
     const users = await prisma.user.findMany({

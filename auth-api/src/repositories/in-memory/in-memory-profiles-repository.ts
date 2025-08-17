@@ -24,7 +24,8 @@ export class InMemoryProfilesRepository implements ProfilesRepository {
   }
 
   async update(data: {
-    userId: string;
+    userId?: string;
+    user?: { connect: { id: string } };
     name?: string;
     surname?: string;
     birthday?: Date;
@@ -32,7 +33,9 @@ export class InMemoryProfilesRepository implements ProfilesRepository {
     bio?: string;
     avatarUrl?: string;
   }): Promise<UserProfile> {
-    const profile = this.items.find((item) => item.userId === data.userId);
+    // Aceita tanto userId quanto user.connect.id
+    const id = data.userId ?? data.user?.connect?.id;
+    const profile = this.items.find((item) => item.userId === id);
 
     if (!profile) {
       throw new Error('Profile not found.');

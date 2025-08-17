@@ -2,23 +2,25 @@ import type { UsersRepository } from '@/repositories/users-repository';
 import type { User } from 'generated/prisma';
 import { BadRequestError } from '../@errors/bad-request-error';
 
-interface EditUserUseCaseRequest {
+interface ChangeUserRoleUseCaseRequest {
   id: string;
-  email?: string;
-  role?: 'USER' | 'MANAGER' | 'ADMIN';
+  role: 'USER' | 'MANAGER' | 'ADMIN';
 }
 
-export class EditUserUseCase {
+interface ChangeUserRoleUseCaseResponse {
+  user: User;
+}
+
+export class ChangeUserRoleUseCase {
   constructor(private usersRepository: UsersRepository) {}
 
   async execute({
     id,
-    email,
     role,
-  }: EditUserUseCaseRequest): Promise<{ user: User }> {
+  }: ChangeUserRoleUseCaseRequest): Promise<ChangeUserRoleUseCaseResponse> {
     const user = await this.usersRepository.findById(id);
     if (!user) throw new BadRequestError('User not found');
-    const updatedUser = await this.usersRepository.update({ id, email, role });
+    const updatedUser = await this.usersRepository.update({ id, role });
     return { user: updatedUser };
   }
 }
