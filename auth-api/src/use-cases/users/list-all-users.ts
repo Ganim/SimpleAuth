@@ -1,27 +1,57 @@
 import type { UsersRepository } from '@/repositories/users-repository';
-import type { User } from 'generated/prisma';
+import type { UserProfile } from 'generated/prisma/client';
 import { BadRequestError } from '../@errors/bad-request-error';
 
 interface listAllUserUseCaseResponse {
-  users: Array<Pick<User, 'id' | 'email' | 'role'>>;
+  users: Array<{
+    id: string;
+    username: string;
+    email: string;
+    role: string;
+    profile?: {
+      name?: string | null;
+      surname?: string | null;
+      birthday?: Date | null;
+      location?: string | null;
+      avatarUrl?: string | null;
+    };
+  }>;
 }
 
 export class ListAllUserUseCase {
-  constructor(private userRespository: UsersRepository) {}
+  constructor(
+    private userRespository: UsersRepository,
+    private profilesRepository: {
+      findByUserId(userId: string): Promise<UserProfile | null>;
+    },
+  ) {}
 
   async execute(): Promise<listAllUserUseCaseResponse> {
     const users = await this.userRespository.listAll();
-
-    if (!users) {
+    if (!users || users.length === 0) {
       throw new BadRequestError('No users found');
     }
-
-    const filteredUsers = users.map(({ id, email, role }) => ({
-      id,
-      email,
-      role,
-    }));
-
+    const filteredUsers = await Promise.all(
+      users.map(async (user) => {
+        const profile = await this.profilesRepository.findByUserId(user.id);
+        const safeProfile = profile
+          ? {
+              name: profile.name ?? null,
+              surname: profile.surname ?? null,
+              birthday: profile.birthday ?? null,
+              location: profile.location ?? null,
+              avatarUrl: profile.avatarUrl ?? null,
+            }
+          : undefined;
+        return {
+          id: user.id,
+          username: user.username ?? '',
+          email: user.email,
+          role: String(user.role),
+          profile: safeProfile,
+        };
+      }),
+    );
     return { users: filteredUsers };
   }
 }
