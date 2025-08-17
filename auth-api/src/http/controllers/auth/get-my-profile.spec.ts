@@ -25,6 +25,11 @@ describe('Profile (e2e)', () => {
         profile: expect.objectContaining({
           id: expect.any(String),
           userId: user.id,
+          name: expect.any(String),
+          surname: expect.any(String),
+          location: expect.any(String),
+          email: user.email,
+          username: user.username,
         }),
       }),
     );
