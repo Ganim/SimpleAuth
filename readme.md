@@ -61,6 +61,7 @@ Permite cadastro, login, encerramento de sessão e gerenciamento do perfil de fo
 - [x] A autenticação deve ter um Role Based Access Control (RBAC) com as roles: USER | MANAGER | ADMIN;
 - [x] Todos os casos de usos devem ser testados de forma automatizada;
 - [x] Não se deve utilizar nenhum sistema pronto de autenticação para facilitar o processo;
+- [x] O token gerado deve ser válido de acordo com o site https://www.jwt.io/ ;
 
 ## INSTALAÇÃO
 
