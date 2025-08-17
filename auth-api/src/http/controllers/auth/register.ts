@@ -1,5 +1,5 @@
 import { BadRequestError } from '@/use-cases/@errors/bad-request-error';
-import { makeCreateUserAndProfileUseCase } from '@/use-cases/users/factories/make-create-user-and-profile-use-case';
+import { makeCreateUserUseCase } from '@/use-cases/users/factories/make-create-user-use-case';
 
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import z from 'zod';
@@ -25,7 +25,7 @@ export async function registerUser(
   );
 
   try {
-    const createUserUseCase = makeCreateUserAndProfileUseCase();
+    const createUserUseCase = makeCreateUserUseCase();
     const { user, profile: createdProfile } = await createUserUseCase.execute({
       email,
       password,

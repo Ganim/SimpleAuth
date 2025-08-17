@@ -1,6 +1,6 @@
 import { InMemoryProfilesRepository } from '@/repositories/in-memory/in-memory-profiles-repository';
 import { InMemoryUsersRepository } from '@/repositories/in-memory/in-memory-users-repository';
-import { CreateUserAndProfileUseCase } from '@/use-cases/users/create-user-and-profile';
+import { CreateUserUseCase } from '@/use-cases/users/create-user';
 
 export async function makeUser({
   email,
@@ -25,11 +25,11 @@ export async function makeUser({
   usersRepository: InMemoryUsersRepository;
   profilesRepository: InMemoryProfilesRepository;
 }) {
-  const createUserAndProfileUseCase = new CreateUserAndProfileUseCase(
+  const createUserUseCase = new CreateUserUseCase(
     usersRepository,
     profilesRepository,
   );
-  return await createUserAndProfileUseCase.execute({
+  return await createUserUseCase.execute({
     email,
     password,
     username,

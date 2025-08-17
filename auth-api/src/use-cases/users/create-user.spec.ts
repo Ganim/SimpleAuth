@@ -3,17 +3,17 @@ import { InMemoryUsersRepository } from '@/repositories/in-memory/in-memory-user
 import { compare } from 'bcryptjs';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { BadRequestError } from '../@errors/bad-request-error';
-import { CreateUserAndProfileUseCase } from './create-user-and-profile';
+import { CreateUserUseCase } from './create-user';
 
 let usersRepository: InMemoryUsersRepository;
 let profilesRepository: InMemoryProfilesRepository;
-let sut: CreateUserAndProfileUseCase;
+let sut: CreateUserUseCase;
 
-describe('Create Users And Profile Use Case', () => {
+describe('Create User Use Case', () => {
   beforeEach(() => {
     usersRepository = new InMemoryUsersRepository();
     profilesRepository = new InMemoryProfilesRepository();
-    sut = new CreateUserAndProfileUseCase(usersRepository, profilesRepository);
+    sut = new CreateUserUseCase(usersRepository, profilesRepository);
   });
 
   it('should be able to create an user and profile', async () => {
@@ -59,7 +59,7 @@ describe('Create Users And Profile Use Case', () => {
       profile: { name: 'John' },
     });
 
-    await expect(
+    await expect(() =>
       sut.execute({
         email,
         password: '123456',

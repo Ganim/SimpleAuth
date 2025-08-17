@@ -6,7 +6,7 @@ import { hash } from 'bcryptjs';
 import type { User, UserProfile } from 'generated/prisma';
 import { BadRequestError } from '../@errors/bad-request-error';
 
-interface createUserAndProfileUseCaseRequest {
+interface CreateUserUseCaseRequest {
   username?: string;
   email: string;
   password: string;
@@ -20,12 +20,12 @@ interface createUserAndProfileUseCaseRequest {
   };
 }
 
-interface createUserAndProfileUseCaseResponse {
+interface CreateUserUseCaseResponse {
   user: User;
   profile: UserProfile;
 }
 
-export class CreateUserAndProfileUseCase {
+export class CreateUserUseCase {
   constructor(
     private userRespository: UsersRepository,
     private profileRepository: ProfilesRepository,
@@ -37,7 +37,7 @@ export class CreateUserAndProfileUseCase {
     password,
     role = 'USER',
     profile = {},
-  }: createUserAndProfileUseCaseRequest): Promise<createUserAndProfileUseCaseResponse> {
+  }: CreateUserUseCaseRequest): Promise<CreateUserUseCaseResponse> {
     const password_hash = await hash(password, env.HASH_ROUNDS);
 
     const userWithSameEmail = await this.userRespository.findByEmail(email);
