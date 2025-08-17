@@ -16,11 +16,7 @@ import { updateUserProfile } from './update-user-profile';
 export async function usersRoutes() {
   app.post('/users', createUser);
 
-  app.get(
-    '/users/:id',
-    { preHandler: [verifyJwt, verifyUserManager] },
-    getUser,
-  );
+  app.get('/users/:id', { preHandler: [verifyJwt] }, getUser);
 
   app.get(
     '/users',

@@ -11,15 +11,15 @@ describe('GetUser (e2e)', () => {
     await app.close();
   });
 
-  it('should return user and profile for MANAGER/ADMIN', async () => {
+  it('should return user and profile for any authenticated user', async () => {
     // Cria usuário
     const createResponse = await request(app.server).post('/users').send({
-      email: 'getuser@example.com',
+      email: 'getuser2@example.com',
       password: '123456',
     });
     const userId = createResponse.body.user.id;
-    // Autentica como MANAGER
-    const { token } = await createAndAuthenticateUser(app, 'MANAGER');
+    // Autentica como USER
+    const { token } = await createAndAuthenticateUser(app, 'USER');
     // Busca usuário
     const response = await request(app.server)
       .get(`/users/${userId}`)
