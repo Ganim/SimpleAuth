@@ -3,18 +3,29 @@ import type { Prisma } from 'generated/prisma';
 import type { UsersRepository } from '../users-repository';
 
 export class PrismaUsersRepository implements UsersRepository {
+  // FORMS
+  async create(data: Prisma.UserCreateInput) {
+    const user = await prisma.user.create({
+      data,
+    });
+    return user;
+  }
+
   async update({
     id,
+    username,
     email,
     role,
   }: {
     id: string;
+    username?: string;
     email?: string;
     role?: 'USER' | 'MANAGER' | 'ADMIN';
   }) {
     const user = await prisma.user.update({
       where: { id },
       data: {
+        ...(username && { username }),
         ...(email && { email }),
         ...(role && { role }),
       },
@@ -22,32 +33,35 @@ export class PrismaUsersRepository implements UsersRepository {
     return user;
   }
 
+  // SOFT DELETE
   async delete(id: string) {
-    await prisma.user.delete({
+    await prisma.user.update({
       where: { id },
+      data: { deletedAt: new Date() },
     });
   }
-  async create(data: Prisma.UserCreateInput) {
-    const user = await prisma.user.create({
-      data,
-    });
-    return user;
-  }
+
+  // FIND
   async findByEmail(email: string) {
-    const user = await prisma.user.findUnique({
-      where: { email },
-    });
-    return user;
-  }
-  async findById(id: string) {
-    const user = await prisma.user.findUnique({
-      where: { id },
+    const user = await prisma.user.findFirst({
+      where: { email, deletedAt: null },
     });
     return user;
   }
 
+  async findById(id: string) {
+    const user = await prisma.user.findFirst({
+      where: { id, deletedAt: null },
+    });
+    return user;
+  }
+
+  // LIST
   async listAll() {
-    const users = await prisma.user.findMany({ orderBy: { email: 'asc' } });
+    const users = await prisma.user.findMany({
+      where: { deletedAt: null },
+      orderBy: { email: 'asc' },
+    });
     return users;
   }
 }

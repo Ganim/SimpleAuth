@@ -1,23 +1,56 @@
-import type { Profile } from 'generated/prisma/client';
+import type { Prisma, UserProfile } from 'generated/prisma/client';
 import type { ProfilesRepository } from '../profiles-repository';
 
 export class InMemoryProfilesRepository implements ProfilesRepository {
-  private items: Profile[] = [];
+  private items: UserProfile[] = [];
 
-  async create(userId: string, name?: string, surname?: string) {
+  // FORMS
+  async create(data: Prisma.UserProfileCreateInput) {
     const profile = {
       id: String(this.items.length + 1),
-      userId,
-      name,
-      surname,
+      userId: data.user.connect?.id,
+      name: data.name ?? null,
+      surname: data.surname ?? null,
+      birthday: data.birthday ?? null,
+      location: data.location ?? null,
+      bio: data.bio ?? null,
+      avatarUrl: data.avatarUrl ?? null,
       createdAt: new Date(),
       updatedAt: new Date(),
-    } as Profile;
+    } as UserProfile;
 
     this.items.push(profile);
     return profile;
   }
 
+  async update(data: {
+    userId: string;
+    name?: string;
+    surname?: string;
+    birthday?: Date;
+    location?: string;
+    bio?: string;
+    avatarUrl?: string;
+  }): Promise<UserProfile> {
+    const profile = this.items.find((item) => item.userId === data.userId);
+
+    if (!profile) {
+      throw new Error('Profile not found.');
+    }
+
+    profile.name = data.name ?? '';
+    profile.surname = data.surname ?? '';
+    profile.birthday = data.birthday ?? null;
+    profile.location = data.location ?? '';
+    profile.bio = data.bio ?? '';
+    profile.avatarUrl = data.avatarUrl ?? '';
+
+    profile.updatedAt = new Date();
+
+    return profile;
+  }
+
+  // FIND
   async findById(id: string) {
     const profile = this.items.find((item) => item.id === id);
 

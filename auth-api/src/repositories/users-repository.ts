@@ -4,11 +4,7 @@ export interface UsersRepository {
   create(data: Prisma.UserCreateInput): Promise<User>;
   findByEmail(email: string): Promise<User | null>;
   findById(id: string): Promise<User | null>;
-  listAll(): Promise<User[] | null>;
-  update(data: {
-    id: string;
-    email?: string;
-    role?: 'USER' | 'MANAGER' | 'ADMIN';
-  }): Promise<User>;
-  delete(id: string): Promise<void>;
+  listAll(): Promise<User[]>;
+  update(data: Prisma.UserUpdateInput): Promise<User>;
+  delete(id: string): Promise<void>; // soft delete
 }

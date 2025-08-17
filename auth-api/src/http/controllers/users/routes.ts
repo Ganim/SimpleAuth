@@ -1,14 +1,14 @@
 import { app } from '@/app';
 import { verifyJwt } from '@/http/middlewares/verify-jwt';
 import { verifyUserManager } from '@/http/middlewares/verify-user-manager';
-import { createUser } from './create-user';
+import { createUserAndProfile } from './create-user-and-profile';
 import { deleteUser } from './delete-user';
 import { editUser } from './edit-user';
 import { getUser } from './get-user';
 import { listAllUsers } from './list-all-users';
 
 export async function usersRoutes() {
-  app.post('/users', createUser);
+  app.post('/users', createUserAndProfile);
 
   app.get(
     '/users',

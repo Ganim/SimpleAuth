@@ -1,15 +1,8 @@
-import type { Profile } from 'generated/prisma/client';
+import type { Prisma, UserProfile } from 'generated/prisma/client';
 
 export interface ProfilesRepository {
-  create(userId: string, name?: string, surname?: string): Promise<Profile>;
-  findById(id: string): Promise<Profile | null>;
-  findByUserId(id: string): Promise<Profile | null>;
-  update(data: {
-    userId: string;
-    name?: string;
-    surname?: string;
-    bio?: string;
-    avatarUrl?: string;
-  }): Promise<Profile>;
-  delete(userId: string): Promise<void>;
+  create(data: Prisma.UserProfileCreateInput): Promise<UserProfile>;
+  findById(id: string): Promise<UserProfile | null>;
+  findByUserId(id: string): Promise<UserProfile | null>;
+  update(data: Prisma.UserProfileUpdateInput): Promise<UserProfile>;
 }

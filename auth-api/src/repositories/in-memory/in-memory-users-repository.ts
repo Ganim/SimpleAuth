@@ -1,7 +1,33 @@
 import type { UsersRepository } from '@/repositories/users-repository';
-import type { User } from 'generated/prisma';
+import type { Prisma, User } from 'generated/prisma/client';
 
 export class InMemoryUsersRepository implements UsersRepository {
+  private items: User[] = [];
+
+  // FORMS
+
+  async create(data: Prisma.UserCreateInput) {
+    const user: User = {
+      id: String(this.items.length + 1),
+      username: null,
+      email: data.email,
+      password_hash: data.password_hash,
+      role: 'USER',
+      lastLoginIp: null,
+      failedLoginAttempts: 0,
+      blockedUntil: null,
+      deletedAt: null,
+      passwordResetToken: null,
+      passwordResetExpires: null,
+      lastLoginAt: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    this.items.push(user);
+    return user;
+  }
+
   async update({
     id,
     email,
@@ -19,52 +45,29 @@ export class InMemoryUsersRepository implements UsersRepository {
     return user;
   }
 
+  // SOFT DELETE
+
   async delete(id: string) {
-    const index = this.items.findIndex((item) => item.id === id);
-    if (index === -1) throw new Error('User not found');
-    this.items.splice(index, 1);
-  }
-  private items: User[] = [];
-
-  async create(data: { email: string; password_hash: string }) {
-    const user: User = {
-      id: String(this.items.length + 1),
-      email: data.email,
-      password_hash: data.password_hash,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      role: 'USER',
-    };
-
-    this.items.push(user);
-    return user;
+    const user = await this.findById(id);
+    if (!user) throw new Error('User not found');
+    user.deletedAt = new Date();
   }
 
+  // FIND
   async findByEmail(email: string) {
-    const user = this.items.find((item) => item.email === email);
-
-    if (!user) {
-      return null;
-    }
-
-    return user;
+    const user = this.items.find(
+      (item) => item.email === email && !item.deletedAt,
+    );
+    return user ?? null;
   }
 
   async findById(id: string) {
-    const user = this.items.find((item) => item.id === id);
-
-    if (!user) {
-      return null;
-    }
-
-    return user;
+    const user = this.items.find((item) => item.id === id && !item.deletedAt);
+    return user ?? null;
   }
 
+  // LIST
   async listAll() {
-    if (this.items.length === 0) {
-      return null;
-    }
-
-    return this.items;
+    return this.items.filter((user) => !user.deletedAt);
   }
 }
