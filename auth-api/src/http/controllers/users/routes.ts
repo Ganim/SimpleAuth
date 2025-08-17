@@ -1,11 +1,13 @@
 import { app } from '@/app';
 import { verifyJwt } from '@/http/middlewares/verify-jwt';
+import { verifyUserAdmin } from '@/http/middlewares/verify-user-admin';
 import { verifyUserManager } from '@/http/middlewares/verify-user-manager';
 import { createUserAndProfile } from './create-user-and-profile';
 import { deleteUser } from './delete-user';
 import { editUser } from './edit-user';
 import { getUser } from './get-user';
 import { listAllUsers } from './list-all-users';
+import { listAllUsersByRole } from './list-all-users-by-role';
 
 export async function usersRoutes() {
   app.post('/users', createUserAndProfile);
@@ -14,6 +16,12 @@ export async function usersRoutes() {
     '/users',
     { preHandler: [verifyJwt, verifyUserManager] },
     listAllUsers,
+  );
+
+  app.get(
+    '/users/by-role/:role',
+    { preHandler: [verifyJwt, verifyUserAdmin] },
+    listAllUsersByRole,
   );
 
   app.get(

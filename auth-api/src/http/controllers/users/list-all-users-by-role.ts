@@ -1,12 +1,15 @@
+import type { UserRole } from '@/@types/user-role';
 import { BadRequestError } from '@/use-cases/@errors/bad-request-error';
-import { makeListAllUsersUseCase } from '@/use-cases/users/factories/make-list-all-users-use-case';
+import { makeListAllUsersByRoleUseCase } from '@/use-cases/users/factories/make-list-all-users-by-role-use-case';
 
 import type { FastifyReply, FastifyRequest } from 'fastify';
 
-export async function listAllUsers(
+export async function listAllUsersByRole(
   request: FastifyRequest,
   reply: FastifyReply,
 ) {
+  const { role } = request.params as { role?: string };
+
   let users: Array<{
     id: string;
     username: string;
@@ -22,9 +25,10 @@ export async function listAllUsers(
   }>;
 
   try {
-    const listAllUsersUseCase = makeListAllUsersUseCase();
-
-    ({ users } = await listAllUsersUseCase.execute());
+    const listAllUsersByRoleUseCase = makeListAllUsersByRoleUseCase();
+    ({ users } = await listAllUsersByRoleUseCase.execute({
+      role: role as UserRole,
+    }));
   } catch (error) {
     if (error instanceof BadRequestError) {
       return reply.status(400).send({ message: error.message });
