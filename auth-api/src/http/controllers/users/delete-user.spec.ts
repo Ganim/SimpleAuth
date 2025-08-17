@@ -11,7 +11,7 @@ describe('DeleteUser (e2e)', () => {
     await app.close();
   });
 
-  it('should delete user and profile together', async () => {
+  it('should delete user ', async () => {
     // Cria usuário
     const createResponse = await request(app.server).post('/users').send({
       email: 'deleteuser@example.com',
@@ -26,12 +26,12 @@ describe('DeleteUser (e2e)', () => {
       .set('Authorization', `Bearer ${token}`)
       .send();
     expect(response.statusCode).toBe(200);
-    // Tenta buscar perfil
-    const profileResponse = await request(app.server)
+    // Tenta buscar o usuário
+    const userResponse = await request(app.server)
       .get(`/users/${userId}`)
       .set('Authorization', `Bearer ${token}`)
       .send();
-    expect([400, 404]).toContain(profileResponse.statusCode);
+    expect([400, 404]).toContain(userResponse.statusCode);
   });
 
   it('should return 400 if user not found', async () => {

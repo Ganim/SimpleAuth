@@ -32,21 +32,28 @@ Permite cadastro, login, encerramento de sessão e gerenciamento do perfil de fo
 - [x] Deve ser possível se cadastrar;
 - [x] Deve ser possível se autenticar;
 - [ ] Deve ser possível alterar a senha;
-- [ ] Deve ser possível recuperar o usuário via e-mail;
+- [ ] Deve ser possível recuperar a senha via e-mail;
 - [x] Deve ser possível obter a lista de todos os usuários;
+- [ ] Deve ser possível obter a lista de todos os usuários filtrados por role;
 - [x] Deve ser possível obter o perfil do usuário logado;
+- [ ] Deve ser possível obter o perfil de um usuário qualquer;
 - [ ] Deve ser possível atualizar o próprio perfil;
 - [ ] Deve ser possível editar usuários quando for **MANAGER** ou **ADMIN**
 - [ ] Deve ser possível editar perfil quando for **MANAGER** ou **ADMIN**
+- [ ] Deve ser possível deletar um usuário quando for **MANAGER** ou **ADMIN**
 
 
 ### Regras de Negócio
 - [x] O usuário não pode se cadastrar com um e-mail duplicado;
+- [ ] Se o usuário errar a senha 3 vezes terá o perfil bloqueado por 5 minutos;
+- [ ] O perfil do usuário não pode ser acessado se o usuário estiver deletado;
+- [ ] Não deve ser possivel fazer login se o usuário estiver bloqueado;
+- [x] Toda a deleção da API deve ser SOFT DELETE;
 - [x] A lista de todos os usuários só é acessivel se a role for **MANAGER** ou **ADMIN**;
 
 ### Requisitos Não Funcionais
 - [ ] A API deve ser documentada pelo Swagger;
-- [ ] As operações de criar e excluir perfil devem ser feitas junto com a de usuários;
+- [x] As operações de criar e excluir perfil devem ser feitas junto com a de usuários;
 - [x] A senha do usuário deve estar criptografada;
 - [x] Os dados da aplicação precisam estar persistidos em um banco de dados PostgreSQL;
 - [x] O usuário deve ser identificado por um JWT (JSON Web Token);

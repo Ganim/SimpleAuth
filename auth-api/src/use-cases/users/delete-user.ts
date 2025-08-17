@@ -11,6 +11,7 @@ export class DeleteUserUseCase {
   async execute({ id }: DeleteUserUseCaseRequest): Promise<void> {
     const user = await this.usersRepository.findById(id);
     if (!user) throw new BadRequestError('User not found');
+    // Soft delete: marca deletedAt
     await this.usersRepository.delete(id);
   }
 }
