@@ -1,3 +1,4 @@
+import type { UserRole } from '@/@types/user-role';
 import type { UsersRepository } from '@/repositories/users-repository';
 import type { Prisma, User } from 'generated/prisma/client';
 
@@ -9,10 +10,10 @@ export class InMemoryUsersRepository implements UsersRepository {
   async create(data: Prisma.UserCreateInput) {
     const user: User = {
       id: String(this.items.length + 1),
-      username: null,
+      username: data.username ?? null,
       email: data.email,
       password_hash: data.password_hash,
-      role: 'USER',
+      role: (data.role as UserRole) ?? 'USER',
       lastLoginIp: null,
       failedLoginAttempts: 0,
       blockedUntil: null,
@@ -69,5 +70,9 @@ export class InMemoryUsersRepository implements UsersRepository {
   // LIST
   async listAll() {
     return this.items.filter((user) => !user.deletedAt);
+  }
+
+  async listAllByRole(role: UserRole) {
+    return this.items.filter((user) => !user.deletedAt && user.role === role);
   }
 }

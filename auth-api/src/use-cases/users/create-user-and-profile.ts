@@ -1,3 +1,4 @@
+import type { UserRole } from '@/@types/user-role';
 import { env } from '@/env';
 import type { ProfilesRepository } from '@/repositories/profiles-repository';
 import type { UsersRepository } from '@/repositories/users-repository';
@@ -6,13 +7,16 @@ import type { User, UserProfile } from 'generated/prisma';
 import { BadRequestError } from '../@errors/bad-request-error';
 
 interface createUserAndProfileUseCaseRequest {
+  username?: string;
   email: string;
   password: string;
+  role?: UserRole;
   profile?: {
     name?: string;
     surname?: string;
     birthday?: Date;
     location?: string;
+    avatarUrl?: string;
   };
 }
 
@@ -28,8 +32,10 @@ export class CreateUserAndProfileUseCase {
   ) {}
 
   async execute({
+    username = '',
     email,
     password,
+    role = 'USER',
     profile = {},
   }: createUserAndProfileUseCaseRequest): Promise<createUserAndProfileUseCaseResponse> {
     const password_hash = await hash(password, env.HASH_ROUNDS);
@@ -41,8 +47,10 @@ export class CreateUserAndProfileUseCase {
     }
 
     const user = await this.userRespository.create({
+      username,
       email,
       password_hash,
+      role,
     });
 
     const userProfile = await this.profileRepository.create({
@@ -51,6 +59,7 @@ export class CreateUserAndProfileUseCase {
       surname: profile.surname ?? '',
       birthday: profile.birthday ?? undefined,
       location: profile.location ?? '',
+      avatarUrl: profile.avatarUrl ?? '',
     });
 
     return { user, profile: userProfile };

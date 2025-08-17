@@ -1,3 +1,4 @@
+import type { UserRole } from '@/@types/user-role';
 import { prisma } from '@/lib/prisma';
 import type { Prisma } from 'generated/prisma';
 import type { UsersRepository } from '../users-repository';
@@ -60,6 +61,14 @@ export class PrismaUsersRepository implements UsersRepository {
   async listAll() {
     const users = await prisma.user.findMany({
       where: { deletedAt: null },
+      orderBy: { email: 'asc' },
+    });
+    return users;
+  }
+
+  async listAllByRole(role: UserRole) {
+    const users = await prisma.user.findMany({
+      where: { deletedAt: null, role },
       orderBy: { email: 'asc' },
     });
     return users;

@@ -6,6 +6,7 @@ export async function makeUser({
   email,
   password,
   username = '',
+  role = 'USER',
   profile = {},
   usersRepository,
   profilesRepository,
@@ -13,11 +14,13 @@ export async function makeUser({
   email: string;
   password: string;
   username?: string;
+  role?: 'USER' | 'MANAGER' | 'ADMIN';
   profile?: {
     name?: string;
     surname?: string;
     birthday?: Date;
     location?: string;
+    avatarUrl?: string;
   };
   usersRepository: InMemoryUsersRepository;
   profilesRepository: InMemoryProfilesRepository;
@@ -30,6 +33,7 @@ export async function makeUser({
     email,
     password,
     username,
+    role,
     profile,
   });
 }
