@@ -1,5 +1,4 @@
 import { BadRequestError } from '@/use-cases/@errors/bad-request-error';
-import { makeGetUserProfileUseCase } from '@/use-cases/auth/factories/make-get-profile-use-case';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { makeGetUserUseCase } from '../../../use-cases/users/factories/make-get-user-use-case';
 
@@ -8,9 +7,7 @@ export async function getUser(request: FastifyRequest, reply: FastifyReply) {
 
   try {
     const getUserUseCase = makeGetUserUseCase();
-    const { user } = await getUserUseCase.execute({ id });
-    const getProfileUseCase = makeGetUserProfileUseCase();
-    const { profile } = await getProfileUseCase.execute({ userId: id });
+    const { user, profile } = await getUserUseCase.execute({ id });
     return reply.status(200).send({ user, profile });
   } catch (error) {
     if (error instanceof BadRequestError) {

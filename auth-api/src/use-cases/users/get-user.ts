@@ -1,17 +1,29 @@
+import type { ProfilesRepository } from '@/repositories/profiles-repository';
 import type { UsersRepository } from '@/repositories/users-repository';
-import type { User } from 'generated/prisma';
+import type { User, UserProfile } from 'generated/prisma/client';
 import { BadRequestError } from '../@errors/bad-request-error';
 
 interface GetUserUseCaseRequest {
   id: string;
 }
 
-export class GetUserUseCase {
-  constructor(private usersRepository: UsersRepository) {}
+interface GetUserUseCaseResponse {
+  user: User;
+  profile: UserProfile | null;
+}
 
-  async execute({ id }: GetUserUseCaseRequest): Promise<{ user: User }> {
+export class GetUserUseCase {
+  constructor(
+    private usersRepository: UsersRepository,
+    private profilesRepository: ProfilesRepository,
+  ) {}
+
+  async execute({
+    id,
+  }: GetUserUseCaseRequest): Promise<GetUserUseCaseResponse> {
     const user = await this.usersRepository.findById(id);
     if (!user) throw new BadRequestError('User not found');
-    return { user };
+    const profile = await this.profilesRepository.findByUserId(id);
+    return { user, profile };
   }
 }

@@ -55,11 +55,11 @@ export class CreateUserAndProfileUseCase {
 
     const userProfile = await this.profileRepository.create({
       user: { connect: { id: user.id } },
-      name: profile.name ?? '',
-      surname: profile.surname ?? '',
-      birthday: profile.birthday ?? undefined,
-      location: profile.location ?? '',
-      avatarUrl: profile.avatarUrl ?? '',
+      name: profile?.name ?? '',
+      surname: profile?.surname ?? '',
+      birthday: profile?.birthday ?? undefined,
+      location: profile?.location ?? '',
+      avatarUrl: profile?.avatarUrl ?? '',
     });
 
     return { user, profile: userProfile };

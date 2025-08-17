@@ -23,11 +23,16 @@ describe('GetUser (e2e)', () => {
     // Busca usuário
     const response = await request(app.server)
       .get(`/users/${userId}`)
-      .set('Authorization', `Bearer ${token}`)
-      .send();
+      .set('Authorization', `Bearer ${token}`);
     expect(response.statusCode).toBe(200);
     expect(response.body.user.id).toBe(userId);
     expect(response.body.profile.userId).toBe(userId);
+    expect(response.body.profile.name).toBe('');
+    expect(response.body.profile.surname).toBe('');
+    expect(response.body.profile.bio).toBeNull();
+    expect(response.body.profile.avatarUrl).toBe('');
+    expect(response.body.profile.location).toBe('');
+    expect(response.body.profile.birthday).toBeNull();
   });
 
   it('should return 400 if user not found', async () => {
