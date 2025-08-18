@@ -28,6 +28,16 @@ Permite cadastro, login, encerramento de sessão e gerenciamento do perfil de fo
 - **Segurança:** BcryptJs, JSON Web Token (JWT), Refresh Token, Cookies
 - **Testes Automatizados:** Vitest, supertest
 
+### Versões
+- **1.0.0 - Usuários estão aqui!**
+- **1.5.0 - UI está aqui!**
+- **2.0.0 - Controle de Sessões está aqui!**
+- **2.5.0 - Swagger chegou...**
+- 3.0.0 - Contole de Senhas no forno...
+- 3.5.0 - Interface em reforma...
+- 4.0.0 - Auditoria sendo projetada...
+- 5.0.0 - RBAC Flexivel a caminho... 
+
 ### Requisitos Funcionais
 
 De Autenticação:
@@ -75,7 +85,6 @@ De Dados Sensiveis de Usuários (email, username, senha):
 
 De Sessions:
 - [x] É permitido multi-sessions;
-
 
 
 ### Requisitos Não Funcionais
@@ -142,10 +151,12 @@ De Sessions:
 5. Execute o projeto em terminais separados:
   - No backend:
     ```sh
+    cd ./auth-api/
     npm run dev
     ```
   - No frontend:
     ```sh
+    cd ./auth-app/
     npm run dev
     ```
 

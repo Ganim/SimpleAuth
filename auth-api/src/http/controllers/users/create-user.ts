@@ -3,8 +3,9 @@ import { makeCreateUserUseCase } from '@/use-cases/users/factories/make-create-u
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import z from 'zod';
 
-const createUserBodySchema = z.object({
-  email: z.string().email(),
+// SCHEMAS
+export const createUserBodySchema = z.object({
+  email: z.email(),
   password: z.string().min(6),
   profile: z
     .object({
@@ -17,9 +18,9 @@ const createUserBodySchema = z.object({
     .optional(),
 });
 
+// CONTROLLER
 export async function createUser(request: FastifyRequest, reply: FastifyReply) {
   const { email, password, profile } = createUserBodySchema.parse(request.body);
-
   try {
     const createUserUseCase = makeCreateUserUseCase();
     const { user, profile: createdProfile } = await createUserUseCase.execute({
@@ -37,3 +38,61 @@ export async function createUser(request: FastifyRequest, reply: FastifyReply) {
     throw error;
   }
 }
+
+// ATTRIBUTES
+export const createUserSchema = {
+  tags: ['Users'],
+  summary: 'Create a new user',
+  body: {
+    type: 'object',
+    properties: {
+      email: { type: 'string', format: 'email', description: 'User email' },
+      password: { type: 'string', minLength: 6, description: 'User password' },
+      profile: {
+        type: 'object',
+        properties: {
+          name: {
+            type: 'string',
+            minLength: 1,
+            maxLength: 32,
+            description: 'Name',
+          },
+          surname: {
+            type: 'string',
+            minLength: 1,
+            maxLength: 32,
+            description: 'Surname',
+          },
+          birthday: { type: 'string', format: 'date', description: 'Birthday' },
+          location: { type: 'string', maxLength: 128, description: 'Location' },
+          avatarUrl: {
+            type: 'string',
+            maxLength: 256,
+            description: 'Avatar URL',
+          },
+        },
+        additionalProperties: false,
+      },
+    },
+    required: ['email', 'password'],
+    additionalProperties: false,
+  },
+  response: {
+    201: {
+      description: 'User created',
+      type: 'object',
+      properties: {
+        user: { type: 'object' },
+        email: { type: 'string' },
+        profile: { type: 'object' },
+      },
+      required: ['user', 'email', 'profile'],
+    },
+    400: {
+      description: 'Bad request',
+      type: 'object',
+      properties: { message: { type: 'string' } },
+      required: ['message'],
+    },
+  },
+};

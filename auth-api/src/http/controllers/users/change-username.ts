@@ -3,17 +3,21 @@ import { makeChangeUsernameUseCase } from '@/use-cases/users/factories/make-chan
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import z from 'zod';
 
-const changeUsernameBodySchema = z.object({
+// SCHEMAS
+export const changeUsernameBodySchema = z.object({
   username: z.string().min(3).max(30),
 });
+export const changeUsernameParamsSchema = z.object({
+  id: z.string(),
+});
 
+// CONTROLLER
 export async function changeUsername(
   request: FastifyRequest,
   reply: FastifyReply,
 ) {
-  const { id } = request.params as { id: string };
+  const { id } = changeUsernameParamsSchema.parse(request.params);
   const { username } = changeUsernameBodySchema.parse(request.body);
-
   try {
     const changeUsernameUseCase = makeChangeUsernameUseCase();
     await changeUsernameUseCase.execute({ id, username });
@@ -28,3 +32,44 @@ export async function changeUsername(
     throw error;
   }
 }
+
+// ATTRIBUTES
+export const changeUsernameSchema = {
+  tags: ['Users'],
+  summary: 'Change username',
+  params: {
+    type: 'object',
+    properties: {
+      id: { type: 'string', description: 'User ID' },
+    },
+    required: ['id'],
+    additionalProperties: false,
+  },
+  body: {
+    type: 'object',
+    properties: {
+      username: {
+        type: 'string',
+        minLength: 3,
+        maxLength: 30,
+        description: 'New username',
+      },
+    },
+    required: ['username'],
+    additionalProperties: false,
+  },
+  response: {
+    200: {
+      description: 'Username updated',
+      type: 'object',
+      properties: { message: { type: 'string' } },
+      required: ['message'],
+    },
+    400: {
+      description: 'Bad request',
+      type: 'object',
+      properties: { message: { type: 'string' } },
+      required: ['message'],
+    },
+  },
+};

@@ -3,17 +3,21 @@ import { makeChangeUserEmailUseCase } from '@/use-cases/users/factories/make-cha
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import z from 'zod';
 
-const changeUserEmailBodySchema = z.object({
-  email: z.string().email(),
+// SCHEMAS
+export const changeUserEmailBodySchema = z.object({
+  email: z.email(),
+});
+export const changeUserEmailParamsSchema = z.object({
+  id: z.string(),
 });
 
+// CONTROLLER
 export async function changeUserEmail(
   request: FastifyRequest,
   reply: FastifyReply,
 ) {
-  const { id } = request.params as { id: string };
+  const { id } = changeUserEmailParamsSchema.parse(request.params);
   const { email } = changeUserEmailBodySchema.parse(request.body);
-
   try {
     const changeUserEmailUseCase = makeChangeUserEmailUseCase();
     await changeUserEmailUseCase.execute({ id, email });
@@ -28,3 +32,39 @@ export async function changeUserEmail(
     throw error;
   }
 }
+
+// ATTRIBUTES
+export const changeUserEmailSchema = {
+  tags: ['Users'],
+  summary: 'Change user email',
+  params: {
+    type: 'object',
+    properties: {
+      id: { type: 'string', description: 'User ID' },
+    },
+    required: ['id'],
+    additionalProperties: false,
+  },
+  body: {
+    type: 'object',
+    properties: {
+      email: { type: 'string', format: 'email', description: 'New email' },
+    },
+    required: ['email'],
+    additionalProperties: false,
+  },
+  response: {
+    200: {
+      description: 'Email updated',
+      type: 'object',
+      properties: { message: { type: 'string' } },
+      required: ['message'],
+    },
+    400: {
+      description: 'Bad request',
+      type: 'object',
+      properties: { message: { type: 'string' } },
+      required: ['message'],
+    },
+  },
+};

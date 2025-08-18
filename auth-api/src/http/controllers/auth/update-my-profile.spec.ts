@@ -19,7 +19,7 @@ describe('E2E - /me/profile', () => {
 
   it('should update own user profile', async () => {
     const response = await request(app.server)
-      .patch('/me/update/profile')
+      .patch('/me/profile')
       .set('Authorization', `Bearer ${token}`)
       .send({
         name: 'NovoNome',

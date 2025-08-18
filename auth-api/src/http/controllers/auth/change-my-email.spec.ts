@@ -6,7 +6,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 let token: string;
 
-describe('E2E - /me/change/email', () => {
+describe('E2E - /me/email', () => {
   beforeAll(async () => {
     await app.ready();
     const { token: userToken } = await createAndAuthenticateUser(app, 'USER');
@@ -19,7 +19,7 @@ describe('E2E - /me/change/email', () => {
 
   it('should change own email', async () => {
     const response = await request(app.server)
-      .patch('/me/change/email')
+      .patch('/me/email')
       .set('Authorization', `Bearer ${token}`)
       .send({ email: 'novoemail@example.com' });
     expect(response.statusCode).toBe(200);

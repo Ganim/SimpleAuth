@@ -4,17 +4,18 @@ import { makeChangeMyEmailUseCase } from '@/use-cases/auth/factories/make-change
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import z from 'zod';
 
-const changeMyEmailBodySchema = z.object({
-  email: z.string().email(),
+// SCHEMAS
+export const changeMyEmailBodySchema = z.object({
+  email: z.email(),
 });
 
+// CONTROLLER
 export async function changeMyEmail(
   request: FastifyRequest,
   reply: FastifyReply,
 ) {
   const userId = request.user.sub;
   const { email } = changeMyEmailBodySchema.parse(request.body);
-
   try {
     const changeMyEmailUseCase = makeChangeMyEmailUseCase();
     await changeMyEmailUseCase.execute({ userId, email });
@@ -26,3 +27,39 @@ export async function changeMyEmail(
     throw error;
   }
 }
+
+// ATTRIBUTES
+export const changeMyEmailSchema = {
+  tags: ['User'],
+  summary: 'Change user email',
+  body: {
+    type: 'object',
+    properties: {
+      email: {
+        type: 'string',
+        format: 'email',
+        description: 'New email for the user',
+      },
+    },
+    required: ['email'],
+    additionalProperties: false,
+  },
+  response: {
+    200: {
+      description: 'Email updated',
+      type: 'object',
+      properties: {
+        message: { type: 'string' },
+      },
+      required: ['message'],
+    },
+    400: {
+      description: 'Bad request',
+      type: 'object',
+      properties: {
+        message: { type: 'string' },
+      },
+      required: ['message'],
+    },
+  },
+};

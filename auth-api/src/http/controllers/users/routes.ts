@@ -2,64 +2,83 @@ import { app } from '@/app';
 import { verifyJwt } from '@/http/middlewares/verify-jwt';
 import { verifyUserAdmin } from '@/http/middlewares/verify-user-admin';
 import { verifyUserManager } from '@/http/middlewares/verify-user-manager';
-import { changeUserEmail } from './change-user-email';
-import { changeUserPassword } from './change-user-password';
-import { changeUserRole } from './change-user-role';
-import { changeUsername } from './change-username';
-import { createUser } from './create-user';
-import { deleteUser } from './delete-user';
-import { getUser } from './get-user';
-import { listAllUsers } from './list-all-users';
-import { listAllUsersByRole } from './list-all-users-by-role';
-import { updateUserProfile } from './update-user-profile';
+import { changeUserEmail, changeUserEmailSchema } from './change-user-email';
+import {
+  changeUserPassword,
+  changeUserPasswordSchema,
+} from './change-user-password';
+import { changeUserRole, changeUserRoleSchema } from './change-user-role';
+import { changeUsername, changeUsernameSchema } from './change-username';
+import { createUser, createUserSchema } from './create-user';
+import { deleteUser, deleteUserSchema } from './delete-user';
+import { getUser, getUserSchema } from './get-user';
+import { listAllUsers, listAllUsersSchema } from './list-all-users';
+import {
+  listAllUsersByRole,
+  listAllUsersByRoleSchema,
+} from './list-all-users-by-role';
+import {
+  updateUserProfile,
+  updateUserProfileSchema,
+} from './update-user-profile';
 
 export async function usersRoutes() {
-  app.post('/users', createUser);
+  // PUBLIC ROUTES
+  app.post('/users', {
+    schema: createUserSchema,
+    handler: createUser,
+  });
 
-  app.get('/users/:id', { preHandler: [verifyJwt] }, getUser);
+  app.get('/users/:id', {
+    schema: getUserSchema,
+    preHandler: [verifyJwt],
+    handler: getUser,
+  });
 
-  app.get(
-    '/users',
-    { preHandler: [verifyJwt, verifyUserManager] },
-    listAllUsers,
-  );
+  // MANAGER ROUTES
+  app.get('/users', {
+    schema: listAllUsersSchema,
+    preHandler: [verifyJwt, verifyUserManager],
+    handler: listAllUsers,
+  });
 
-  app.patch(
-    '/users/:id',
-    { preHandler: [verifyJwt, verifyUserManager] },
-    updateUserProfile,
-  );
+  app.patch('/users/:id', {
+    schema: updateUserProfileSchema,
+    preHandler: [verifyJwt, verifyUserManager],
+    handler: updateUserProfile,
+  });
 
-  app.get(
-    '/users/by-role/:role',
-    { preHandler: [verifyJwt, verifyUserAdmin] },
-    listAllUsersByRole,
-  );
+  // ADMIN ROUTES
+  app.get('/users/by-role/:role', {
+    schema: listAllUsersByRoleSchema,
+    preHandler: [verifyJwt, verifyUserAdmin],
+    handler: listAllUsersByRole,
+  });
 
-  app.delete(
-    '/users/:id',
-    { preHandler: [verifyJwt, verifyUserAdmin] },
-    deleteUser,
-  );
+  app.delete('/users/:id', {
+    schema: deleteUserSchema,
+    preHandler: [verifyJwt, verifyUserAdmin],
+    handler: deleteUser,
+  });
 
-  app.patch(
-    '/users/:id/email',
-    { preHandler: [verifyJwt, verifyUserAdmin] },
-    changeUserEmail,
-  );
-  app.patch(
-    '/users/:id/password',
-    { preHandler: [verifyJwt, verifyUserAdmin] },
-    changeUserPassword,
-  );
-  app.patch(
-    '/users/:id/role',
-    { preHandler: [verifyJwt, verifyUserAdmin] },
-    changeUserRole,
-  );
-  app.patch(
-    '/users/:id/username',
-    { preHandler: [verifyJwt, verifyUserAdmin] },
-    changeUsername,
-  );
+  app.patch('/users/:id/email', {
+    schema: changeUserEmailSchema,
+    preHandler: [verifyJwt, verifyUserAdmin],
+    handler: changeUserEmail,
+  });
+  app.patch('/users/:id/password', {
+    schema: changeUserPasswordSchema,
+    preHandler: [verifyJwt, verifyUserAdmin],
+    handler: changeUserPassword,
+  });
+  app.patch('/users/:id/role', {
+    schema: changeUserRoleSchema,
+    preHandler: [verifyJwt, verifyUserAdmin],
+    handler: changeUserRole,
+  });
+  app.patch('/users/:id/username', {
+    schema: changeUsernameSchema,
+    preHandler: [verifyJwt, verifyUserAdmin],
+    handler: changeUsername,
+  });
 }

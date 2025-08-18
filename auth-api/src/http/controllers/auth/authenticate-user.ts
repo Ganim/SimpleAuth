@@ -4,18 +4,19 @@ import { makeAuthenticateUseCase } from '@/use-cases/auth/factories/make-authent
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import z from 'zod';
 
-const authenticateBodySchema = z.object({
+// SCHEMAS
+export const authenticateUserBodySchema = z.object({
   email: z.email(),
   password: z.string().min(6),
 });
 
-export async function authenticate(
+// CONTROLLER
+export async function authenticateUser(
   request: FastifyRequest,
   reply: FastifyReply,
 ) {
-  const { email, password } = authenticateBodySchema.parse(request.body);
+  const { email, password } = authenticateUserBodySchema.parse(request.body);
   const ip = request.ip ?? request.headers['x-forwarded-for'] ?? '';
-
   try {
     const authenticateUseCase = makeAuthenticateUseCase();
     const { user, sessionId } = await authenticateUseCase.execute({
@@ -23,12 +24,10 @@ export async function authenticate(
       password,
       ip,
     });
-
     const token = await reply.jwtSign(
       { role: user.role, sessionId },
       { sign: { sub: user.id } },
     );
-
     const refreshToken = await reply.jwtSign(
       { role: user.role, sessionId },
       { sign: { sub: user.id, expiresIn: '7d' } },
@@ -49,3 +48,45 @@ export async function authenticate(
     throw error;
   }
 }
+
+// ATTRIBUTES
+export const authenticateUserSchema = {
+  tags: ['Me'],
+  summary: 'Authenticate user and start session',
+  body: {
+    type: 'object',
+    properties: {
+      email: {
+        type: 'string',
+        format: 'email',
+        description: 'User email',
+      },
+      password: {
+        type: 'string',
+        minLength: 6,
+        description: 'User password',
+      },
+    },
+    required: ['email', 'password'],
+    additionalProperties: false,
+  },
+  response: {
+    200: {
+      description: 'Authentication successful',
+      type: 'object',
+      properties: {
+        token: { type: 'string', description: 'JWT access token' },
+        sessionId: { type: 'string', description: 'Session ID' },
+      },
+      required: ['token', 'sessionId'],
+    },
+    400: {
+      description: 'Bad request',
+      type: 'object',
+      properties: {
+        message: { type: 'string' },
+      },
+      required: ['message'],
+    },
+  },
+};

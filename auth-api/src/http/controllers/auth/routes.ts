@@ -1,31 +1,60 @@
 import { app } from '@/app';
 import { verifyJwt } from '@/http/middlewares/verify-jwt';
-import { authenticate } from '../auth/authenticate';
-import { refresh } from '../auth/refresh';
-import { changeMyEmail } from './change-my-email';
-import { changeMyPassword } from './change-my-password';
-import { changeMyUsername } from './change-my-username';
-import { getMyProfile } from './get-my-profile';
-import { registerUser } from './register';
-import { updateMyProfile } from './update-my-profile';
+import { authenticateUser, authenticateUserSchema } from './authenticate-user';
+import { changeMyEmail, changeMyEmailSchema } from './change-my-email';
+import { changeMyPassword, changeMyPasswordSchema } from './change-my-password';
+import { changeMyUsername, changeMyUsernameSchema } from './change-my-username';
+import { getMyProfile, getMyProfileSchema } from './get-my-profile';
+import { refreshAuthToken, refreshAuthTokenSchema } from './refresh-auth-token';
+import { registerNewUser, registerNewUserSchema } from './register-new-user';
+import { updateMyProfile, updateMyProfileSchema } from './update-my-profile';
 
 export async function authRoutes() {
-  app.post('/register', registerUser);
-  app.post('/sessions', authenticate);
-  app.patch('/token/refresh', refresh);
+  // PUBLIC ROUTES
+  app.post('/register', {
+    schema: registerNewUserSchema,
+    handler: registerNewUser,
+  });
 
-  app.get('/me', { preHandler: [verifyJwt] }, getMyProfile);
+  app.post('/sessions', {
+    schema: authenticateUserSchema,
+    handler: authenticateUser,
+  });
 
-  app.patch('/me/update/profile', { preHandler: [verifyJwt] }, updateMyProfile);
-  app.patch('/me/change/email', { preHandler: [verifyJwt] }, changeMyEmail);
-  app.patch(
-    '/me/change/password',
-    { preHandler: [verifyJwt] },
-    changeMyPassword,
-  );
-  app.patch(
-    '/me/change/username',
-    { preHandler: [verifyJwt] },
-    changeMyUsername,
-  );
+  app.patch('/token/refresh', {
+    schema: refreshAuthTokenSchema,
+    handler: refreshAuthToken,
+  });
+
+  // AUTHENTICATED ROUTES
+
+  app.get('/me', {
+    schema: getMyProfileSchema,
+    preHandler: [verifyJwt],
+    handler: getMyProfile,
+  });
+
+  app.patch('/me/profile', {
+    schema: updateMyProfileSchema,
+    preHandler: [verifyJwt],
+    handler: updateMyProfile,
+  });
+
+  app.patch('/me/email', {
+    schema: changeMyEmailSchema,
+    preHandler: [verifyJwt],
+    handler: changeMyEmail,
+  });
+
+  app.patch('/me/password', {
+    schema: changeMyPasswordSchema,
+    preHandler: [verifyJwt],
+    handler: changeMyPassword,
+  });
+
+  app.patch('/me/username', {
+    schema: changeMyUsernameSchema,
+    preHandler: [verifyJwt],
+    handler: changeMyUsername,
+  });
 }

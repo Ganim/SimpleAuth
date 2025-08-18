@@ -2,7 +2,7 @@ import { InMemoryProfilesRepository } from '@/repositories/in-memory/in-memory-p
 import { InMemoryUsersRepository } from '@/repositories/in-memory/in-memory-users-repository';
 import { compare } from 'bcryptjs';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { BadRequestError } from '../@errors/bad-request-error';
+import { ConflictError } from '../@errors/conflict-error';
 import { CreateUserUseCase } from './create-user';
 
 let usersRepository: InMemoryUsersRepository;
@@ -77,6 +77,6 @@ describe('Create User Use Case', () => {
         password: '123456',
         profile: { name: 'John' },
       }),
-    ).rejects.toBeInstanceOf(BadRequestError);
+    ).rejects.toBeInstanceOf(ConflictError);
   });
 });

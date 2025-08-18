@@ -3,17 +3,21 @@ import { makeChangeUserPasswordUseCase } from '@/use-cases/users/factories/make-
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import z from 'zod';
 
-const changeUserPasswordBodySchema = z.object({
+// SCHEMAS
+export const changeUserPasswordBodySchema = z.object({
   password: z.string().min(6),
 });
+export const changeUserPasswordParamsSchema = z.object({
+  id: z.string(),
+});
 
+// CONTROLLER
 export async function changeUserPassword(
   request: FastifyRequest,
   reply: FastifyReply,
 ) {
-  const { id } = request.params as { id: string };
+  const { id } = changeUserPasswordParamsSchema.parse(request.params);
   const { password } = changeUserPasswordBodySchema.parse(request.body);
-
   try {
     const changeUserPasswordUseCase = makeChangeUserPasswordUseCase();
     await changeUserPasswordUseCase.execute({ id, password });
@@ -28,3 +32,39 @@ export async function changeUserPassword(
     throw error;
   }
 }
+
+// ATTRIBUTES
+export const changeUserPasswordSchema = {
+  tags: ['Users'],
+  summary: 'Change user password',
+  params: {
+    type: 'object',
+    properties: {
+      id: { type: 'string', description: 'User ID' },
+    },
+    required: ['id'],
+    additionalProperties: false,
+  },
+  body: {
+    type: 'object',
+    properties: {
+      password: { type: 'string', minLength: 6, description: 'New password' },
+    },
+    required: ['password'],
+    additionalProperties: false,
+  },
+  response: {
+    200: {
+      description: 'Password updated',
+      type: 'object',
+      properties: { message: { type: 'string' } },
+      required: ['message'],
+    },
+    400: {
+      description: 'Bad request',
+      type: 'object',
+      properties: { message: { type: 'string' } },
+      required: ['message'],
+    },
+  },
+};

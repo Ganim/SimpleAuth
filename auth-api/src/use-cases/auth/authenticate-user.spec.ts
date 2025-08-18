@@ -5,13 +5,13 @@ import { makeUser } from '@/tests/factories/make-user';
 import { CreateSessionUseCase } from '@/use-cases/sessions/create-session';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { BadRequestError } from '../@errors/bad-request-error';
-import { AuthenticateUseCase } from './authenticate';
+import { AuthenticateUserUseCase } from './authenticate-user';
 
 let usersRepository: InMemoryUsersRepository;
 let profilesRepository: InMemoryProfilesRepository;
 let sessionsRepository: InMemorySessionsRepository;
 let createSessionUseCase: CreateSessionUseCase;
-let sut: AuthenticateUseCase;
+let sut: AuthenticateUserUseCase;
 
 describe('Authenticate Use Case', () => {
   beforeEach(() => {
@@ -19,7 +19,7 @@ describe('Authenticate Use Case', () => {
     profilesRepository = new InMemoryProfilesRepository();
     sessionsRepository = new InMemorySessionsRepository();
     createSessionUseCase = new CreateSessionUseCase(sessionsRepository);
-    sut = new AuthenticateUseCase(usersRepository, createSessionUseCase);
+    sut = new AuthenticateUserUseCase(usersRepository, createSessionUseCase);
   });
 
   it('should be able to authenticate and create session', async () => {
