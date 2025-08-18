@@ -1,6 +1,6 @@
 {
   "name": "auth-api",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "main": "index.js",
   "type": "module",
   "scripts": {
@@ -15,10 +15,20 @@
     "lint": "eslint",
     "lint:fix": "eslint --fix"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "authentication",
+    "auth",
+    "fastify",
+    "prisma",
+    "typescript",
+    "jwt",
+    "api",
+    "security",
+    "user management"
+  ],
+  "author": "Guilherme Ganim",
   "license": "ISC",
-  "description": "",
+  "description": "Uma aplicação web simplificada para autenticação de usuários. Utiliza tecnologias modernas e princípios de design para garantir Segurança e Eficiência.",
   "dependencies": {
     "@fastify/cookie": "11.0.2",
     "@fastify/jwt": "9.1.0",
