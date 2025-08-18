@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { CreateSessionUseCase } from './create-session';
 
 describe('CreateSessionUseCase', () => {
-  it('deve criar uma sessão válida', async () => {
+  it('should create a valid session', async () => {
     const repo = new InMemorySessionsRepository();
     const useCase = new CreateSessionUseCase(repo);
 

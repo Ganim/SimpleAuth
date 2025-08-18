@@ -17,7 +17,7 @@ describe('E2E - /me/change/password', () => {
     await app.close();
   });
 
-  it('altera a senha do próprio usuário', async () => {
+  it('should change own password', async () => {
     const response = await request(app.server)
       .patch('/me/change/password')
       .set('Authorization', `Bearer ${token}`)

@@ -17,7 +17,7 @@ describe('E2E - /me/profile', () => {
     await app.close();
   });
 
-  it('deve atualizar o perfil do próprio usuário', async () => {
+  it('should update own user profile', async () => {
     const response = await request(app.server)
       .patch('/me/update/profile')
       .set('Authorization', `Bearer ${token}`)

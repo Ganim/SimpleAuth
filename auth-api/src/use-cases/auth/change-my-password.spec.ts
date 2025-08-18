@@ -13,7 +13,7 @@ describe('ChangeMyPasswordUseCase', () => {
     sut = new ChangeMyPasswordUseCase(usersRepository);
   });
 
-  it('deve alterar a senha do próprio usuário', async () => {
+  it('should change own password', async () => {
     const user = await usersRepository.create({
       email: 'user@example.com',
       password_hash: 'oldpass',
@@ -26,7 +26,7 @@ describe('ChangeMyPasswordUseCase', () => {
     expect(isPasswordHashed).toBe(true);
   });
 
-  it('deve lançar erro se usuário não existir', async () => {
+  it('should throw BadRequestError if user does not exist', async () => {
     await expect(() =>
       sut.execute({ userId: 'notfound', password: 'fail' }),
     ).rejects.toBeInstanceOf(BadRequestError);

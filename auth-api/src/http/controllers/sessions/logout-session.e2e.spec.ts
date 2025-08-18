@@ -19,7 +19,7 @@ describe('POST /sessions/logout (e2e)', () => {
     sessionId = res.body.sessionId;
   });
 
-  it('deve revogar a sessão e o refresh token', async () => {
+  it('should revoke session and refresh token', async () => {
     const res = await request(app.server)
       .post('/sessions/logout')
       .set('Authorization', `Bearer ${token}`)
@@ -27,7 +27,7 @@ describe('POST /sessions/logout (e2e)', () => {
     expect(res.status).toBe(204);
   });
 
-  it('deve retornar 400 se não enviar sessionId', async () => {
+  it('should return 400 if sessionId is not provided', async () => {
     const res = await request(app.server)
       .post('/sessions/logout')
       .set('Authorization', `Bearer ${token}`)

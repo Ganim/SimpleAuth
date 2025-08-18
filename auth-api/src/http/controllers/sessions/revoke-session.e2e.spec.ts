@@ -18,14 +18,14 @@ describe('POST /sessions/revoke', () => {
     await app.close();
   });
 
-  it('não permite revogar sessão sem autenticação', async () => {
+  it('should not allow revoking session without authentication', async () => {
     const res = await request
       .post('/sessions/revoke')
       .send({ sessionId: 'anyid' });
     expect(res.status).toBe(401);
   });
 
-  it('não permite revogar sessão se eu não for admin', async () => {
+  it('should not allow revoking session if not admin', async () => {
     const res = await request
       .post('/sessions/revoke')
       .set('Authorization', `Bearer ${userToken}`)
@@ -33,7 +33,7 @@ describe('POST /sessions/revoke', () => {
     expect(res.status).toBe(403);
   });
 
-  it('deve revogar uma sessão se eu for admin', async () => {
+  it('should revoke a session if user is admin', async () => {
     // Cria usuário e autentica para obter sessionId real
     await request
       .post('/users')

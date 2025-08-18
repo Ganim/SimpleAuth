@@ -4,7 +4,7 @@ import { CreateSessionUseCase } from './create-session';
 import { RevokeSessionUseCase } from './revoke-session';
 
 describe('RevokeSessionUseCase', () => {
-  it('deve revogar uma sessão', async () => {
+  it('should revoke a session', async () => {
     const repo = new InMemorySessionsRepository();
     const createSession = new CreateSessionUseCase(repo);
     const { session } = await createSession.execute('user-1', '127.0.0.1');
@@ -14,13 +14,13 @@ describe('RevokeSessionUseCase', () => {
   });
 });
 
-it('não deve lançar erro ao tentar revogar sessão inexistente', async () => {
+it('should not throw error when revoking non-existent session', async () => {
   const repo = new InMemorySessionsRepository();
   const revokeSession = new RevokeSessionUseCase(repo);
   await expect(revokeSession.execute('invalid-id')).resolves.toBeUndefined();
 });
 
-it('deve revogar apenas a sessão correta entre múltiplos usuários', async () => {
+it('should revoke only the correct session among multiple users', async () => {
   const repo = new InMemorySessionsRepository();
   const createSession = new CreateSessionUseCase(repo);
   const { session: s1 } = await createSession.execute('user-1', '127.0.0.1');

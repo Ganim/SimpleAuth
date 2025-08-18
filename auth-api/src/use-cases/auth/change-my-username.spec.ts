@@ -16,7 +16,7 @@ describe('ChangeMyUsernameUseCase', () => {
     sut = new ChangeMyUsernameUseCase(usersRepository);
   });
 
-  it('deve alterar o username do próprio usuário', async () => {
+  it('should change own username', async () => {
     const { user } = await makeUser({
       email: 'user@example.com',
       password: '123456',
@@ -28,13 +28,13 @@ describe('ChangeMyUsernameUseCase', () => {
     expect(result.user.username).toBe('newuser');
   });
 
-  it('deve lançar erro se usuário não existir', async () => {
+  it('should throw BadRequestError if user does not exist', async () => {
     await expect(() =>
       sut.execute({ userId: 'notfound', username: 'fail' }),
     ).rejects.toBeInstanceOf(BadRequestError);
   });
 
-  it('não deve permitir alterar para um username já existente', async () => {
+  it('should not allow changing to an already existing username', async () => {
     await makeUser({
       email: 'user1@example.com',
       password: '123456',

@@ -4,7 +4,7 @@ import { CreateSessionUseCase } from './create-session';
 import { ExpireSessionUseCase } from './expire-session';
 
 describe('ExpireSessionUseCase', () => {
-  it('deve expirar uma sessão', async () => {
+  it('should expire a session', async () => {
     const repo = new InMemorySessionsRepository();
     const createSession = new CreateSessionUseCase(repo);
     const { session } = await createSession.execute('user-1', '127.0.0.1');
@@ -14,13 +14,13 @@ describe('ExpireSessionUseCase', () => {
   });
 });
 
-it('não deve lançar erro ao tentar expirar sessão inexistente', async () => {
+it('should not throw error when expiring non-existent session', async () => {
   const repo = new InMemorySessionsRepository();
   const expireSession = new ExpireSessionUseCase(repo);
   await expect(expireSession.execute('invalid-id')).resolves.toBeUndefined();
 });
 
-it('deve expirar apenas a sessão correta entre múltiplos usuários', async () => {
+it('should expire only the correct session among multiple users', async () => {
   const repo = new InMemorySessionsRepository();
   const createSession = new CreateSessionUseCase(repo);
   const { session: s1 } = await createSession.execute('user-1', '127.0.0.1');

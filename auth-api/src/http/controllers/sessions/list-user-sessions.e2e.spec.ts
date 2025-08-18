@@ -25,19 +25,19 @@ describe('List User Sessions (e2e)', () => {
     await app.close();
   });
 
-  it('não permite listar sessões de usuário sem autenticação', async () => {
+  it('should not allow listing user sessions without authentication', async () => {
     const res = await request.get(`/sessions/user/${userId}`);
     expect(res.status).toBe(401);
   });
 
-  it('não permite listar sessões de outro usuário se eu não for admin', async () => {
+  it('should not allow listing another user sessions if not admin', async () => {
     const res = await request
       .get(`/sessions/user/${userId}`)
       .set('Authorization', `Bearer ${userToken}`);
     expect(res.status).toBe(403);
   });
 
-  it('deve listar todas as sessões de um usuário se eu for admin', async () => {
+  it('should list all sessions of a user if user is admin', async () => {
     const res = await request
       .get(`/sessions/user/${userId}`)
       .set('Authorization', `Bearer ${adminToken}`);

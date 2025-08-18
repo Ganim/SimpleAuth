@@ -24,7 +24,7 @@ describe('Refresh Session (e2e)', () => {
     await app.close();
   });
 
-  it('deve atualizar a sessão com novo IP', async () => {
+  it('should update session with new IP', async () => {
     const res = await request(app.server)
       .post('/sessions/refresh')
       .set('Authorization', `Bearer ${token}`)

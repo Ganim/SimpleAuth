@@ -12,7 +12,7 @@ describe('UpdateMyProfileUseCase', () => {
     sut = new UpdateMyProfileUseCase(profilesRepository);
   });
 
-  it('deve atualizar os campos do perfil do usuário', async () => {
+  it('should update user profile fields', async () => {
     await profilesRepository.create({
       user: { connect: { id: 'user-id' } },
       name: 'Old',
@@ -34,7 +34,7 @@ describe('UpdateMyProfileUseCase', () => {
     expect(profile.avatarUrl).toBe('url');
   });
 
-  it('deve lançar erro se perfil não existir', async () => {
+  it('should throw BadRequestError if profile does not exist', async () => {
     await expect(() =>
       sut.execute({ userId: 'notfound', name: 'fail' }),
     ).rejects.toBeInstanceOf(BadRequestError);

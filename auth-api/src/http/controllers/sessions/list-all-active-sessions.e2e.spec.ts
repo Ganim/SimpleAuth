@@ -18,19 +18,19 @@ describe('GET /sessions/active', () => {
     await app.close();
   });
 
-  it('não permite listar sessões ativas sem autenticação', async () => {
+  it('should not allow listing active sessions without authentication', async () => {
     const res = await request.get('/sessions/active');
     expect(res.status).toBe(401);
   });
 
-  it('não permite listar sessões ativas se eu não for admin', async () => {
+  it('should not allow listing active sessions if not admin', async () => {
     const res = await request
       .get('/sessions/active')
       .set('Authorization', `Bearer ${userToken}`);
     expect(res.status).toBe(403);
   });
 
-  it('deve listar todas as sessões ativas se eu for admin', async () => {
+  it('should list all active sessions if user is admin', async () => {
     const res = await request
       .get('/sessions/active')
       .set('Authorization', `Bearer ${adminToken}`);

@@ -17,7 +17,7 @@ describe('E2E - /me/change/username', () => {
     await app.close();
   });
 
-  it('altera o username do próprio usuário', async () => {
+  it('should change own username', async () => {
     const response = await request(app.server)
       .patch('/me/change/username')
       .set('Authorization', `Bearer ${token}`)

@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { ListUserSessionsUseCase } from './list-user-sessions';
 
 describe('ListUserSessionsUseCase', () => {
-  it('deve listar sessões de um usuário', async () => {
+  it('should list sessions of a user', async () => {
     const repo = new InMemorySessionsRepository();
     await repo.create({ userId: 'user-1', ip: '127.0.0.1' });
     await repo.create({ userId: 'user-2', ip: '127.0.0.2' });

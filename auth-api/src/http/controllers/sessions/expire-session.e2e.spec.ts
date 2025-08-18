@@ -18,14 +18,14 @@ describe('POST /sessions/expire', () => {
     await app.close();
   });
 
-  it('não permite expirar sessão sem autenticação', async () => {
+  it('should not allow expiring session without authentication', async () => {
     const res = await request
       .post('/sessions/expire')
       .send({ sessionId: 'anyid' });
     expect(res.status).toBe(401);
   });
 
-  it('não permite expirar sessão se eu não for admin', async () => {
+  it('should not allow expiring session if not admin', async () => {
     const res = await request
       .post('/sessions/expire')
       .set('Authorization', `Bearer ${userToken}`)
@@ -33,7 +33,7 @@ describe('POST /sessions/expire', () => {
     expect(res.status).toBe(403);
   });
 
-  it('deve expirar uma sessão se eu for admin', async () => {
+  it('should expire a session if user is admin', async () => {
     // Cria usuário e autentica para obter sessionId real
     await request
       .post('/users')

@@ -78,7 +78,7 @@ describe('Authenticate Use Case', () => {
       usersRepository,
       profilesRepository,
     });
-    // Simula deleção
+
     user.deletedAt = new Date();
     await expect(
       sut.execute({
@@ -89,7 +89,7 @@ describe('Authenticate Use Case', () => {
     ).rejects.toBeInstanceOf(BadRequestError);
   });
 
-  it('deve preencher o campo lastLoginAt ao autenticar', async () => {
+  it('should set lastLoginAt field when authenticating', async () => {
     await makeUser({
       email: 'lastlogin@example.com',
       password: '123456',

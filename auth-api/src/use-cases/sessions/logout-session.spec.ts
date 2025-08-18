@@ -14,7 +14,7 @@ describe('LogoutSessionUseCase', () => {
     sut = new LogoutSessionUseCase(sessionsRepository, refreshTokensRepository);
   });
 
-  it('deve expirar a sessão e revogar o refresh token', async () => {
+  it('should expire session and revoke refresh token', async () => {
     const session = await sessionsRepository.create({
       userId: 'user-1',
       ip: '1.1.1.1',
@@ -39,7 +39,7 @@ describe('LogoutSessionUseCase', () => {
     expect(revokedToken?.revokedAt).toBeInstanceOf(Date);
   });
 
-  it('não deve lançar erro se refresh token não existir', async () => {
+  it('should not throw if refresh token does not exist', async () => {
     const session = await sessionsRepository.create({
       userId: 'user-2',
       ip: '2.2.2.2',

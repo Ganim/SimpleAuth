@@ -11,7 +11,7 @@ describe('RefreshSessionUseCase', () => {
     sut = new RefreshSessionUseCase(sessionsRepository);
   });
 
-  it('deve atualizar o lastUsedAt e o ip da sessão', async () => {
+  it('should update lastUsedAt and ip of session', async () => {
     const session = await sessionsRepository.create({
       userId: 'user-1',
       ip: '1.1.1.1',
@@ -25,7 +25,7 @@ describe('RefreshSessionUseCase', () => {
     expect(updated?.ip).toBe('2.2.2.2');
   });
 
-  it('deve manter o ip se for igual', async () => {
+  it('should keep ip unchanged if it is the same', async () => {
     const session = await sessionsRepository.create({
       userId: 'user-2',
       ip: '3.3.3.3',

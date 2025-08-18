@@ -23,7 +23,7 @@ describe('POST /sessions/refresh (e2e)', () => {
     await app.close();
   });
 
-  it('deve atualizar a sessão com novo IP', async () => {
+  it('should update session with new IP', async () => {
     const res = await request(app.server)
       .post('/sessions/refresh')
       .set('Authorization', `Bearer ${token}`)
@@ -31,7 +31,7 @@ describe('POST /sessions/refresh (e2e)', () => {
     expect(res.status).toBe(204);
   });
 
-  it('deve retornar 400 se não enviar sessionId', async () => {
+  it('should return 400 if sessionId is not provided', async () => {
     const res = await request(app.server)
       .post('/sessions/refresh')
       .set('Authorization', `Bearer ${token}`)

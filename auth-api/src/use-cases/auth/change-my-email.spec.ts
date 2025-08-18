@@ -12,7 +12,7 @@ describe('ChangeMyEmailUseCase', () => {
     sut = new ChangeMyEmailUseCase(usersRepository);
   });
 
-  it('deve alterar o email do próprio usuário', async () => {
+  it('should change own email', async () => {
     const user = await usersRepository.create({
       email: 'old@example.com',
       password_hash: '123456',
@@ -24,13 +24,13 @@ describe('ChangeMyEmailUseCase', () => {
     expect(result.user.email).toBe('new@example.com');
   });
 
-  it('deve lançar erro se usuário não existir', async () => {
+  it('should throw BadRequestError if user does not exist', async () => {
     await expect(() =>
       sut.execute({ userId: 'notfound', email: 'fail@example.com' }),
     ).rejects.toBeInstanceOf(BadRequestError);
   });
 
-  it('não deve permitir alterar para um email já existente', async () => {
+  it('should not allow changing to an already existing email', async () => {
     await usersRepository.create({
       email: 'user1@example.com',
       password_hash: '123456',

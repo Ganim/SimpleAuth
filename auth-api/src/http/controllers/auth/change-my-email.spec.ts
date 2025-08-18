@@ -17,7 +17,7 @@ describe('E2E - /me/change/email', () => {
     await app.close();
   });
 
-  it('altera o email do próprio usuário', async () => {
+  it('should change own email', async () => {
     const response = await request(app.server)
       .patch('/me/change/email')
       .set('Authorization', `Bearer ${token}`)
