@@ -43,6 +43,10 @@ Permite cadastro, login, encerramento de sessão e gerenciamento do perfil de fo
 - [x] Deve ser possível editar perfil quando for **MANAGER** ou **ADMIN**
 - [x] Deve ser possível obter a lista de todos os usuários quando for **MANAGER** ou **ADMIN**
 - [x] Deve ser possível obter a lista de todos os usuários filtrados por role quando for **ADMIN**;
+- [ ] Deve ser possível listar todas as sessões de um usuário;
+- [ ] Deve ser possivel listar todas as sessões ativas;
+- [ ] Deve ser possível listar todas as sessões de um usuário filtrado por data;
+- [ ] Deve ser possível um Admin revogar uma sessão;
 
 
 ### Regras de Negócio
@@ -63,6 +67,8 @@ Permite cadastro, login, encerramento de sessão e gerenciamento do perfil de fo
 - [x] Todos os casos de usos devem ser testados de forma automatizada;
 - [x] Não se deve utilizar nenhum sistema pronto de autenticação para facilitar o processo;
 - [x] O token gerado deve ser válido de acordo com o site https://www.jwt.io/ ;
+- [ ] Ao realizar o logout a sessão deve ter os tokens e refreshTokens expirados;
+- [ ] Cada sessão deve ter o IP registrado;
 
 ## INSTALAÇÃO
 

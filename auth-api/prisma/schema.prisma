@@ -51,6 +51,7 @@ model User {
   // Relations
   profile      UserProfile?
   RefreshToken RefreshToken[]
+  sessions     Session[]
 
   // Optimizations
   @@index([failedLoginAttempts, blockedUntil, lastLoginIp])
@@ -87,20 +88,39 @@ model UserProfile {
   @@map("user_profiles")
 }
 
-model RefreshToken {
-  id     String @id @default(uuid())
-  userId String @map("user_id")
+model Session {
+  id         String    @id @default(uuid())
+  userId     String    @map("user_id")
+  ip         String    @db.VarChar(64)
+  createdAt  DateTime  @default(now()) @map("created_at")
+  expiredAt  DateTime? @map("expired_at")
+  revokedAt  DateTime? @map("revoked_at")
+  lastUsedAt DateTime? @map("last_used_at")
 
-  // Session Data
+  // Relations
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  refreshTokens RefreshToken[]
+
+  @@index([userId])
+  @@index([ip])
+  @@map("sessions")
+}
+
+model RefreshToken {
+  id        String    @id @default(uuid())
+  userId    String    @map("user_id")
+  sessionId String    @map("session_id")
   token     String    @unique @db.VarChar(512)
   expiresAt DateTime  @map("expires_at")
   createdAt DateTime  @default(now()) @map("created_at")
   revokedAt DateTime? @map("revoked_at")
 
   // Relations
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  session Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+  @@index([sessionId])
   @@index([token])
   @@map("refresh_tokens")
 }
