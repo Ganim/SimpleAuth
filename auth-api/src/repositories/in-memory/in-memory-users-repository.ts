@@ -88,4 +88,10 @@ export class InMemoryUsersRepository implements UsersRepository {
   async listAllByRole(role: UserRole) {
     return this.items.filter((user) => !user.deletedAt && user.role === role);
   }
+
+  async updateLastLoginAt(id: string, date: Date): Promise<void> {
+    const user = await this.findById(id);
+    if (!user) throw new Error('User not found');
+    user.lastLoginAt = date;
+  }
 }

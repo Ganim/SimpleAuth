@@ -29,32 +29,54 @@ Permite cadastro, login, encerramento de sessão e gerenciamento do perfil de fo
 - **Testes Automatizados:** Vitest, supertest
 
 ### Requisitos Funcionais
+
+De Autenticação:
 - [x] Deve ser possível se cadastrar;
 - [x] Deve ser possível se autenticar;
 - [ ] Deve ser possível recuperar a senha via e-mail;
-- [x] Deve ser possível atualizar o próprio perfil;
-- [x] Deve ser possível atualizar o próprio email;
-- [x] Deve ser possível atualizar o próprio username;
-- [x] Deve ser possível atualizar a própria senha;
-- [x] Deve ser possível obter próprio perfil;
+
+De Perfil:
 - [x] Deve ser possível obter o perfil de um usuário qualquer;
-- [x] Deve ser possível deletar um usuário quando for **ADMIN**
-- [x] Deve ser possível editar usuários quando for **ADMIN**
-- [x] Deve ser possível editar perfil quando for **MANAGER** ou **ADMIN**
-- [x] Deve ser possível obter a lista de todos os usuários quando for **MANAGER** ou **ADMIN**
-- [x] Deve ser possível obter a lista de todos os usuários filtrados por role quando for **ADMIN**;
-- [ ] Deve ser possível listar todas as sessões de um usuário;
-- [ ] Deve ser possivel listar todas as sessões ativas;
-- [ ] Deve ser possível listar todas as sessões de um usuário filtrado por data;
-- [ ] Deve ser possível um Admin revogar uma sessão;
+- [x] Deve ser possível obter o próprio perfil;
+- [x] Deve ser possível editar o próprio perfil;
+- [x] Deve ser possível editar o perfil de um usuário **(MANAGER) | (ADMIN)**
+
+De Listagem de Usuários:
+- [x] Deve ser possível obter a lista de todos os usuários **(MANAGER) | (ADMIN)**
+- [x] Deve ser possível obter a lista de todos os usuários filtrados por role **(ADMIN)**;
+
+De Deleção de Usuários:
+- [x] Deve ser possível deletar um usuário **(ADMIN)**
+
+De Dados Sensiveis de Usuários (email, username, senha):
+- [x] Deve ser possível atualizar seus dados sensíveis
+- [x] Deve ser possível editar dados sensíveis de usuários **(ADMIN)**
+
+De Sessions:
+- [x] Deve ser possível listar suas próprias sessões:
+- [x] Deve ser possível listar todas as sessões de um usuário **(ADMIN)**;
+- [x] Deve ser possivel listar todas as sessões ativas **(ADMIN)**;
+- [x] Deve ser possível listar todas as sessões de um usuário filtrado por data **(ADMIN)**;
+- [x] Deve ser possível revogar uma sessão **(ADMIN)**;
 
 
 ### Regras de Negócio
-- [x] O usuário não pode se cadastrar com um e-mail duplicado;
+De Autenticação:
 - [ ] Se o usuário errar a senha 3 vezes terá o perfil bloqueado por 5 minutos;
 - [ ] Não deve ser possivel fazer login se o usuário estiver bloqueado;
+
+De Deleção de Usuários:
 - [x] Toda a deleção da API deve ser SOFT DELETE;
 - [x] Usuários deletados não podem ser autenticados, listados ou alterados,
+
+De Dados Sensiveis de Usuários (email, username, senha):
+- [x] O usuário não pode ter um e-mail duplicado;
+- [x] O usuário não pode ter um username duplicado;
+
+De Sessions:
+- [x] É permitido multi-sessions;
+
+
 
 ### Requisitos Não Funcionais
 - [ ] A API deve ser documentada pelo Swagger;
@@ -67,8 +89,9 @@ Permite cadastro, login, encerramento de sessão e gerenciamento do perfil de fo
 - [x] Todos os casos de usos devem ser testados de forma automatizada;
 - [x] Não se deve utilizar nenhum sistema pronto de autenticação para facilitar o processo;
 - [x] O token gerado deve ser válido de acordo com o site https://www.jwt.io/ ;
-- [ ] Ao realizar o logout a sessão deve ter os tokens e refreshTokens expirados;
-- [ ] Cada sessão deve ter o IP registrado;
+- [x] Ao realizar o logout a sessão deve ter os tokens e refreshTokens expirados;
+- [x] Cada sessão deve ter o IP registrado;
+- [x] Todas as sessions deve ter registro no banco de dados;
 
 ## INSTALAÇÃO
 

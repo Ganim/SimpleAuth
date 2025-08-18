@@ -14,19 +14,23 @@ export async function authenticate(
   reply: FastifyReply,
 ) {
   const { email, password } = authenticateBodySchema.parse(request.body);
+  const ip = request.ip ?? request.headers['x-forwarded-for'] ?? '';
 
   try {
     const authenticateUseCase = makeAuthenticateUseCase();
-
-    const { user } = await authenticateUseCase.execute({ email, password });
+    const { user, sessionId } = await authenticateUseCase.execute({
+      email,
+      password,
+      ip,
+    });
 
     const token = await reply.jwtSign(
-      { role: user.role },
+      { role: user.role, sessionId },
       { sign: { sub: user.id } },
     );
 
     const refreshToken = await reply.jwtSign(
-      { role: user.role },
+      { role: user.role, sessionId },
       { sign: { sub: user.id, expiresIn: '7d' } },
     );
     return reply
@@ -37,7 +41,7 @@ export async function authenticate(
         httpOnly: true,
       })
       .status(200)
-      .send({ token });
+      .send({ token, sessionId });
   } catch (error) {
     if (error instanceof BadRequestError) {
       return reply.status(400).send({ message: error.message });

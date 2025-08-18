@@ -10,4 +10,5 @@ export interface UsersRepository {
   listAllByRole(role: UserRole): Promise<User[]>;
   update(data: Prisma.UserUpdateInput): Promise<User>;
   delete(id: string): Promise<void>; // soft delete
+  updateLastLoginAt(id: string, date: Date): Promise<void>;
 }

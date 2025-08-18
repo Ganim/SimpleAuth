@@ -80,4 +80,11 @@ export class PrismaUsersRepository implements UsersRepository {
     });
     return users;
   }
+
+  async updateLastLoginAt(id: string, date: Date) {
+    await prisma.user.update({
+      where: { id },
+      data: { lastLoginAt: date },
+    });
+  }
 }
