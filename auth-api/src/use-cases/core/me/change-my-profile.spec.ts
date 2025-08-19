@@ -1,15 +1,15 @@
 import { InMemoryProfilesRepository } from '@/repositories/in-memory/in-memory-profiles-repository';
+import { BadRequestError } from '@/use-cases/@errors/bad-request-error';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { BadRequestError } from '../@errors/bad-request-error';
-import { UpdateMyProfileUseCase } from './update-my-profile';
+import { ChangeMyProfileUseCase } from './change-my-profile';
 
 let profilesRepository: InMemoryProfilesRepository;
-let sut: UpdateMyProfileUseCase;
+let sut: ChangeMyProfileUseCase;
 
-describe('UpdateMyProfileUseCase', () => {
+describe('ChangeMyProfileUseCase', () => {
   beforeEach(() => {
     profilesRepository = new InMemoryProfilesRepository();
-    sut = new UpdateMyProfileUseCase(profilesRepository);
+    sut = new ChangeMyProfileUseCase(profilesRepository);
   });
 
   it('should update user profile fields', async () => {
@@ -19,14 +19,18 @@ describe('UpdateMyProfileUseCase', () => {
       surname: 'Name',
       location: 'Brazil',
     });
+
     const { profile } = await sut.execute({
       userId: 'user-id',
-      name: 'NovoNome',
-      surname: 'NovoSobrenome',
-      location: 'Portugal',
-      bio: 'Bio editada',
-      avatarUrl: 'url',
+      profile: {
+        name: 'NovoNome',
+        surname: 'NovoSobrenome',
+        location: 'Portugal',
+        bio: 'Bio editada',
+        avatarUrl: 'url',
+      },
     });
+
     expect(profile.name).toBe('NovoNome');
     expect(profile.surname).toBe('NovoSobrenome');
     expect(profile.location).toBe('Portugal');
@@ -36,7 +40,7 @@ describe('UpdateMyProfileUseCase', () => {
 
   it('should throw BadRequestError if profile does not exist', async () => {
     await expect(() =>
-      sut.execute({ userId: 'notfound', name: 'fail' }),
+      sut.execute({ userId: 'notfound', profile: { name: 'fail' } }),
     ).rejects.toBeInstanceOf(BadRequestError);
   });
 });

@@ -1,9 +1,9 @@
 import { InMemoryProfilesRepository } from '@/repositories/in-memory/in-memory-profiles-repository';
 import { InMemoryUsersRepository } from '@/repositories/in-memory/in-memory-users-repository';
 import { makeUser } from '@/tests/factories/make-user';
+import { BadRequestError } from '@/use-cases/@errors/bad-request-error';
 import { compare } from 'bcryptjs';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { BadRequestError } from '../@errors/bad-request-error';
 import { ChangeUserPasswordUseCase } from './change-user-password';
 
 describe('ChangeUserPasswordUseCase', () => {

@@ -1,8 +1,8 @@
 import { InMemoryProfilesRepository } from '@/repositories/in-memory/in-memory-profiles-repository';
 import { InMemoryUsersRepository } from '@/repositories/in-memory/in-memory-users-repository';
 import { makeUser } from '@/tests/factories/make-user';
+import { BadRequestError } from '@/use-cases/@errors/bad-request-error';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { BadRequestError } from '../@errors/bad-request-error';
 import { ChangeUserRoleUseCase } from './change-user-role';
 
 describe('ChangeUserRoleUseCase', () => {

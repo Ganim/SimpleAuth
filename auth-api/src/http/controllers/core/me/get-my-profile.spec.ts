@@ -3,7 +3,7 @@ import { createAndAuthenticateUser } from '@/utils/test/create-and-authenticate-
 import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
-describe('Profile (e2e)', () => {
+describe('Change My Profile (e2e)', () => {
   beforeAll(async () => {
     app.ready();
   });

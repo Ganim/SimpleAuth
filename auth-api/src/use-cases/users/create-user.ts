@@ -2,10 +2,10 @@ import type { UserRole } from '@/@types/user-role';
 import { env } from '@/env';
 import type { ProfilesRepository } from '@/repositories/profiles-repository';
 import type { UsersRepository } from '@/repositories/users-repository';
+import { BadRequestError } from '@/use-cases/@errors/bad-request-error';
 import { hash } from 'bcryptjs';
 import type { User, UserProfile } from 'generated/prisma';
 import { randomUUID } from 'node:crypto';
-import { BadRequestError } from '../@errors/bad-request-error';
 
 interface CreateUserUseCaseRequest {
   username?: string;

@@ -1,6 +1,6 @@
 import { InMemoryUsersRepository } from '@/repositories/in-memory/in-memory-users-repository';
+import { BadRequestError } from '@/use-cases/@errors/bad-request-error';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { BadRequestError } from '../@errors/bad-request-error';
 import { ChangeMyEmailUseCase } from './change-my-email';
 
 let usersRepository: InMemoryUsersRepository;

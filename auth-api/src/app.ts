@@ -1,13 +1,21 @@
 import fastifyCookie from '@fastify/cookie';
 import fastifyJwt from '@fastify/jwt';
 import fastify from 'fastify';
+import {
+  serializerCompiler,
+  validatorCompiler,
+} from 'fastify-type-provider-zod';
 import { env } from './env';
 import { authRoutes } from './http/controllers/auth/routes';
+import { meRoutes } from './http/controllers/core/me/routes';
 import { sessionsRoutes } from './http/controllers/sessions/routes';
 import { usersRoutes } from './http/controllers/users/routes';
 import { errorHandler } from './http/error-handler';
 
 export const app = fastify();
+
+app.setValidatorCompiler(validatorCompiler);
+app.setSerializerCompiler(serializerCompiler);
 
 // Error handler
 app.setErrorHandler(errorHandler);
@@ -31,6 +39,7 @@ app.register(fastifyJwt, {
 app.register(fastifyCookie);
 
 // Routes
+app.register(meRoutes);
 app.register(authRoutes);
 app.register(usersRoutes);
 app.register(sessionsRoutes);

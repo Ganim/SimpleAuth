@@ -1,19 +1,19 @@
 import type { UsersRepository } from '@/repositories/users-repository';
+import { BadRequestError } from '@/use-cases/@errors/bad-request-error';
 import { compare } from 'bcryptjs';
 import type { User } from 'generated/prisma';
-import { BadRequestError } from '../@errors/bad-request-error';
 
-interface AuthenticateUseCaseRequest {
+interface AuthenticateWithPasswordUseCaseRequest {
   email: string;
   password: string;
   ip: string;
 }
-interface AuthenticateUseCaseResponse {
+interface AuthenticateWithPasswordUseCaseResponse {
   user: User;
   sessionId: string;
 }
 
-export class AuthenticateUseCase {
+export class AuthenticateWithPasswordUseCase {
   constructor(
     private usersRepository: UsersRepository,
     private createSessionUseCase: {
@@ -28,7 +28,7 @@ export class AuthenticateUseCase {
     email,
     password,
     ip,
-  }: AuthenticateUseCaseRequest): Promise<AuthenticateUseCaseResponse> {
+  }: AuthenticateWithPasswordUseCaseRequest): Promise<AuthenticateWithPasswordUseCaseResponse> {
     const user = await this.usersRepository.findByEmail(email);
     if (!user || user.deletedAt) {
       throw new BadRequestError('Invalid credentials');

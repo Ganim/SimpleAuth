@@ -1,6 +1,6 @@
 import type { UsersRepository } from '@/repositories/users-repository';
+import { BadRequestError } from '@/use-cases/@errors/bad-request-error';
 import type { UserProfile } from 'generated/prisma/client';
-import { BadRequestError } from '../@errors/bad-request-error';
 
 interface listAllUserUseCaseResponse {
   users: Array<{

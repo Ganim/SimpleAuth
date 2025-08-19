@@ -1,6 +1,6 @@
 import type { ProfilesRepository } from '@/repositories/profiles-repository';
+import { BadRequestError } from '@/use-cases/@errors/bad-request-error';
 import type { UserProfile } from 'generated/prisma';
-import { BadRequestError } from '../@errors/bad-request-error';
 
 interface UpdateUserProfileUseCaseRequest {
   userId: string;

@@ -1,7 +1,7 @@
 import type { UserRole } from '@/@types/user-role';
 import type { UsersRepository } from '@/repositories/users-repository';
+import { BadRequestError } from '@/use-cases/@errors/bad-request-error';
 import type { UserProfile } from 'generated/prisma/client';
-import { BadRequestError } from '../@errors/bad-request-error';
 
 interface ListAllUserByRoleUseCaseRequest {
   role: UserRole;

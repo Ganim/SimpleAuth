@@ -1,7 +1,7 @@
 import type { ProfilesRepository } from '@/repositories/profiles-repository';
 import type { UsersRepository } from '@/repositories/users-repository';
+import { BadRequestError } from '@/use-cases/@errors/bad-request-error';
 import type { User, UserProfile } from 'generated/prisma/client';
-import { BadRequestError } from '../@errors/bad-request-error';
 
 interface GetUserUseCaseRequest {
   id: string;

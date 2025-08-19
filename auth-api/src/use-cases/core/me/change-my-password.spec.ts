@@ -1,7 +1,7 @@
 import { InMemoryUsersRepository } from '@/repositories/in-memory/in-memory-users-repository';
+import { BadRequestError } from '@/use-cases/@errors/bad-request-error';
 import { compare } from 'bcryptjs';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { BadRequestError } from '../@errors/bad-request-error';
 import { ChangeMyPasswordUseCase } from './change-my-password';
 
 let usersRepository: InMemoryUsersRepository;
