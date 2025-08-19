@@ -8,7 +8,7 @@ import z from 'zod';
 export async function authenticateWithPassword(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({
     method: 'POST',
-    url: '/sessions/password',
+    url: '/auth/password',
     schema: {
       tags: ['Auth'],
       summary: 'Authenticate user with email and password',

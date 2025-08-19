@@ -6,7 +6,7 @@ import {
   validatorCompiler,
 } from 'fastify-type-provider-zod';
 import { env } from './env';
-import { authRoutes } from './http/controllers/auth/routes';
+import { authRoutes } from './http/controllers/core/auth/routes';
 import { meRoutes } from './http/controllers/core/me/routes';
 import { sessionsRoutes } from './http/controllers/sessions/routes';
 import { usersRoutes } from './http/controllers/users/routes';

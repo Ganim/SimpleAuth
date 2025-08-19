@@ -1,23 +1,19 @@
 import { app } from '@/app';
 import { prisma } from '@/lib/prisma';
+import { createAndAuthenticateUser } from '@/utils/test/create-and-authenticate-user';
 import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
-describe('Refresh Session (e2e)', () => {
+describe('Refresh token (e2e)', () => {
   let token: string;
   let sessionId: string;
 
   beforeAll(async () => {
     await app.ready();
-    await request(app.server).post('/users').send({
-      email: 'johndoe@example.com',
-      password: '123456',
-    });
-    const authRes = await request(app.server)
-      .post('/sessions')
-      .send({ email: 'johndoe@example.com', password: '123456' });
-    token = authRes.body.token;
-    sessionId = authRes.body.sessionId;
+    const { token: userToken, sessionId: userSessionId } =
+      await createAndAuthenticateUser(app, 'USER');
+    token = userToken;
+    sessionId = userSessionId;
   });
 
   afterAll(async () => {
@@ -26,10 +22,10 @@ describe('Refresh Session (e2e)', () => {
 
   it('should update session with new IP', async () => {
     const res = await request(app.server)
-      .post('/sessions/refresh')
+      .post('/auth/refresh')
       .set('Authorization', `Bearer ${token}`)
       .send({ sessionId });
-    expect(res.status).toBe(204);
+    expect(res.status).toBe(200);
 
     // Valida se a sessão foi atualizada
     const session = await prisma.session.findUnique({

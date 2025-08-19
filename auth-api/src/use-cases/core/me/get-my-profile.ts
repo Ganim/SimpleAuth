@@ -11,7 +11,10 @@ type GetMyProfileUseCaseResponse = {
     userId: string;
     name: string;
     surname: string;
-    location: string | null;
+    birthday: string;
+    location: string;
+    bio: string;
+    avatarUrl: string;
     email: string;
     username: string;
   };
@@ -40,13 +43,21 @@ export class GetMyProfileUseCase {
     if (!profile) {
       throw new Error('Profile not found');
     }
+
+    const formattedBirthday = profile.birthday
+      ? new Date(profile.birthday).toLocaleDateString('pt-BR')
+      : '';
+
     return {
       profile: {
         id: profile.id,
         userId: user.id,
         name: profile.name ?? '',
         surname: profile.surname ?? '',
-        location: profile.location,
+        location: profile.location ?? '',
+        bio: profile.bio ?? '',
+        birthday: formattedBirthday,
+        avatarUrl: profile.avatarUrl ?? '',
         email: user.email,
         username: user.username ?? '',
       },

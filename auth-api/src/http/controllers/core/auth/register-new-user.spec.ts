@@ -1,0 +1,39 @@
+import { app } from '@/app';
+import request from 'supertest';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+
+describe('Register New User (e2e)', () => {
+  beforeAll(async () => {
+    app.ready();
+  });
+  afterAll(async () => {
+    await app.close();
+  });
+
+  it('should register a new user with all fields', async () => {
+    const response = await request(app.server)
+      .post('/users')
+      .send({
+        email: 'johndoe@example.com',
+        password: '123456',
+        username: 'johnny',
+        profile: {
+          name: 'John',
+          surname: 'Doe',
+          birthday: new Date('1990-01-01'),
+          location: 'USA',
+          avatarUrl: 'http://example.com/avatar.jpg',
+        },
+      });
+    expect(response.statusCode).toEqual(201);
+    expect(response.body.email).toBe('johndoe@example.com');
+    expect(response.body.profile).toBeDefined();
+    expect(response.body.profile.name).toBe('John');
+    expect(response.body.profile.surname).toBe('Doe');
+    expect(response.body.profile.birthday.slice(0, 10)).toBe('1990-01-01');
+    expect(response.body.profile.location).toBe('USA');
+    expect(response.body.profile.avatarUrl).toBe(
+      'http://example.com/avatar.jpg',
+    );
+  });
+});

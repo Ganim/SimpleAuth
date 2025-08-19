@@ -1,12 +1,11 @@
 import { app } from '@/app';
-import { refresh } from '../auth/refresh';
 
 import { authenticateWithPassword } from './authenticate-with-password';
-import { registerUser } from './register';
+import { refreshToken } from './refresh-token';
+import { registerNewUser } from './register-new-user';
 
 export async function authRoutes() {
   app.register(authenticateWithPassword);
-
-  app.post('/register', registerUser);
-  app.patch('/token/refresh', refresh);
+  app.register(registerNewUser);
+  app.register(refreshToken);
 }

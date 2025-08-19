@@ -29,17 +29,16 @@ export async function createAndAuthenticateUser(
     },
   });
 
-  const authResponse = await request(app.server)
-    .post('/sessions/password')
-    .send({
-      email: fakerEmail,
-      password: '123456',
-    });
+  const authResponse = await request(app.server).post('/auth/password').send({
+    email: fakerEmail,
+    password: '123456',
+  });
 
-  const { token } = authResponse.body;
+  const { token, sessionId } = authResponse.body;
 
   return {
     user: userResponse,
     token,
+    sessionId,
   };
 }
