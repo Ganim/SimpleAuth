@@ -1,9 +1,8 @@
-import { PrismaSessionsRepository } from '@/repositories/prisma/prisma-sessions-repository';
+import { makeRefreshTokenUseCase } from '@/use-cases/core/auth/factories/make-refresh-token-use-case';
+import { type JwtPayload } from '@/use-cases/core/auth/refresh-token';
 import type { FastifyInstance } from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import z from 'zod';
-
-type JwtPayload = { sub: string; role: string; sessionId?: string };
 
 export async function refreshToken(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({
@@ -38,18 +37,17 @@ export async function refreshToken(app: FastifyInstance) {
         return reply.status(400).send({ message: 'Session ID is required' });
       }
 
-      const sessionsRepository = new PrismaSessionsRepository();
-      await sessionsRepository.updateSessionInfo(sessionId, ip);
+      const refreshTokenUseCase = makeRefreshTokenUseCase();
 
-      const token = await reply.jwtSign(
-        { role: request.user.role, sessionId },
-        { sign: { sub: request.user.sub } },
-      );
-
-      const refreshToken = await reply.jwtSign(
-        { role: request.user.role, sessionId },
-        { sign: { sub: request.user.sub, expiresIn: '7d' } },
-      );
+      const { token, refreshToken } = await refreshTokenUseCase.execute({
+        sessionId,
+        ip,
+        user: {
+          sub: request.user.sub,
+          role: request.user.role,
+        },
+        reply,
+      });
 
       return reply
         .setCookie('refreshToken', refreshToken, {

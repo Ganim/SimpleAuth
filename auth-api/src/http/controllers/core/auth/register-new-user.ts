@@ -1,8 +1,8 @@
 import { BadRequestError } from '@/use-cases/@errors/bad-request-error';
-import { makeCreateUserUseCase } from '@/use-cases/users/factories/make-create-user-use-case';
 
 import z from 'zod';
 
+import { makeRegisterNewUserUseCase } from '@/use-cases/core/auth/factories/make-register-new-user-use-case';
 import type { FastifyInstance } from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 
@@ -23,7 +23,6 @@ export async function registerNewUser(app: FastifyInstance) {
             surname: z.string().min(1).max(50).optional(),
             birthday: z.date().optional(),
             location: z.string().min(1).max(128).optional(),
-            avatarUrl: z.string().min(1).max(512).optional(),
           })
           .optional(),
       }),
@@ -52,9 +51,9 @@ export async function registerNewUser(app: FastifyInstance) {
       const { email, password, username, profile } = request.body;
 
       try {
-        const createUserUseCase = makeCreateUserUseCase();
-        const { user, profile: createdProfile } =
-          await createUserUseCase.execute({
+        const registerNewUserUseCase = makeRegisterNewUserUseCase();
+        const { user, profile: newUserProfile } =
+          await registerNewUserUseCase.execute({
             email,
             password,
             username,
@@ -62,7 +61,7 @@ export async function registerNewUser(app: FastifyInstance) {
           });
         return reply.status(201).send({
           email: user.email,
-          profile: createdProfile,
+          profile: newUserProfile,
         });
       } catch (error) {
         if (error instanceof BadRequestError) {

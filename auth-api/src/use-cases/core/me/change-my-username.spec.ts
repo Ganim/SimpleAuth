@@ -9,7 +9,7 @@ let usersRepository: InMemoryUsersRepository;
 let profilesRepository: InMemoryProfilesRepository;
 let sut: ChangeMyUsernameUseCase;
 
-describe('ChangeMyUsernameUseCase', () => {
+describe('Change My Username Use Case', () => {
   beforeEach(() => {
     usersRepository = new InMemoryUsersRepository();
     profilesRepository = new InMemoryProfilesRepository();

@@ -22,7 +22,6 @@ describe('Register New User (e2e)', () => {
           surname: 'Doe',
           birthday: new Date('1990-01-01'),
           location: 'USA',
-          avatarUrl: 'http://example.com/avatar.jpg',
         },
       });
     expect(response.statusCode).toEqual(201);
@@ -32,8 +31,5 @@ describe('Register New User (e2e)', () => {
     expect(response.body.profile.surname).toBe('Doe');
     expect(response.body.profile.birthday.slice(0, 10)).toBe('1990-01-01');
     expect(response.body.profile.location).toBe('USA');
-    expect(response.body.profile.avatarUrl).toBe(
-      'http://example.com/avatar.jpg',
-    );
   });
 });

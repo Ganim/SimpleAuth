@@ -8,7 +8,7 @@ let usersRepository: InMemoryUsersRepository;
 let profilesRepository: InMemoryProfilesRepository;
 let sut: GetMyProfileUseCase;
 
-describe('GetMyProfileUseCase', () => {
+describe('Get My Profile Use Case', () => {
   beforeEach(() => {
     usersRepository = new InMemoryUsersRepository();
     profilesRepository = new InMemoryProfilesRepository();

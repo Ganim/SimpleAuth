@@ -7,7 +7,7 @@ import { ChangeMyPasswordUseCase } from './change-my-password';
 let usersRepository: InMemoryUsersRepository;
 let sut: ChangeMyPasswordUseCase;
 
-describe('ChangeMyPasswordUseCase', () => {
+describe('Change My Password Use Case', () => {
   beforeEach(() => {
     usersRepository = new InMemoryUsersRepository();
     sut = new ChangeMyPasswordUseCase(usersRepository);

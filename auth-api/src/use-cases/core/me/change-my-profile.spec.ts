@@ -6,7 +6,7 @@ import { ChangeMyProfileUseCase } from './change-my-profile';
 let profilesRepository: InMemoryProfilesRepository;
 let sut: ChangeMyProfileUseCase;
 
-describe('ChangeMyProfileUseCase', () => {
+describe('Change My Profile Use Case', () => {
   beforeEach(() => {
     profilesRepository = new InMemoryProfilesRepository();
     sut = new ChangeMyProfileUseCase(profilesRepository);

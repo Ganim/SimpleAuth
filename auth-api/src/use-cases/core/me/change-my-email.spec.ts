@@ -6,7 +6,7 @@ import { ChangeMyEmailUseCase } from './change-my-email';
 let usersRepository: InMemoryUsersRepository;
 let sut: ChangeMyEmailUseCase;
 
-describe('ChangeMyEmailUseCase', () => {
+describe('Change My Email Use Case', () => {
   beforeEach(() => {
     usersRepository = new InMemoryUsersRepository();
     sut = new ChangeMyEmailUseCase(usersRepository);
