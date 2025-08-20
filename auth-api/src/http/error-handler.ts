@@ -1,5 +1,6 @@
 import { BadRequestError } from '@/use-cases/@errors/bad-request-error';
 import { ForbiddenError } from '@/use-cases/@errors/forbidden-error';
+import { ResourceNotFoundError } from '@/use-cases/@errors/resource-not-found';
 import { UnauthorizedError } from '@/use-cases/@errors/unauthorized-error';
 import type { FastifyInstance } from 'fastify';
 import { env } from 'process';
@@ -33,8 +34,8 @@ export const errorHandler: FastifyErrorHandler = (error, _, reply) => {
     });
   }
 
-  if (error instanceof ForbiddenError) {
-    return reply.status(403).send({
+  if (error instanceof ResourceNotFoundError) {
+    return reply.status(404).send({
       message: error.message,
     });
   }

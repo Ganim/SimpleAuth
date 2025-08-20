@@ -1,4 +1,4 @@
-import { BadRequestError } from '@/use-cases/@errors/bad-request-error';
+import { ResourceNotFoundError } from '@/use-cases/@errors/resource-not-found';
 import { makeAuthenticateWithPasswordUseCase } from '@/use-cases/core/auth/factories/make-authenticate-with-password-use-case';
 
 import type { FastifyInstance } from 'fastify';
@@ -21,7 +21,7 @@ export async function authenticateWithPassword(app: FastifyInstance) {
           token: z.string(),
           sessionId: z.string(),
         }),
-        400: z.object({
+        404: z.object({
           message: z.string(),
         }),
       },
@@ -61,8 +61,8 @@ export async function authenticateWithPassword(app: FastifyInstance) {
           .status(200)
           .send({ token, sessionId });
       } catch (error) {
-        if (error instanceof BadRequestError) {
-          return reply.status(400).send({ message: error.message });
+        if (error instanceof ResourceNotFoundError) {
+          return reply.status(404).send({ message: error.message });
         }
         throw error;
       }

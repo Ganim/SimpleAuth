@@ -18,7 +18,7 @@ export async function refreshToken(app: FastifyInstance) {
         200: z.object({
           token: z.string(),
         }),
-        400: z.object({
+        404: z.object({
           message: z.string(),
         }),
       },
@@ -34,7 +34,7 @@ export async function refreshToken(app: FastifyInstance) {
       const ip = request.ip ?? request.headers['x-forwarded-for'] ?? '';
 
       if (!sessionId) {
-        return reply.status(400).send({ message: 'Session ID is required' });
+        return reply.status(404).send({ message: 'Session ID is required' });
       }
 
       const refreshTokenUseCase = makeRefreshTokenUseCase();

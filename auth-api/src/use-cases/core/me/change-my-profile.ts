@@ -1,5 +1,6 @@
 import type { ProfilesRepository } from '@/repositories/profiles-repository';
-import { BadRequestError } from '@/use-cases/@errors/bad-request-error';
+import { ResourceNotFoundError } from '@/use-cases/@errors/resource-not-found';
+
 import type { UserProfile } from 'generated/prisma';
 
 interface ChangeMyProfileUseCaseRequest {
@@ -26,7 +27,8 @@ export class ChangeMyProfileUseCase {
     profile,
   }: ChangeMyProfileUseCaseRequest): Promise<ChangeMyProfileUseCaseResponse> {
     const existingProfile = await this.profilesRepository.findByUserId(userId);
-    if (!existingProfile) throw new BadRequestError('Profile not found');
+
+    if (!existingProfile) throw new ResourceNotFoundError('Profile not found');
 
     const updatedProfile = await this.profilesRepository.update({
       userId,

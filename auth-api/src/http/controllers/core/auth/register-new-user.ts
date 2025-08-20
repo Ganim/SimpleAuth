@@ -1,4 +1,4 @@
-import { BadRequestError } from '@/use-cases/@errors/bad-request-error';
+import { ResourceNotFoundError } from '@/use-cases/@errors/resource-not-found';
 
 import z from 'zod';
 
@@ -21,7 +21,7 @@ export async function registerNewUser(app: FastifyInstance) {
           .object({
             name: z.string().min(1).max(50).optional(),
             surname: z.string().min(1).max(50).optional(),
-            birthday: z.date().optional(),
+            birthday: z.coerce.date().optional(),
             location: z.string().min(1).max(128).optional(),
           })
           .optional(),
@@ -40,7 +40,7 @@ export async function registerNewUser(app: FastifyInstance) {
             avatarUrl: z.string(),
           }),
         }),
-        400: z.object({
+        404: z.object({
           message: z.string(),
         }),
       },
@@ -64,8 +64,8 @@ export async function registerNewUser(app: FastifyInstance) {
           profile: newUserProfile,
         });
       } catch (error) {
-        if (error instanceof BadRequestError) {
-          return reply.status(400).send({ message: error.message });
+        if (error instanceof ResourceNotFoundError) {
+          return reply.status(404).send({ message: error.message });
         }
         throw error;
       }

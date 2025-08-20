@@ -27,7 +27,7 @@ describe('Change My Profile (e2e)', () => {
           surname: 'NovoSobrenome',
           location: 'Portugal',
           bio: 'Bio editada',
-          avatarUrl: 'url',
+          avatarUrl: 'https://example.com/avatar.png',
         },
       });
     expect(response.statusCode).toBe(200);
@@ -35,6 +35,8 @@ describe('Change My Profile (e2e)', () => {
     expect(response.body.profile.surname).toBe('NovoSobrenome');
     expect(response.body.profile.location).toBe('Portugal');
     expect(response.body.profile.bio).toBe('Bio editada');
-    expect(response.body.profile.avatarUrl).toBe('url');
+    expect(response.body.profile.avatarUrl).toBe(
+      'https://example.com/avatar.png',
+    );
   });
 });

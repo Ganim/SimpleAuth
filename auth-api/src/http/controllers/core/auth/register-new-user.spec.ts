@@ -20,7 +20,7 @@ describe('Register New User (e2e)', () => {
         profile: {
           name: 'John',
           surname: 'Doe',
-          birthday: new Date('1990-01-01'),
+          birthday: '1990-01-01',
           location: 'USA',
         },
       });

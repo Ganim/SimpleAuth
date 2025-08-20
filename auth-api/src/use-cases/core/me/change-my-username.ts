@@ -1,5 +1,6 @@
 import type { UsersRepository } from '@/repositories/users-repository';
 import { BadRequestError } from '@/use-cases/@errors/bad-request-error';
+import { ResourceNotFoundError } from '@/use-cases/@errors/resource-not-found';
 import type { User } from 'generated/prisma';
 
 interface ChangeMyUsernameUseCaseRequest {
@@ -19,7 +20,7 @@ export class ChangeMyUsernameUseCase {
     username,
   }: ChangeMyUsernameUseCaseRequest): Promise<ChangeMyUsernameUseCaseResponse> {
     const user = await this.usersRepository.findById(userId);
-    if (!user) throw new BadRequestError('User not found');
+    if (!user) throw new ResourceNotFoundError('User not found');
 
     // Validação de unicidade do username
     const existing = await this.usersRepository.findByUsername(username);

@@ -1,5 +1,6 @@
 import { verifyJwt } from '@/http/middlewares/verify-jwt';
 import { BadRequestError } from '@/use-cases/@errors/bad-request-error';
+import { ResourceNotFoundError } from '@/use-cases/@errors/resource-not-found';
 import { makeChangeMyEmailUseCase } from '@/use-cases/core/me/factories/make-change-my-email-use-case';
 
 import type { FastifyInstance } from 'fastify';
@@ -24,6 +25,9 @@ export async function changeMyEmail(app: FastifyInstance) {
         400: z.object({
           message: z.string(),
         }),
+        404: z.object({
+          message: z.string(),
+        }),
       },
       required: ['email'],
     },
@@ -42,6 +46,9 @@ export async function changeMyEmail(app: FastifyInstance) {
       } catch (error) {
         if (error instanceof BadRequestError) {
           return reply.status(400).send({ message: error.message });
+        }
+        if (error instanceof ResourceNotFoundError) {
+          return reply.status(404).send({ message: error.message });
         }
         throw error;
       }

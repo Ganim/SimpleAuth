@@ -1,5 +1,6 @@
 import { InMemoryUsersRepository } from '@/repositories/in-memory/in-memory-users-repository';
 import { BadRequestError } from '@/use-cases/@errors/bad-request-error';
+import { ResourceNotFoundError } from '@/use-cases/@errors/resource-not-found';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { ChangeMyEmailUseCase } from './change-my-email';
 
@@ -24,10 +25,10 @@ describe('Change My Email Use Case', () => {
     expect(result.user.email).toBe('new@example.com');
   });
 
-  it('should throw BadRequestError if user does not exist', async () => {
+  it('should throw ResourceNotFoundError if user does not exist', async () => {
     await expect(() =>
       sut.execute({ userId: 'notfound', email: 'fail@example.com' }),
-    ).rejects.toBeInstanceOf(BadRequestError);
+    ).rejects.toBeInstanceOf(ResourceNotFoundError);
   });
 
   it('should not allow changing to an already existing email', async () => {

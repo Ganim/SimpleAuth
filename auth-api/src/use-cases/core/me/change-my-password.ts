@@ -1,5 +1,6 @@
 import type { UsersRepository } from '@/repositories/users-repository';
-import { BadRequestError } from '@/use-cases/@errors/bad-request-error';
+import { ResourceNotFoundError } from '@/use-cases/@errors/resource-not-found';
+
 import { hash } from 'bcryptjs';
 import type { User } from 'generated/prisma';
 
@@ -20,12 +21,15 @@ export class ChangeMyPasswordUseCase {
     password,
   }: ChangeMyPasswordUseCaseRequest): Promise<ChangeMyPasswordUseCaseResponse> {
     const user = await this.usersRepository.findById(userId);
-    if (!user) throw new BadRequestError('User not found');
+    if (!user) throw new ResourceNotFoundError('User not found');
+
     const password_hash = await hash(password, 8);
+
     const updatedUser = await this.usersRepository.update({
       id: userId,
       password_hash,
     });
+
     return { user: updatedUser };
   }
 }

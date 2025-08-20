@@ -51,6 +51,9 @@ export class PrismaProfilesRepository implements ProfilesRepository {
   }
 
   async findByUserId(userId: string) {
+    if (!userId) {
+      return null;
+    }
     const profile = await prisma.userProfile.findUnique({
       where: { userId },
     });

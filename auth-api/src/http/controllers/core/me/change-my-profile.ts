@@ -23,7 +23,7 @@ export async function changeMyProfile(app: FastifyInstance) {
           birthday: z.coerce.date().optional(),
           location: z.string().optional(),
           bio: z.string().optional(),
-          avatarUrl: z.string().optional(),
+          avatarUrl: z.url().optional(),
         }),
       }),
       response: {
@@ -34,13 +34,14 @@ export async function changeMyProfile(app: FastifyInstance) {
             birthday: z.coerce.date().optional(),
             location: z.string().optional(),
             bio: z.string().optional(),
-            avatarUrl: z.string().optional(),
+            avatarUrl: z.url().optional(),
           }),
         }),
         400: z.object({
           message: z.string(),
         }),
       },
+      required: ['profile'],
     },
 
     handler: async (request, reply) => {
@@ -51,9 +52,12 @@ export async function changeMyProfile(app: FastifyInstance) {
       try {
         const changeMyProfileUseCase = makeChangeMyProfileUseCase();
 
-        await changeMyProfileUseCase.execute({ userId, profile });
+        const result = await changeMyProfileUseCase.execute({
+          userId,
+          profile,
+        });
 
-        return reply.status(200).send({ profile });
+        return reply.status(200).send({ profile: result.profile });
       } catch (error) {
         if (error instanceof BadRequestError) {
           return reply.status(400).send({ message: error.message });

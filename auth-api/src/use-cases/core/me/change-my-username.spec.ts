@@ -2,6 +2,7 @@ import { InMemoryProfilesRepository } from '@/repositories/in-memory/in-memory-p
 import { InMemoryUsersRepository } from '@/repositories/in-memory/in-memory-users-repository';
 import { makeUser } from '@/tests/factories/make-user';
 import { BadRequestError } from '@/use-cases/@errors/bad-request-error';
+import { ResourceNotFoundError } from '@/use-cases/@errors/resource-not-found';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { ChangeMyUsernameUseCase } from './change-my-username';
 
@@ -28,10 +29,10 @@ describe('Change My Username Use Case', () => {
     expect(result.user.username).toBe('newuser');
   });
 
-  it('should throw BadRequestError if user does not exist', async () => {
+  it('should throw ResourceNotFoundError if user does not exist', async () => {
     await expect(() =>
       sut.execute({ userId: 'notfound', username: 'fail' }),
-    ).rejects.toBeInstanceOf(BadRequestError);
+    ).rejects.toBeInstanceOf(ResourceNotFoundError);
   });
 
   it('should not allow changing to an already existing username', async () => {

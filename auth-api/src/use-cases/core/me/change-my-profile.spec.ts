@@ -1,5 +1,5 @@
 import { InMemoryProfilesRepository } from '@/repositories/in-memory/in-memory-profiles-repository';
-import { BadRequestError } from '@/use-cases/@errors/bad-request-error';
+import { ResourceNotFoundError } from '@/use-cases/@errors/resource-not-found';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { ChangeMyProfileUseCase } from './change-my-profile';
 
@@ -38,9 +38,9 @@ describe('Change My Profile Use Case', () => {
     expect(profile.avatarUrl).toBe('url');
   });
 
-  it('should throw BadRequestError if profile does not exist', async () => {
+  it('should throw ResourceNotFoundError if profile does not exist', async () => {
     await expect(() =>
       sut.execute({ userId: 'notfound', profile: { name: 'fail' } }),
-    ).rejects.toBeInstanceOf(BadRequestError);
+    ).rejects.toBeInstanceOf(ResourceNotFoundError);
   });
 });

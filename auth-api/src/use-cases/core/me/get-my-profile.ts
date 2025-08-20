@@ -1,5 +1,6 @@
 import type { ProfilesRepository } from '@/repositories/profiles-repository';
 import type { UsersRepository } from '@/repositories/users-repository';
+import { ResourceNotFoundError } from '@/use-cases/@errors/resource-not-found';
 
 type GetMyProfileUseCaseRequest = {
   userId: string;
@@ -36,13 +37,10 @@ export class GetMyProfileUseCase {
     userId,
   }: GetMyProfileUseCaseRequest): Promise<GetMyProfileUseCaseResponse> {
     const user = await this.usersRepository.findById(userId);
-    if (!user) {
-      throw new Error('User not found');
-    }
+    if (!user) throw new ResourceNotFoundError('User not found');
+
     const profile = await this.profilesRepository.findByUserId(userId);
-    if (!profile) {
-      throw new Error('Profile not found');
-    }
+    if (!profile) throw new ResourceNotFoundError('Profile not found');
 
     const formattedBirthday = profile.birthday
       ? new Date(profile.birthday).toLocaleDateString('pt-BR')

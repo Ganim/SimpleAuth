@@ -1,4 +1,5 @@
 import { verifyJwt } from '@/http/middlewares/verify-jwt';
+import { ResourceNotFoundError } from '@/use-cases/@errors/resource-not-found';
 import { makeGetMyProfileUseCase } from '@/use-cases/core/me/factories/make-get-my-profile-use-case';
 
 import type { FastifyInstance } from 'fastify';
@@ -28,7 +29,7 @@ export async function getMyProfile(app: FastifyInstance) {
             username: z.string(),
           }),
         }),
-        400: z.object({
+        404: z.object({
           message: z.string(),
         }),
       },
@@ -40,19 +41,11 @@ export async function getMyProfile(app: FastifyInstance) {
       try {
         const getMyProfile = makeGetMyProfileUseCase();
         const { profile } = await getMyProfile.execute({ userId });
-        // Garante que location nunca será null
-        const safeProfile = {
-          ...profile,
-          location: profile.location ?? '',
-        };
-        return reply.status(200).send({ profile: safeProfile });
+
+        return reply.status(200).send({ profile });
       } catch (error) {
-        if (
-          error instanceof Error &&
-          (error.message === 'Profile not found' ||
-            error.message === 'User not found')
-        ) {
-          return reply.status(400).send({ message: error.message });
+        if (error instanceof ResourceNotFoundError) {
+          return reply.status(404).send({ message: error.message });
         }
         throw error;
       }

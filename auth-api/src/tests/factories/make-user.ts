@@ -1,6 +1,6 @@
 import { InMemoryProfilesRepository } from '@/repositories/in-memory/in-memory-profiles-repository';
 import { InMemoryUsersRepository } from '@/repositories/in-memory/in-memory-users-repository';
-import { CreateUserUseCase } from '@/use-cases/users/create-user';
+import { CreateUserUseCase } from '@/use-cases/core/users/create-user';
 
 export async function makeUser({
   email,
