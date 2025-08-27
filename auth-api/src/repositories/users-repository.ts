@@ -1,14 +1,42 @@
 import type { UserRole } from '@/@types/user-role';
-import type { Prisma, User } from 'generated/prisma/client';
+import { User } from '@/entities/core/user';
+import { UserProfile } from '@/entities/core/user-profile';
+
+export interface CreateUserSchema {
+  username: string;
+  email: string;
+  passwordHash: string;
+  role: UserRole;
+  profile: UserProfile;
+}
+
+export interface UpdateUserSchema {
+  id: string;
+  email?: string;
+  role?: UserRole;
+  username?: string;
+  passwordHash?: string;
+  profile?: UserProfile;
+}
 
 export interface UsersRepository {
-  create(data: Prisma.UserCreateInput): Promise<User>;
+  // CREATE
+  create(data: CreateUserSchema): Promise<User>;
+
+  // UPDATE / PATCH
+  update(data: UpdateUserSchema): Promise<User>;
+
+  updateLastLoginAt(id: string, date: Date): Promise<void>;
+
+  // DELETE
+  delete(id: string): Promise<void>;
+
+  // RETRIEVE
   findByEmail(email: string): Promise<User | null>;
-  findByUsername(username: string): Promise<User | null>;
   findById(id: string): Promise<User | null>;
+  findByUsername(username: string): Promise<User | null>;
+
+  // LIST
   listAll(): Promise<User[]>;
   listAllByRole(role: UserRole): Promise<User[]>;
-  update(data: Prisma.UserUpdateInput): Promise<User>;
-  delete(id: string): Promise<void>; // soft delete
-  updateLastLoginAt(id: string, date: Date): Promise<void>;
 }

@@ -1,97 +1,150 @@
 import type { UserRole } from '@/@types/user-role';
-import type { UsersRepository } from '@/repositories/users-repository';
-import type { Prisma, User } from 'generated/prisma/client';
+import { User } from '@/entities/core/user';
+import { UserProfile } from '@/entities/core/user-profile';
+import type {
+  CreateUserSchema,
+  UpdateUserSchema,
+  UsersRepository,
+} from '@/repositories/users-repository';
+import { ResourceNotFoundError } from '@/use-cases/@errors/resource-not-found';
 
 export class InMemoryUsersRepository implements UsersRepository {
+  // IN MEMORY DATABASE
   private items: User[] = [];
 
-  // FORMS
+  // CREATE
+  // create(data: CreateUserSchema): Promise<User>;
 
-  async create(data: Prisma.UserCreateInput) {
-    const user: User = {
-      id: String(this.items.length + 1),
-      username: data.username ?? null,
+  async create(data: CreateUserSchema): Promise<User> {
+    // Cria perfil com id temporário
+    // Cria usuário com profile: null
+    const user = User.create({
+      username: data.username ?? '',
       email: data.email,
-      password_hash: data.password_hash,
-      role: (data.role as UserRole) ?? 'USER',
-      lastLoginIp: null,
+      passwordHash: data.passwordHash,
+      role: data.role ?? 'USER',
       failedLoginAttempts: 0,
-      blockedUntil: null,
-      deletedAt: null,
-      passwordResetToken: null,
-      passwordResetExpires: null,
-      lastLoginAt: null,
       createdAt: new Date(),
-      updatedAt: new Date(),
-    };
+      profile: data.profile ?? null,
+    });
+
+    // Cria o profile
+    if (!data.profile) {
+      user.profile = new UserProfile({
+        userId: user.id,
+        name: '',
+        surname: '',
+        birthday: undefined,
+        location: '',
+        bio: '',
+        avatarUrl: '',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+    }
 
     this.items.push(user);
     return user;
   }
 
-  async update({
-    id,
-    email,
-    role,
-    username,
-    password_hash,
-  }: {
-    id: string;
-    email?: string;
-    role?: 'USER' | 'MANAGER' | 'ADMIN';
-    username?: string;
-    password_hash?: string;
-  }) {
-    const user = await this.findById(id);
-    if (!user) throw new Error('User not found');
-    if (email) user.email = email;
-    if (role) user.role = role;
-    if (username !== undefined) user.username = username;
-    if (password_hash !== undefined) user.password_hash = password_hash;
-    user.updatedAt = new Date();
+  // UPDATE / PATCH
+  // update(data: UpdateUserSchema): Promise<User>;
+  // updateLastLoginAt(id: string, date: Date): Promise<void>;
+
+  async update(data: UpdateUserSchema) {
+    // Verify user exists
+    const user = await this.findById(data.id);
+    if (!user) throw new ResourceNotFoundError('User not found');
+
+    // Update
+    if (data.email) user.email = data.email;
+    if (data.role) user.role = data.role;
+    if (data.username !== undefined) user.username = data.username;
+    if (data.passwordHash !== undefined) user.passwordHash = data.passwordHash;
+    if (data.profile !== undefined && user.profile) {
+      user.profile = new UserProfile({
+        userId: user.id,
+        name: data.profile.name ?? user.profile.name,
+        surname: data.profile.surname ?? user.profile.surname,
+        birthday: data.profile.birthday ?? user.profile.birthday,
+        location: data.profile.location ?? user.profile.location,
+        bio: data.profile.bio ?? user.profile.bio,
+        avatarUrl: data.profile.avatarUrl ?? user.profile.avatarUrl,
+        createdAt: user.profile.createdAt,
+        updatedAt: new Date(),
+      });
+    }
+
     return user;
   }
 
-  // SOFT DELETE
+  async updateLastLoginAt(id: string, date: Date): Promise<void> {
+    // Verify user exists
+    const user = await this.findById(id);
+    if (!user) throw new ResourceNotFoundError('User not found');
+
+    // Update
+    user.lastLoginAt = date;
+  }
+
+  // DELETE
+  // delete(id: string): Promise<void>;
 
   async delete(id: string) {
+    // Verify user exists
     const user = await this.findById(id);
-    if (!user) throw new Error('User not found');
+    if (!user) throw new ResourceNotFoundError('User not found');
+
+    // Delete
     user.deletedAt = new Date();
   }
 
-  // FIND
+  // RETRIEVE
+  // findByEmail(email: string): Promise<User | null>;
+  // findById(id: string): Promise<User | null>;
+  // findByUsername(username: string): Promise<User | null>;
+
   async findByEmail(email: string) {
+    // Verify user exists and its not deleted
     const user = this.items.find(
-      (item) => item.email === email && !item.deletedAt,
+      (item) => item.email === email && !item.isDeleted,
     );
+
+    // Return User
     return user ?? null;
   }
 
   async findById(id: string) {
-    const user = this.items.find((item) => item.id === id && !item.deletedAt);
+    // Verify user exists and its not deleted
+    const user = this.items.find(
+      (item) => item.id.toString() === id && !item.isDeleted,
+    );
+
+    // Return User
     return user ?? null;
   }
 
   async findByUsername(username: string): Promise<User | null> {
+    // Verify user exists and its not deleted
     const user = this.items.find(
-      (item) => item.username === username && !item.deletedAt,
+      (item) => item.username === username && !item.isDeleted,
     );
+
+    // Return User
     return user ?? null;
   }
 
   // LIST
+  // listAll(): Promise<User[]>;
+  // listAllByRole(role: UserRole): Promise<User[]>;
+
   async listAll() {
-    return this.items.filter((user) => !user.deletedAt);
+    // Return All Not Deleted Users
+    return this.items.filter((user) => !user.isDeleted);
   }
 
   async listAllByRole(role: UserRole) {
-    return this.items.filter((user) => !user.deletedAt && user.role === role);
-  }
-
-  async updateLastLoginAt(id: string, date: Date): Promise<void> {
-    const user = await this.findById(id);
-    if (!user) throw new Error('User not found');
-    user.lastLoginAt = date;
+    // Return All Not Deleted Users by Role
+    return this.items.filter((user) => !user.isDeleted && user.role === role);
   }
 }
