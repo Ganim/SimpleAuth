@@ -1,4 +1,5 @@
 import { UserProfile } from '@/entities/core/user-profile';
+import { Username } from '@/entities/core/value-objects/username';
 import { UniqueEntityID } from '@/entities/domain/unique-entity-id';
 import type { Prisma } from 'generated/prisma';
 
@@ -6,7 +7,7 @@ export function mapUserPrismaToDomain(
   userDb: Prisma.UserGetPayload<{ include: { profile: true } }>,
 ) {
   return {
-    username: userDb.username ?? '',
+    username: Username.create(userDb.username ?? ''),
     email: userDb.email,
     passwordHash: userDb.password_hash,
     role: userDb.role,

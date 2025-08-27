@@ -1,9 +1,10 @@
 import type { UserRole } from '@/@types/user-role';
 import { User } from '@/entities/core/user';
 import { UserProfile } from '@/entities/core/user-profile';
+import type { Username } from '@/entities/core/value-objects/username';
 
 export interface CreateUserSchema {
-  username: string;
+  username: Username;
   email: string;
   passwordHash: string;
   role: UserRole;
@@ -14,7 +15,7 @@ export interface UpdateUserSchema {
   id: string;
   email?: string;
   role?: UserRole;
-  username?: string;
+  username?: Username;
   passwordHash?: string;
   profile?: UserProfile;
 }

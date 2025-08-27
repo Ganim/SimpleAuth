@@ -1,5 +1,6 @@
 import type { UserRole } from '@/@types/user-role';
 import { User } from '@/entities/core/user';
+import { Username } from '@/entities/core/value-objects/username';
 import { prisma } from '@/lib/prisma';
 import { mapUserPrismaToDomain } from '@/mappers/user/user-prisma-to-domain';
 import type {
@@ -15,7 +16,12 @@ export class PrismaUsersRepository implements UsersRepository {
   async create(data: CreateUserSchema): Promise<User> {
     const newUserData = await prisma.user.create({
       data: {
-        username: data.username,
+        username:
+          data.username instanceof Username
+            ? data.username.value
+            : typeof data.username === 'string'
+              ? data.username
+              : '',
         email: data.email,
         password_hash: data.passwordHash,
         role: data.role,
@@ -45,7 +51,14 @@ export class PrismaUsersRepository implements UsersRepository {
     const newUserData = await prisma.user.update({
       where: { id: data.id },
       data: {
-        ...(data.username && { username: data.username }),
+        ...(data.username && {
+          username:
+            data.username instanceof Username
+              ? data.username.value
+              : typeof data.username === 'string'
+                ? data.username
+                : '',
+        }),
         ...(data.email && { email: data.email }),
         ...(data.role && { role: data.role }),
         ...(data.passwordHash && { password_hash: data.passwordHash }),
@@ -112,13 +125,18 @@ export class PrismaUsersRepository implements UsersRepository {
     return user;
   }
 
-  async findByUsername(username: string): Promise<User | null> {
+  async findByUsername(username: string | Username): Promise<User | null> {
+    const usernameValue =
+      username instanceof Username
+        ? username.value
+        : typeof username === 'string'
+          ? username
+          : '';
     const newUserData = await prisma.user.findFirst({
-      where: { username, deletedAt: null },
+      where: { username: usernameValue, deletedAt: null },
       include: { profile: true },
     });
     if (!newUserData) return null;
-
     const user = User.create(mapUserPrismaToDomain(newUserData));
     return user;
   }

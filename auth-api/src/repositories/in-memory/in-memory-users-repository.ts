@@ -1,6 +1,7 @@
 import type { UserRole } from '@/@types/user-role';
 import { User } from '@/entities/core/user';
 import { UserProfile } from '@/entities/core/user-profile';
+import { Username } from '@/entities/core/value-objects/username';
 import type {
   CreateUserSchema,
   UpdateUserSchema,
@@ -19,7 +20,10 @@ export class InMemoryUsersRepository implements UsersRepository {
     // Cria perfil com id temporário
     // Cria usuário com profile: null
     const user = User.create({
-      username: data.username ?? '',
+      username:
+        data.username instanceof Username
+          ? data.username
+          : Username.create(data.username ?? ''),
       email: data.email,
       passwordHash: data.passwordHash,
       role: data.role ?? 'USER',
@@ -59,7 +63,12 @@ export class InMemoryUsersRepository implements UsersRepository {
     // Update
     if (data.email) user.email = data.email;
     if (data.role) user.role = data.role;
-    if (data.username !== undefined) user.username = data.username;
+    if (data.username !== undefined) {
+      user.username =
+        data.username instanceof Username
+          ? data.username
+          : Username.create(data.username ?? '');
+    }
     if (data.passwordHash !== undefined) user.passwordHash = data.passwordHash;
     if (data.profile !== undefined && user.profile) {
       user.profile = new UserProfile({
@@ -124,13 +133,12 @@ export class InMemoryUsersRepository implements UsersRepository {
     return user ?? null;
   }
 
-  async findByUsername(username: string): Promise<User | null> {
-    // Verify user exists and its not deleted
+  async findByUsername(username: string | Username): Promise<User | null> {
+    const usernameValue =
+      username instanceof Username ? username.value : username;
     const user = this.items.find(
-      (item) => item.username === username && !item.isDeleted,
+      (item) => item.username.value === usernameValue && !item.isDeleted,
     );
-
-    // Return User
     return user ?? null;
   }
 

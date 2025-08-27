@@ -4,9 +4,10 @@ import { Entity } from '../domain/entities';
 import type { Optional } from '../domain/optional';
 import type { UniqueEntityID } from '../domain/unique-entity-id';
 import type { UserProfile } from './user-profile';
+import type { Username } from './value-objects/username';
 
 export interface UserProps {
-  username: string;
+  username: Username;
   email: string;
   passwordHash: string;
   role: UserRole;
@@ -23,7 +24,7 @@ export interface UserProps {
 }
 
 export class User extends Entity<UserProps> {
-  get username() {
+  get username(): Username {
     return this.props.username;
   }
   get email() {
@@ -95,8 +96,8 @@ export class User extends Entity<UserProps> {
     this.touch();
   }
 
-  set username(username: string | undefined) {
-    this.props.username = username ?? '';
+  set username(username: Username) {
+    this.props.username = username;
     this.touch();
   }
 

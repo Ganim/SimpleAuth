@@ -1,39 +1,47 @@
-import { InMemoryProfilesRepository } from '@/repositories/in-memory/in-memory-profiles-repository';
+import type { UserRole } from '@/@types/user-role';
 import { InMemoryUsersRepository } from '@/repositories/in-memory/in-memory-users-repository';
 import { CreateUserUseCase } from '@/use-cases/core/users/create-user';
+
+interface makeUserProps {
+  email: string;
+  password: string;
+  username?: string;
+  role?: UserRole;
+  name?: string;
+  surname?: string;
+  birthday?: Date;
+  location?: string;
+  avatarUrl?: string;
+  usersRepository: InMemoryUsersRepository;
+}
 
 export async function makeUser({
   email,
   password,
   username = '',
   role = 'USER',
-  profile = {},
+  name = '',
+  surname = '',
+  birthday,
+  location = '',
+  avatarUrl = '',
   usersRepository,
-  profilesRepository,
-}: {
-  email: string;
-  password: string;
-  username?: string;
-  role?: 'USER' | 'MANAGER' | 'ADMIN';
-  profile?: {
-    name?: string;
-    surname?: string;
-    birthday?: Date;
-    location?: string;
-    avatarUrl?: string;
-  };
-  usersRepository: InMemoryUsersRepository;
-  profilesRepository: InMemoryProfilesRepository;
-}) {
-  const createUserUseCase = new CreateUserUseCase(
-    usersRepository,
-    profilesRepository,
-  );
-  return await createUserUseCase.execute({
+}: makeUserProps) {
+  const createUserUseCase = new CreateUserUseCase(usersRepository);
+
+  const newMockUser = {
     email,
     password,
     username,
     role,
-    profile,
-  });
+    profile: {
+      name,
+      surname,
+      birthday,
+      location,
+      avatarUrl,
+    },
+  };
+
+  return await createUserUseCase.execute(newMockUser);
 }
