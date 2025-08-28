@@ -1,4 +1,5 @@
 import { UserProfile } from '@/entities/core/user-profile';
+import { Email } from '@/entities/core/value-objects/email';
 import { Username } from '@/entities/core/value-objects/username';
 import { UniqueEntityID } from '@/entities/domain/unique-entity-id';
 import type { Prisma } from 'generated/prisma';
@@ -8,7 +9,7 @@ export function mapUserPrismaToDomain(
 ) {
   return {
     username: Username.create(userDb.username ?? ''),
-    email: userDb.email,
+    email: new Email(userDb.email),
     passwordHash: userDb.password_hash,
     role: userDb.role,
     failedLoginAttempts: userDb.failedLoginAttempts,

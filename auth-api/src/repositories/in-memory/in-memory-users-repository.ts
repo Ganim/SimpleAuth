@@ -2,6 +2,7 @@ import { ResourceNotFoundError } from '@/@errors/use-cases/resource-not-found';
 import type { UserRole } from '@/@types/user-role';
 import { User } from '@/entities/core/user';
 import { UserProfile } from '@/entities/core/user-profile';
+import type { Email } from '@/entities/core/value-objects/email';
 import { Username } from '@/entities/core/value-objects/username';
 import type {
   CreateUserSchema,
@@ -115,12 +116,8 @@ export class InMemoryUsersRepository implements UsersRepository {
   // findById(id: string): Promise<User | null>;
   // findByUsername(username: string): Promise<User | null>;
 
-  async findByEmail(email: string) {
-    // Verify user exists
-    const user = this.items.find((item) => item.email === email);
-
-    // Return User
-    return user ?? null;
+  async findByEmail(email: Email): Promise<User | null> {
+    return this.items.find((user) => user.email.equals(email)) ?? null;
   }
 
   async findById(id: string) {

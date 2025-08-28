@@ -69,9 +69,11 @@ describe('Delete User By Id Use Case', () => {
     await expect(sut.execute({ userId: user.id })).resolves.toBeUndefined();
     const allUsers = await usersRepository.listAll();
     expect(allUsers).toHaveLength(2);
-    expect(allUsers.map((u) => u.email)).toEqual(
+    expect(allUsers.map((u) => u.email.value)).toEqual(
       expect.arrayContaining(['user1@example.com', 'user2@example.com']),
     );
-    expect(allUsers.map((u) => u.email)).not.toContain('user3@example.com');
+    expect(allUsers.map((u) => u.email.value)).not.toContain(
+      'user3@example.com',
+    );
   });
 });

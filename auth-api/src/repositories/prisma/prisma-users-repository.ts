@@ -1,5 +1,6 @@
 import type { UserRole } from '@/@types/user-role';
 import { User } from '@/entities/core/user';
+import type { Email } from '@/entities/core/value-objects/email';
 import { Username } from '@/entities/core/value-objects/username';
 import { prisma } from '@/lib/prisma';
 import { mapUserPrismaToDomain } from '@/mappers/user/user-prisma-to-domain';
@@ -22,7 +23,7 @@ export class PrismaUsersRepository implements UsersRepository {
             : typeof data.username === 'string'
               ? data.username
               : '',
-        email: data.email,
+        email: data.email.toString(),
         password_hash: data.passwordHash,
         role: data.role,
         profile: {
@@ -59,7 +60,7 @@ export class PrismaUsersRepository implements UsersRepository {
                 ? data.username
                 : '',
         }),
-        ...(data.email && { email: data.email }),
+        ...(data.email && { email: data.email.toString() }),
         ...(data.role && { role: data.role }),
         ...(data.passwordHash && { password_hash: data.passwordHash }),
         profile: data.profile
@@ -103,9 +104,9 @@ export class PrismaUsersRepository implements UsersRepository {
   // findByEmail(email: string): Promise<User | null>;
   // findById(id: string): Promise<User | null>;
   // findByUsername(username: string): Promise<User | null>;
-  async findByEmail(email: string): Promise<User | null> {
+  async findByEmail(email: Email): Promise<User | null> {
     const newUserData = await prisma.user.findFirst({
-      where: { email, deletedAt: null },
+      where: { email: email.value, deletedAt: null },
       include: { profile: true },
     });
     if (!newUserData) return null;

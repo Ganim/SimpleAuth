@@ -1,11 +1,12 @@
 import type { UserRole } from '@/@types/user-role';
 import { User } from '@/entities/core/user';
 import { UserProfile } from '@/entities/core/user-profile';
+import type { Email } from '@/entities/core/value-objects/email';
 import type { Username } from '@/entities/core/value-objects/username';
 
 export interface CreateUserSchema {
   username: Username;
-  email: string;
+  email: Email;
   passwordHash: string;
   role: UserRole;
   profile: UserProfile;
@@ -14,7 +15,7 @@ export interface CreateUserSchema {
 
 export interface UpdateUserSchema {
   id: string;
-  email?: string;
+  email?: Email;
   role?: UserRole;
   username?: Username;
   passwordHash?: string;
@@ -35,7 +36,7 @@ export interface UsersRepository {
   delete(id: string): Promise<void>;
 
   // RETRIEVE
-  findByEmail(email: string): Promise<User | null>;
+  findByEmail(email: Email): Promise<User | null>;
   findById(id: string, ignoreDeleted?: boolean): Promise<User | null>;
   findByUsername(username: string): Promise<User | null>;
 

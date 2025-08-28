@@ -1,6 +1,7 @@
 import { BadRequestError } from '@/@errors/use-cases/bad-request-error';
 import { UserRole } from '@/@types/user-role';
 import { UserProfile } from '@/entities/core/user-profile';
+import { Email } from '@/entities/core/value-objects/email';
 import { Password } from '@/entities/core/value-objects/password';
 import { Username } from '@/entities/core/value-objects/username';
 import { UniqueEntityID } from '@/entities/domain/unique-entity-id';
@@ -35,7 +36,11 @@ export class RegisterNewUserUseCase {
     role = 'USER',
     profile = {},
   }: RegisterNewUserUseCaseRequest): Promise<RegisterNewUserUseCaseResponse> {
-    const userWithSameEmail = await this.userRespository.findByEmail(email);
+    const validEmail = new Email(email);
+
+    const userWithSameEmail =
+      await this.userRespository.findByEmail(validEmail);
+
     if (userWithSameEmail) {
       throw new BadRequestError('This email is already in use.');
     }
@@ -69,7 +74,7 @@ export class RegisterNewUserUseCase {
 
     const newUser = await this.userRespository.create({
       username: validUsername,
-      email,
+      email: validEmail,
       passwordHash,
       role,
       profile: emptyProfile,

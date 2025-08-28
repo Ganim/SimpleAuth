@@ -1,4 +1,5 @@
 import { BadRequestError } from '@/@errors/use-cases/bad-request-error';
+import { Email } from '@/entities/core/value-objects/email';
 import { InMemoryUsersRepository } from '@/repositories/in-memory/in-memory-users-repository';
 import { compare } from 'bcryptjs';
 import { beforeEach, describe, expect, it } from 'vitest';
@@ -55,7 +56,9 @@ describe('Create User Use Case', () => {
       },
     });
 
-    const storagedUser = await usersRepository.findByEmail(user.email);
+    const storagedUser = await usersRepository.findByEmail(
+      new Email(user.email),
+    );
     expect(storagedUser).toBeDefined();
     const isPasswordHashed = await compare(
       '123456',
@@ -117,7 +120,9 @@ describe('Create User Use Case', () => {
     expect(user.id).toEqual(expect.any(String));
     expect(user.deletedAt).toEqual(deletedDate);
 
-    const storagedUser = await usersRepository.findByEmail(user.email);
+    const storagedUser = await usersRepository.findByEmail(
+      new Email(user.email),
+    );
     expect(storagedUser).toBeDefined();
     expect(storagedUser?.deletedAt).toEqual(deletedDate);
     expect(storagedUser?.isDeleted).toBe(true);

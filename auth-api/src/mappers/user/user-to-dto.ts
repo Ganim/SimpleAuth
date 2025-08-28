@@ -14,7 +14,7 @@ export interface UserDTO {
 export function userToDTO(user: User): UserDTO {
   return {
     id: user.id.toString(),
-    email: user.email,
+    email: user.email.value, // Adapted to access user.email.value
     username: user.username.value,
     role: user.role,
     lastLoginAt: user.lastLoginAt ?? null,

@@ -24,7 +24,7 @@ describe('ChangeUserEmailUseCase', () => {
       userId: user.id,
       email: 'new@example.com',
     });
-    expect(result.user.email).toBe('new@example.com');
+    expect(result.user.email).toBe('new@example.com'); // DTO retorna string
   });
 
   it('should throw ResourceNotFoundError if user not found', async () => {

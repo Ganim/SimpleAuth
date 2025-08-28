@@ -1,3 +1,4 @@
+import { Email } from '@/entities/core/value-objects/email';
 import { Password } from '@/entities/core/value-objects/password';
 import { prisma } from '@/lib/prisma';
 import { faker } from '@faker-js/faker';
@@ -11,11 +12,12 @@ export async function createAndAuthenticateUser(
   role: Role = 'USER',
 ) {
   const fakerEmail = faker.internet.email();
+  const emailValueObject = new Email(fakerEmail);
   const username = `user${Date.now()}`;
 
   const userResponse = await prisma.user.create({
     data: {
-      email: fakerEmail,
+      email: emailValueObject.value,
       password_hash: await Password.hash('123456'),
       role,
       username,
@@ -29,7 +31,7 @@ export async function createAndAuthenticateUser(
   });
 
   const authResponse = await request(app.server).post('/auth/password').send({
-    email: fakerEmail,
+    email: emailValueObject.value,
     password: '123456',
   });
 

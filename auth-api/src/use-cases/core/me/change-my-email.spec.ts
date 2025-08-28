@@ -24,7 +24,7 @@ describe('Change My Email Use Case', () => {
       userId: user.id,
       email: 'new@example.com',
     });
-    expect(result.user.email).toBe('new@example.com');
+    expect(result.user.email).toBe('new@example.com'); // DTO retorna string
     const allUsers = await usersRepository.listAll();
     expect(allUsers).toHaveLength(1);
   });
@@ -77,6 +77,6 @@ describe('Change My Email Use Case', () => {
     await sut.execute({ userId: user.id, email: 'changed@example.com' });
     const allUsers = await usersRepository.listAll();
     expect(allUsers).toHaveLength(2);
-    expect(allUsers.map((u) => u.email)).toContain('changed@example.com');
+    expect(allUsers.map((u) => u.email.value)).toContain('changed@example.com');
   });
 });

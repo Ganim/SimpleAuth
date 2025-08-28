@@ -1,4 +1,5 @@
 import { BadRequestError } from '@/@errors/use-cases/bad-request-error';
+import { Email } from '@/entities/core/value-objects/email';
 import { UserDTO, userToDTO } from '@/mappers/user/user-to-dto';
 import type { SessionsRepository } from '@/repositories/sessions-repository';
 import type { UsersRepository } from '@/repositories/users-repository';
@@ -25,7 +26,9 @@ export class AuthenticateWithPasswordUseCase {
     password,
     ip,
   }: AuthenticateWithPasswordUseCaseRequest): Promise<AuthenticateWithPasswordUseCaseResponse> {
-    const existingUser = await this.usersRepository.findByEmail(email);
+    const validEmail = new Email(email);
+
+    const existingUser = await this.usersRepository.findByEmail(validEmail);
 
     if (!existingUser || existingUser.isDeleted) {
       throw new BadRequestError('Invalid credentials');

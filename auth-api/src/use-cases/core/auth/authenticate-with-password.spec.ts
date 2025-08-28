@@ -33,7 +33,7 @@ describe('Authenticate With Password Use Case', () => {
     });
 
     expect(result.user).toBeDefined();
-    expect(result.user.email).toBe('johndoe@example.com');
+    expect(result.user.email).toBe('johndoe@example.com'); // DTO retorna string
 
     const allUsers = await usersRepository.listAll();
     expect(allUsers).toHaveLength(1);

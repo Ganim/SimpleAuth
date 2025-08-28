@@ -4,11 +4,12 @@ import { Entity } from '../domain/entities';
 import type { Optional } from '../domain/optional';
 import type { UniqueEntityID } from '../domain/unique-entity-id';
 import type { UserProfile } from './user-profile';
+import { Email } from './value-objects/email';
 import type { Username } from './value-objects/username';
 
 export interface UserProps {
   username: Username;
-  email: string;
+  email: Email;
   passwordHash: string;
   role: UserRole;
   lastLoginIp?: string;
@@ -27,7 +28,7 @@ export class User extends Entity<UserProps> {
   get username(): Username {
     return this.props.username;
   }
-  get email() {
+  get email(): Email {
     return this.props.email;
   }
   get passwordHash() {
@@ -91,7 +92,7 @@ export class User extends Entity<UserProps> {
     this.props.updatedAt = new Date();
   }
 
-  set email(email: string) {
+  set email(email: Email) {
     this.props.email = email;
     this.touch();
   }
