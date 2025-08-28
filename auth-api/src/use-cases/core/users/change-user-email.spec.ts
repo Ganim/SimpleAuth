@@ -1,5 +1,6 @@
 import { BadRequestError } from '@/@errors/use-cases/bad-request-error';
 import { ResourceNotFoundError } from '@/@errors/use-cases/resource-not-found';
+import { Email } from '@/entities/core/value-objects/email';
 import { InMemoryUsersRepository } from '@/repositories/in-memory/in-memory-users-repository';
 import { makeUser } from '@/tests/factories/make-user';
 import { beforeEach, describe, expect, it } from 'vitest';
@@ -60,5 +61,13 @@ describe('ChangeUserEmailUseCase', () => {
     await expect(() =>
       sut.execute({ userId: user.id, email: 'new@example.com' }),
     ).rejects.toBeInstanceOf(ResourceNotFoundError);
+  });
+
+  it('should not allow invalid email format (Email VO)', () => {
+    expect(() => new Email('invalid-email')).toThrow(BadRequestError);
+    expect(() => new Email('user@invalid')).toThrow(BadRequestError);
+    expect(() => new Email('user@.com')).toThrow(BadRequestError);
+    expect(() => new Email('user@com')).toThrow(BadRequestError);
+    expect(() => new Email('user.com')).toThrow(BadRequestError);
   });
 });

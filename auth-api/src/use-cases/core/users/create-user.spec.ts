@@ -127,4 +127,12 @@ describe('Create User Use Case', () => {
     expect(storagedUser?.deletedAt).toEqual(deletedDate);
     expect(storagedUser?.isDeleted).toBe(true);
   });
+
+  it('should not allow invalid email format (Email VO)', () => {
+    expect(() => new Email('invalid-email')).toThrow(BadRequestError);
+    expect(() => new Email('user@invalid')).toThrow(BadRequestError);
+    expect(() => new Email('user@.com')).toThrow(BadRequestError);
+    expect(() => new Email('user@com')).toThrow(BadRequestError);
+    expect(() => new Email('user.com')).toThrow(BadRequestError);
+  });
 });

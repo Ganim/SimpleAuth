@@ -1,4 +1,5 @@
 import { BadRequestError } from '@/@errors/use-cases/bad-request-error';
+import { Email } from '@/entities/core/value-objects/email';
 import { InMemoryUsersRepository } from '@/repositories/in-memory/in-memory-users-repository';
 import { compare } from 'bcryptjs';
 import { beforeEach, describe, expect, it } from 'vitest';
@@ -112,5 +113,13 @@ describe('Register New User Use Case', () => {
 
     const allUsers = await usersRepository.listAll();
     expect(allUsers).toHaveLength(2);
+  });
+
+  it('should not allow invalid email format (Email VO)', () => {
+    expect(() => new Email('invalid-email')).toThrow(BadRequestError);
+    expect(() => new Email('user@invalid')).toThrow(BadRequestError);
+    expect(() => new Email('user@.com')).toThrow(BadRequestError);
+    expect(() => new Email('user@com')).toThrow(BadRequestError);
+    expect(() => new Email('user.com')).toThrow(BadRequestError);
   });
 });

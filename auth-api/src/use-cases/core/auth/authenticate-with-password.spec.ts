@@ -1,4 +1,5 @@
 import { BadRequestError } from '@/@errors/use-cases/bad-request-error';
+import { Email } from '@/entities/core/value-objects/email';
 import { InMemorySessionsRepository } from '@/repositories/in-memory/in-memory-sessions-repository';
 import { InMemoryUsersRepository } from '@/repositories/in-memory/in-memory-users-repository';
 import { makeUser } from '@/tests/factories/make-user';
@@ -100,5 +101,13 @@ describe('Authenticate With Password Use Case', () => {
 
     const allUsers = await usersRepository.listAll();
     expect(allUsers).toHaveLength(1);
+  });
+
+  it('should not allow invalid email format (Email VO)', () => {
+    expect(() => new Email('invalid-email')).toThrow(BadRequestError);
+    expect(() => new Email('user@invalid')).toThrow(BadRequestError);
+    expect(() => new Email('user@.com')).toThrow(BadRequestError);
+    expect(() => new Email('user@com')).toThrow(BadRequestError);
+    expect(() => new Email('user.com')).toThrow(BadRequestError);
   });
 });
