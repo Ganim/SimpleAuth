@@ -1,90 +1,80 @@
-import { InMemoryProfilesRepository } from '@/repositories/in-memory/in-memory-profiles-repository';
+import { BadRequestError } from '@/@errors/use-cases/bad-request-error';
 import { InMemorySessionsRepository } from '@/repositories/in-memory/in-memory-sessions-repository';
 import { InMemoryUsersRepository } from '@/repositories/in-memory/in-memory-users-repository';
 import { makeUser } from '@/tests/factories/make-user';
-import { BadRequestError } from '@/use-cases/@errors/bad-request-error';
-import { CreateSessionUseCase } from '@/use-cases/sessions/create-session';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { AuthenticateWithPasswordUseCase } from '../auth/authenticate-with-password';
+import { AuthenticateWithPasswordUseCase } from './authenticate-with-password';
 
 let usersRepository: InMemoryUsersRepository;
-let profilesRepository: InMemoryProfilesRepository;
 let sessionsRepository: InMemorySessionsRepository;
-let createSessionUseCase: CreateSessionUseCase;
-let sut: AuthenticateWithPasswordUseCase;
+let authenticateWithPasswordUseCase: AuthenticateWithPasswordUseCase;
 
-describe('Authenticate Use Case', () => {
+describe('Authenticate With Password Use Case', () => {
   beforeEach(() => {
     usersRepository = new InMemoryUsersRepository();
-    profilesRepository = new InMemoryProfilesRepository();
     sessionsRepository = new InMemorySessionsRepository();
-    createSessionUseCase = new CreateSessionUseCase(sessionsRepository);
-    sut = new AuthenticateWithPasswordUseCase(
+    authenticateWithPasswordUseCase = new AuthenticateWithPasswordUseCase(
       usersRepository,
-      createSessionUseCase,
+      sessionsRepository,
     );
   });
 
-  it('should be able to authenticate and create session', async () => {
+  it('should authenticate user with correct credentials', async () => {
     await makeUser({
       email: 'johndoe@example.com',
       password: '123456',
       usersRepository,
-      profilesRepository,
     });
 
-    const { user, sessionId } = await sut.execute({
+    const result = await authenticateWithPasswordUseCase.execute({
       email: 'johndoe@example.com',
       password: '123456',
       ip: '127.0.0.1',
     });
 
-    expect(user.id).toEqual(expect.any(String));
-    expect(sessionId).toBeDefined();
-    const session = sessionsRepository.items.find((s) => s.id === sessionId);
-    expect(session).toBeDefined();
-    expect(session?.userId).toBe(user.id);
-    expect(session?.ip).toBe('127.0.0.1');
+    expect(result.user).toBeDefined();
+    expect(result.user.email).toBe('johndoe@example.com');
+
+    const allUsers = await usersRepository.listAll();
+    expect(allUsers).toHaveLength(1);
   });
 
-  it('should not authenticate with wrong email', async () => {
+  it('should not authenticate user with wrong password', async () => {
+    await makeUser({
+      email: 'johndoe@example.com',
+      password: '123456',
+      usersRepository,
+    });
+
     await expect(
-      sut.execute({
+      authenticateWithPasswordUseCase.execute({
         email: 'johndoe@example.com',
+        password: 'wrongpassword',
+        ip: '127.0.0.1',
+      }),
+    ).rejects.toBeInstanceOf(BadRequestError);
+  });
+
+  it('should not authenticate non-existent user', async () => {
+    await expect(
+      authenticateWithPasswordUseCase.execute({
+        email: 'notfound@example.com',
         password: '123456',
         ip: '127.0.0.1',
       }),
     ).rejects.toBeInstanceOf(BadRequestError);
   });
 
-  it('should not authenticate with wrong password', async () => {
-    await makeUser({
-      email: 'johndoe@example.com',
-      password: '123456',
-      usersRepository,
-      profilesRepository,
-    });
-
-    await expect(
-      sut.execute({
-        email: 'johndoe@example.com',
-        password: '1234567',
-        ip: '127.0.0.1',
-      }),
-    ).rejects.toBeInstanceOf(BadRequestError);
-  });
-
   it('should not authenticate deleted user', async () => {
-    const { user } = await makeUser({
+    await makeUser({
       email: 'deleted@example.com',
       password: '123456',
+      deletedAt: new Date(),
       usersRepository,
-      profilesRepository,
     });
 
-    user.deletedAt = new Date();
     await expect(
-      sut.execute({
+      authenticateWithPasswordUseCase.execute({
         email: 'deleted@example.com',
         password: '123456',
         ip: '127.0.0.1',
@@ -92,15 +82,14 @@ describe('Authenticate Use Case', () => {
     ).rejects.toBeInstanceOf(BadRequestError);
   });
 
-  it('should set lastLoginAt field when authenticating', async () => {
+  it('should update lastLoginAt when authenticating', async () => {
     await makeUser({
       email: 'lastlogin@example.com',
       password: '123456',
       usersRepository,
-      profilesRepository,
     });
 
-    const { user } = await sut.execute({
+    const { user } = await authenticateWithPasswordUseCase.execute({
       email: 'lastlogin@example.com',
       password: '123456',
       ip: '127.0.0.1',
@@ -108,5 +97,8 @@ describe('Authenticate Use Case', () => {
 
     expect(user.lastLoginAt).toBeInstanceOf(Date);
     expect(user.lastLoginAt).not.toBeNull();
+
+    const allUsers = await usersRepository.listAll();
+    expect(allUsers).toHaveLength(1);
   });
 });

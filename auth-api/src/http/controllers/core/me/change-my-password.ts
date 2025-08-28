@@ -1,5 +1,5 @@
+import { BadRequestError } from '@/@errors/use-cases/bad-request-error';
 import { verifyJwt } from '@/http/middlewares/verify-jwt';
-import { BadRequestError } from '@/use-cases/@errors/bad-request-error';
 import { makeChangeMyPasswordUseCase } from '@/use-cases/core/me/factories/make-change-my-password-use-case';
 
 import type { FastifyInstance } from 'fastify';

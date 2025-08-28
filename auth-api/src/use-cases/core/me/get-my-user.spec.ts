@@ -1,16 +1,16 @@
+import { ResourceNotFoundError } from '@/@errors/use-cases/resource-not-found';
 import { InMemoryUsersRepository } from '@/repositories/in-memory/in-memory-users-repository';
 import { makeUser } from '@/tests/factories/make-user';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { ResourceNotFoundError } from '../../../@errors/use-cases/resource-not-found';
-import { GetUserByIdUseCase } from './get-user-by-id';
+import { GetMyUserUseCase } from './get-my-user';
 
 let usersRepository: InMemoryUsersRepository;
-let sut: GetUserByIdUseCase;
+let sut: GetMyUserUseCase;
 
-describe('Get User By Id Use Case', () => {
+describe('Get My User Use Case', () => {
   beforeEach(() => {
     usersRepository = new InMemoryUsersRepository();
-    sut = new GetUserByIdUseCase(usersRepository);
+    sut = new GetMyUserUseCase(usersRepository);
   });
 
   it('should return the user by id', async () => {

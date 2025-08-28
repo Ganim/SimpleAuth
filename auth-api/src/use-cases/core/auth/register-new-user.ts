@@ -1,11 +1,11 @@
-import type { UserRole } from '@/@types/user-role';
-import { env } from '@/env';
-import type { ProfilesRepository } from '@/repositories/profiles-repository';
-import type { UsersRepository } from '@/repositories/users-repository';
-import { BadRequestError } from '@/use-cases/@errors/bad-request-error';
-import { hash } from 'bcryptjs';
-import type { User, UserProfile } from 'generated/prisma';
-import { randomUUID } from 'node:crypto';
+import { BadRequestError } from '@/@errors/use-cases/bad-request-error';
+import { UserRole } from '@/@types/user-role';
+import { UserProfile } from '@/entities/core/user-profile';
+import { Password } from '@/entities/core/value-objects/password';
+import { Username } from '@/entities/core/value-objects/username';
+import { UniqueEntityID } from '@/entities/domain/unique-entity-id';
+import { UserDTO, userToDTO } from '@/mappers/user/user-to-dto';
+import { UsersRepository } from '@/repositories/users-repository';
 
 interface RegisterNewUserUseCaseRequest {
   username?: string;
@@ -17,19 +17,16 @@ interface RegisterNewUserUseCaseRequest {
     surname?: string;
     birthday?: Date;
     location?: string;
+    avatarUrl?: string;
   };
 }
 
 interface RegisterNewUserUseCaseResponse {
-  user: User;
-  profile: UserProfile;
+  user: UserDTO;
 }
 
 export class RegisterNewUserUseCase {
-  constructor(
-    private userRespository: UsersRepository,
-    private profileRepository: ProfilesRepository,
-  ) {}
+  constructor(private userRespository: UsersRepository) {}
 
   async execute({
     username,
@@ -38,34 +35,69 @@ export class RegisterNewUserUseCase {
     role = 'USER',
     profile = {},
   }: RegisterNewUserUseCaseRequest): Promise<RegisterNewUserUseCaseResponse> {
-    const password_hash = await hash(password, env.HASH_ROUNDS);
-
     const userWithSameEmail = await this.userRespository.findByEmail(email);
     if (userWithSameEmail) {
-      throw new BadRequestError('User already exists');
+      throw new BadRequestError('This email is already in use.');
     }
 
-    // Gera username único se não informado
-    let finalUsername = username;
-    if (!finalUsername || finalUsername.trim() === '') {
-      finalUsername = `user${randomUUID().slice(0, 8)}`;
+    const validUsername = username
+      ? Username.create(username)
+      : Username.random();
+
+    const userWithSameUsername = await this.userRespository.findByUsername(
+      validUsername.toString(),
+    );
+    if (userWithSameUsername) {
+      throw new BadRequestError('This username is already in use.');
     }
 
-    const user = await this.userRespository.create({
-      username: finalUsername,
-      email,
-      password_hash,
-      role,
-    });
+    const passwordHash = await Password.hash(password);
 
-    const userProfile = await this.profileRepository.create({
-      user: { connect: { id: user.id } },
+    const exactDate = new Date();
+
+    const emptyProfile = new UserProfile({
+      userId: new UniqueEntityID(),
       name: profile?.name ?? '',
       surname: profile?.surname ?? '',
       birthday: profile?.birthday ?? undefined,
       location: profile?.location ?? '',
+      bio: '',
+      avatarUrl: profile?.avatarUrl ?? '',
+      createdAt: exactDate,
+      updatedAt: exactDate,
     });
 
-    return { user, profile: userProfile };
+    const newUser = await this.userRespository.create({
+      username: validUsername,
+      email,
+      passwordHash,
+      role,
+      profile: emptyProfile,
+    });
+
+    const userProfile = new UserProfile({
+      userId: new UniqueEntityID(newUser.id.toString()),
+      name: profile?.name ?? '',
+      surname: profile?.surname ?? '',
+      birthday: profile?.birthday ?? undefined,
+      location: profile?.location ?? '',
+      bio: '',
+      avatarUrl: profile?.avatarUrl ?? '',
+      createdAt: exactDate,
+      updatedAt: exactDate,
+    });
+
+    await this.userRespository.update({
+      id: newUser.id.toString(),
+      profile: userProfile,
+    });
+
+    newUser.profile = userProfile;
+
+    const user = userToDTO(newUser);
+
+    return {
+      user,
+    };
   }
 }

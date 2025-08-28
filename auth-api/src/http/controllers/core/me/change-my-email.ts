@@ -1,6 +1,6 @@
+import { BadRequestError } from '@/@errors/use-cases/bad-request-error';
+import { ResourceNotFoundError } from '@/@errors/use-cases/resource-not-found';
 import { verifyJwt } from '@/http/middlewares/verify-jwt';
-import { BadRequestError } from '@/use-cases/@errors/bad-request-error';
-import { ResourceNotFoundError } from '@/use-cases/@errors/resource-not-found';
 import { makeChangeMyEmailUseCase } from '@/use-cases/core/me/factories/make-change-my-email-use-case';
 
 import type { FastifyInstance } from 'fastify';

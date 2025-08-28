@@ -1,42 +1,36 @@
-import { InMemoryProfilesRepository } from '@/repositories/in-memory/in-memory-profiles-repository';
+import { ResourceNotFoundError } from '@/@errors/use-cases/resource-not-found';
 import { InMemoryUsersRepository } from '@/repositories/in-memory/in-memory-users-repository';
 import { makeUser } from '@/tests/factories/make-user';
-import { ResourceNotFoundError } from '@/use-cases/@errors/resource-not-found';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { ListAllUserUseCase } from './list-all-users';
 
 let usersRepository: InMemoryUsersRepository;
-let profilesRepository: InMemoryProfilesRepository;
 let sut: ListAllUserUseCase;
 
 describe('List All Users Use Case', () => {
   beforeEach(() => {
     usersRepository = new InMemoryUsersRepository();
-    profilesRepository = new InMemoryProfilesRepository();
-    sut = new ListAllUserUseCase(usersRepository, profilesRepository);
+    sut = new ListAllUserUseCase(usersRepository);
   });
 
-  it('should be able to list all users', async () => {
+  it('deve listar todos os usuários ativos', async () => {
     await makeUser({
       email: 'user-1@example.com',
       password: '123456',
       profile: { name: 'User One' },
       usersRepository,
-      profilesRepository,
     });
     await makeUser({
       email: 'user-2@example.com',
       password: '123456',
       profile: { name: 'User Two' },
       usersRepository,
-      profilesRepository,
     });
     await makeUser({
       email: 'user-3@example.com',
       password: '123456',
       profile: { name: 'User Three' },
       usersRepository,
-      profilesRepository,
     });
 
     const { users } = await sut.execute();
@@ -52,30 +46,26 @@ describe('List All Users Use Case', () => {
     });
   });
 
-  it('should not list users that are soft deleted', async () => {
-    const { user: userToBeDeleted } = await makeUser({
+  it('não deve listar usuários soft deleted (deletedAt preenchido)', async () => {
+    await makeUser({
       email: 'user-1@example.com',
       password: '123456',
       profile: { name: 'User One' },
+      deletedAt: new Date(),
       usersRepository,
-      profilesRepository,
     });
     await makeUser({
       email: 'user-2@example.com',
       password: '123456',
       profile: { name: 'User Two' },
       usersRepository,
-      profilesRepository,
     });
     await makeUser({
       email: 'user-3@example.com',
       password: '123456',
       profile: { name: 'User Three' },
       usersRepository,
-      profilesRepository,
     });
-
-    await usersRepository.delete(userToBeDeleted.id);
 
     const { users } = await sut.execute();
 
@@ -86,28 +76,29 @@ describe('List All Users Use Case', () => {
     expect(users.map((user) => user.email)).not.toContain('user-1@example.com');
   });
 
-  it('should not list deleted users', async () => {
-    const { user: deletedUser } = await makeUser({
+  it('não deve listar usuários deletados (deletedAt preenchido)', async () => {
+    await makeUser({
       email: 'deleted@example.com',
       password: '123456',
       profile: { name: 'Deleted User' },
+      deletedAt: new Date(),
       usersRepository,
-      profilesRepository,
     });
-    deletedUser.deletedAt = new Date();
+
     await makeUser({
       email: 'active@example.com',
       password: '123456',
       profile: { name: 'Active User' },
       usersRepository,
-      profilesRepository,
     });
+
     const { users } = await sut.execute();
+    expect(users).toHaveLength(1);
     expect(users.map((u) => u.email)).not.toContain('deleted@example.com');
     expect(users.map((u) => u.email)).toContain('active@example.com');
   });
 
-  it('should return resource not found if no users exist', async () => {
+  it('deve retornar erro se não houver usuários', async () => {
     await expect(sut.execute()).rejects.toBeInstanceOf(ResourceNotFoundError);
     await expect(sut.execute()).rejects.toBeInstanceOf(ResourceNotFoundError);
   });

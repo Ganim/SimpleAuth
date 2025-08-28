@@ -1,6 +1,7 @@
-import type { ProfilesRepository } from '@/repositories/profiles-repository';
-import { ResourceNotFoundError } from '@/use-cases/@errors/resource-not-found';
-import type { UserProfile } from 'generated/prisma';
+import { ResourceNotFoundError } from '@/@errors/use-cases/resource-not-found';
+import { UserProfile } from '@/entities/core/user-profile';
+import { UserDTO, userToDTO } from '@/mappers/user/user-to-dto';
+import { UsersRepository } from '@/repositories/users-repository';
 
 interface ChangeUserProfileUseCaseRequest {
   userId: string;
@@ -15,24 +16,44 @@ interface ChangeUserProfileUseCaseRequest {
 }
 
 interface ChangeUserProfileUseCaseResponse {
-  profile: UserProfile;
+  user: UserDTO;
 }
 
 export class ChangeUserProfileUseCase {
-  constructor(private profilesRepository: ProfilesRepository) {}
+  private usersRepository: UsersRepository;
+
+  constructor(usersRepository: UsersRepository) {
+    this.usersRepository = usersRepository;
+  }
 
   async execute({
     userId,
     profile,
   }: ChangeUserProfileUseCaseRequest): Promise<ChangeUserProfileUseCaseResponse> {
-    const existingProfile = await this.profilesRepository.findByUserId(userId);
+    const existingUser = await this.usersRepository.findById(userId);
+    if (!existingUser || existingUser.deletedAt) {
+      throw new ResourceNotFoundError('User not found');
+    }
 
-    if (!existingProfile) throw new ResourceNotFoundError('Profile not found');
-
-    const updatedProfile = await this.profilesRepository.update({
-      userId,
-      ...profile,
+    const updatedProfile = new UserProfile({
+      userId: existingUser.id,
+      name: profile.name ?? existingUser.profile?.name ?? '',
+      surname: profile.surname ?? existingUser.profile?.surname ?? '',
+      birthday: profile.birthday ?? existingUser.profile?.birthday,
+      location: profile.location ?? existingUser.profile?.location ?? '',
+      bio: profile.bio ?? existingUser.profile?.bio ?? '',
+      avatarUrl: profile.avatarUrl ?? existingUser.profile?.avatarUrl ?? '',
+      createdAt: existingUser.profile?.createdAt ?? existingUser.createdAt,
+      updatedAt: new Date(),
     });
-    return { profile: updatedProfile };
+
+    const updatedUser = await this.usersRepository.update({
+      id: userId,
+      profile: updatedProfile,
+    });
+
+    const user = userToDTO(updatedUser);
+
+    return { user };
   }
 }

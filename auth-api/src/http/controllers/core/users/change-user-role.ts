@@ -1,6 +1,6 @@
+import { ResourceNotFoundError } from '@/@errors/use-cases/resource-not-found';
 import { verifyJwt } from '@/http/middlewares/verify-jwt';
 import { verifyUserAdmin } from '@/http/middlewares/verify-user-admin';
-import { ResourceNotFoundError } from '@/use-cases/@errors/resource-not-found';
 import { makeChangeUserRoleUseCase } from '@/use-cases/core/users/factories/make-change-user-role-use-case';
 import type { FastifyInstance } from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';

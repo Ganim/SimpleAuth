@@ -1,4 +1,4 @@
-import { ResourceNotFoundError } from '@/use-cases/@errors/resource-not-found';
+import { ResourceNotFoundError } from '@/@errors/use-cases/resource-not-found';
 import { makeAuthenticateWithPasswordUseCase } from '@/use-cases/core/auth/factories/make-authenticate-with-password-use-case';
 
 import type { FastifyInstance } from 'fastify';

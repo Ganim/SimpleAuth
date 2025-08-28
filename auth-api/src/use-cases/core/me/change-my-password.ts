@@ -1,8 +1,7 @@
-import type { UsersRepository } from '@/repositories/users-repository';
-import { ResourceNotFoundError } from '@/use-cases/@errors/resource-not-found';
-
-import { hash } from 'bcryptjs';
-import type { User } from 'generated/prisma';
+import { ResourceNotFoundError } from '@/@errors/use-cases/resource-not-found';
+import { Password } from '@/entities/core/value-objects/password';
+import { UserDTO, userToDTO } from '@/mappers/user/user-to-dto';
+import { UsersRepository } from '@/repositories/users-repository';
 
 interface ChangeMyPasswordUseCaseRequest {
   userId: string;
@@ -10,7 +9,7 @@ interface ChangeMyPasswordUseCaseRequest {
 }
 
 interface ChangeMyPasswordUseCaseResponse {
-  user: User;
+  user: UserDTO;
 }
 
 export class ChangeMyPasswordUseCase {
@@ -20,16 +19,19 @@ export class ChangeMyPasswordUseCase {
     userId,
     password,
   }: ChangeMyPasswordUseCaseRequest): Promise<ChangeMyPasswordUseCaseResponse> {
-    const user = await this.usersRepository.findById(userId);
-    if (!user) throw new ResourceNotFoundError('User not found');
+    const existingUser = await this.usersRepository.findById(userId);
+    if (!existingUser || existingUser.deletedAt)
+      throw new ResourceNotFoundError('User not found.');
 
-    const password_hash = await hash(password, 8);
+    const passwordHash = await Password.hash(password);
 
     const updatedUser = await this.usersRepository.update({
       id: userId,
-      password_hash,
+      passwordHash,
     });
 
-    return { user: updatedUser };
+    const user = userToDTO(updatedUser);
+
+    return { user };
   }
 }

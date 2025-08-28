@@ -1,19 +1,16 @@
-import { InMemoryProfilesRepository } from '@/repositories/in-memory/in-memory-profiles-repository';
+import { ResourceNotFoundError } from '@/@errors/use-cases/resource-not-found';
 import { InMemoryUsersRepository } from '@/repositories/in-memory/in-memory-users-repository';
 import { makeUser } from '@/tests/factories/make-user';
-import { ResourceNotFoundError } from '@/use-cases/@errors/resource-not-found';
 import { compare } from 'bcryptjs';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { ChangeUserPasswordUseCase } from './change-user-password';
 
-describe('ChangeUserPasswordUseCase', () => {
-  let usersRepository: InMemoryUsersRepository;
-  let profilesRepository: InMemoryProfilesRepository;
-  let sut: ChangeUserPasswordUseCase;
+let usersRepository: InMemoryUsersRepository;
+let sut: ChangeUserPasswordUseCase;
 
+describe('ChangeUserPasswordUseCase', () => {
   beforeEach(() => {
     usersRepository = new InMemoryUsersRepository();
-    profilesRepository = new InMemoryProfilesRepository();
     sut = new ChangeUserPasswordUseCase(usersRepository);
   });
 
@@ -22,12 +19,13 @@ describe('ChangeUserPasswordUseCase', () => {
       email: 'user@example.com',
       password: 'oldpass',
       usersRepository,
-      profilesRepository,
     });
-    const result = await sut.execute({ userId: user.id, password: 'newpass' });
+    await sut.execute({ userId: user.id, password: 'newpass' });
+
+    const updatedUser = await usersRepository.findById(user.id);
     const isPasswordHashed = await compare(
       'newpass',
-      result.user.password_hash,
+      updatedUser?.passwordHash ?? '',
     );
     expect(isPasswordHashed).toBe(true);
   });
@@ -43,9 +41,9 @@ describe('ChangeUserPasswordUseCase', () => {
       email: 'deleted@example.com',
       password: 'oldpass',
       usersRepository,
-      profilesRepository,
     });
-    user.deletedAt = new Date();
+    const storedUser = await usersRepository.findById(user.id);
+    if (storedUser) storedUser.deletedAt = new Date();
     await expect(() =>
       sut.execute({ userId: user.id, password: 'newpass' }),
     ).rejects.toBeInstanceOf(ResourceNotFoundError);

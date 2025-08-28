@@ -1,23 +1,20 @@
-import { InMemoryProfilesRepository } from '@/repositories/in-memory/in-memory-profiles-repository';
+import { BadRequestError } from '@/@errors/use-cases/bad-request-error';
 import { InMemoryUsersRepository } from '@/repositories/in-memory/in-memory-users-repository';
-import { ResourceNotFoundError } from '@/use-cases/@errors/resource-not-found';
 import { compare } from 'bcryptjs';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { CreateUserUseCase } from './create-user';
 
 let usersRepository: InMemoryUsersRepository;
-let profilesRepository: InMemoryProfilesRepository;
 let sut: CreateUserUseCase;
 
 describe('Create User Use Case', () => {
   beforeEach(() => {
     usersRepository = new InMemoryUsersRepository();
-    profilesRepository = new InMemoryProfilesRepository();
-    sut = new CreateUserUseCase(usersRepository, profilesRepository);
+    sut = new CreateUserUseCase(usersRepository);
   });
 
-  it('should be able to create an user and profile', async () => {
-    const { user, profile } = await sut.execute({
+  it('should create a user with profile', async () => {
+    const { user } = await sut.execute({
       email: 'johndoe@example.com',
       password: '123456',
       profile: {
@@ -29,12 +26,11 @@ describe('Create User Use Case', () => {
     });
 
     expect(user.id).toEqual(expect.any(String));
-    expect(profile).toBeDefined();
-    expect(profile.name).toBe('John');
-    expect(profile.surname).toBe('Doe');
-    expect(profile.birthday).toEqual(new Date('1990-01-01'));
-    expect(profile.location).toBe('Brazil');
-    expect(profile.userId).toBe(user.id);
+    expect(user.profile).toBeDefined();
+    expect(user.profile?.name).toBe('John');
+    expect(user.profile?.surname).toBe('Doe');
+    expect(user.profile?.birthday).toEqual(new Date('1990-01-01'));
+    expect(user.profile?.location).toBe('Brazil');
   });
 
   it('should generate a unique username if not provided', async () => {
@@ -42,14 +38,15 @@ describe('Create User Use Case', () => {
       email: 'uniqueuser@example.com',
       password: '123456',
     });
+
     expect(user.username).toMatch(/^user[0-9a-f]{8}$/);
-    // Garante que não existe outro usuário com esse username
-    const found = await usersRepository.findByUsername(user.username ?? '');
-    expect(found).toBeDefined();
-    expect(found?.id).toBe(user.id);
+
+    const storagedUser = await usersRepository.findByUsername(user.username);
+    expect(storagedUser).toBeDefined();
+    expect(storagedUser?.id.toString()).toBe(user.id);
   });
 
-  it('should hash user password upon registration', async () => {
+  it('should hash the password upon registration', async () => {
     const { user } = await sut.execute({
       email: 'johndoe@example.com',
       password: '123456',
@@ -58,11 +55,16 @@ describe('Create User Use Case', () => {
       },
     });
 
-    const isPasswordHashed = await compare('123456', user.password_hash);
+    const storagedUser = await usersRepository.findByEmail(user.email);
+    expect(storagedUser).toBeDefined();
+    const isPasswordHashed = await compare(
+      '123456',
+      storagedUser!.passwordHash,
+    );
     expect(isPasswordHashed).toBe(true);
   });
 
-  it('should not be able to create an user with same email', async () => {
+  it('should not allow creating a user with an existing email', async () => {
     const email = 'johndoe@example.com';
 
     await sut.execute({
@@ -77,6 +79,47 @@ describe('Create User Use Case', () => {
         password: '123456',
         profile: { name: 'John' },
       }),
-    ).rejects.toBeInstanceOf(ResourceNotFoundError);
+    ).rejects.toBeInstanceOf(BadRequestError);
+  });
+
+  it('should not allow creating a user with an existing username', async () => {
+    const username = 'johnny';
+
+    await sut.execute({
+      email: 'johnny@example.com',
+      password: '123456',
+      username,
+      profile: { name: 'Johnny' },
+    });
+
+    await expect(() =>
+      sut.execute({
+        email: 'other@example.com',
+        password: '123456',
+        username,
+        profile: { name: 'Johnny' },
+      }),
+    ).rejects.toBeInstanceOf(BadRequestError);
+  });
+
+  it('should create a user with deletedAt (soft deleted) [TEST ONLY]', async () => {
+    const deletedDate = new Date('2020-01-01');
+    const { user } = await sut.execute({
+      email: 'deleteduser@example.com',
+      password: '123456',
+      profile: {
+        name: 'Deleted',
+        surname: 'User',
+      },
+      deletedAt: deletedDate,
+    });
+
+    expect(user.id).toEqual(expect.any(String));
+    expect(user.deletedAt).toEqual(deletedDate);
+
+    const storagedUser = await usersRepository.findByEmail(user.email);
+    expect(storagedUser).toBeDefined();
+    expect(storagedUser?.deletedAt).toEqual(deletedDate);
+    expect(storagedUser?.isDeleted).toBe(true);
   });
 });

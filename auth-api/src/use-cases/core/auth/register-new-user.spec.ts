@@ -1,23 +1,20 @@
-import { InMemoryProfilesRepository } from '@/repositories/in-memory/in-memory-profiles-repository';
+import { BadRequestError } from '@/@errors/use-cases/bad-request-error';
 import { InMemoryUsersRepository } from '@/repositories/in-memory/in-memory-users-repository';
-import { BadRequestError } from '@/use-cases/@errors/bad-request-error';
 import { compare } from 'bcryptjs';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { RegisterNewUserUseCase } from './register-new-user';
 
 let usersRepository: InMemoryUsersRepository;
-let profilesRepository: InMemoryProfilesRepository;
 let sut: RegisterNewUserUseCase;
 
 describe('Register New User Use Case', () => {
   beforeEach(() => {
     usersRepository = new InMemoryUsersRepository();
-    profilesRepository = new InMemoryProfilesRepository();
-    sut = new RegisterNewUserUseCase(usersRepository, profilesRepository);
+    sut = new RegisterNewUserUseCase(usersRepository);
   });
 
-  it('should be able to register a new user', async () => {
-    const { user, profile } = await sut.execute({
+  it('should register a new user with profile data', async () => {
+    const { user } = await sut.execute({
       email: 'johndoe@example.com',
       password: '123456',
       profile: {
@@ -25,16 +22,19 @@ describe('Register New User Use Case', () => {
         surname: 'Doe',
         birthday: new Date('1990-01-01'),
         location: 'Brazil',
+        avatarUrl: 'avatar.png',
       },
     });
 
     expect(user.id).toEqual(expect.any(String));
-    expect(profile).toBeDefined();
-    expect(profile.name).toBe('John');
-    expect(profile.surname).toBe('Doe');
-    expect(profile.birthday).toEqual(new Date('1990-01-01'));
-    expect(profile.location).toBe('Brazil');
-    expect(profile.userId).toBe(user.id);
+    expect(user.profile?.name).toBe('John');
+    expect(user.profile?.surname).toBe('Doe');
+    expect(user.profile?.birthday).toEqual(new Date('1990-01-01'));
+    expect(user.profile?.location).toBe('Brazil');
+    expect(user.profile?.avatarUrl).toBe('avatar.png');
+
+    const allUsers = await usersRepository.listAll();
+    expect(allUsers).toHaveLength(1);
   });
 
   it('should generate a unique username if not provided', async () => {
@@ -43,40 +43,74 @@ describe('Register New User Use Case', () => {
       password: '123456',
     });
     expect(user.username).toMatch(/^user[0-9a-f]{8}$/);
-    // Garante que não existe outro usuário com esse username
+
     const found = await usersRepository.findByUsername(user.username ?? '');
     expect(found).toBeDefined();
-    expect(found?.id).toBe(user.id);
+    expect(found?.id.toString()).toBe(user.id);
+
+    const allUsers = await usersRepository.listAll();
+    expect(allUsers).toHaveLength(1);
   });
 
-  it('should hash user password upon registration', async () => {
+  it('should hash the user password upon registration', async () => {
     const { user } = await sut.execute({
-      email: 'johndoe@example.com',
-      password: '123456',
-      profile: {
-        name: 'John',
-      },
+      email: 'hashme@example.com',
+      password: 'mypassword',
     });
 
-    const isPasswordHashed = await compare('123456', user.password_hash);
+    const created = await usersRepository.findById(user.id);
+    expect(created).toBeDefined();
+
+    const isPasswordHashed = await compare('mypassword', created!.passwordHash);
     expect(isPasswordHashed).toBe(true);
   });
 
-  it('should not be able to register an user with same email', async () => {
-    const email = 'johndoe@example.com';
-
+  it('should not allow registering a user with an existing email', async () => {
+    const email = 'duplicate@example.com';
     await sut.execute({
       email,
       password: '123456',
-      profile: { name: 'John' },
     });
-
-    await expect(() =>
+    await expect(
       sut.execute({
         email,
         password: '123456',
-        profile: { name: 'John' },
       }),
     ).rejects.toBeInstanceOf(BadRequestError);
+
+    const allUsers = await usersRepository.listAll();
+    expect(allUsers).toHaveLength(1);
+  });
+
+  it('should not allow registering a user with an existing username', async () => {
+    await sut.execute({
+      email: 'user1@example.com',
+      password: '123456',
+      username: 'sameuser',
+    });
+    await expect(
+      sut.execute({
+        email: 'user2@example.com',
+        password: '123456',
+        username: 'sameuser',
+      }),
+    ).rejects.toBeInstanceOf(BadRequestError);
+
+    const allUsers = await usersRepository.listAll();
+    expect(allUsers).toHaveLength(1);
+  });
+
+  it('should keep correct user count after multiple registrations', async () => {
+    await sut.execute({
+      email: 'user1@example.com',
+      password: '123456',
+    });
+    await sut.execute({
+      email: 'user2@example.com',
+      password: '123456',
+    });
+
+    const allUsers = await usersRepository.listAll();
+    expect(allUsers).toHaveLength(2);
   });
 });

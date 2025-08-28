@@ -1,5 +1,5 @@
 import { app } from '@/app';
-import { createAndAuthenticateUser } from '@/utils/test/create-and-authenticate-user';
+import { createAndAuthenticateUser } from '@/tests/factories/create-and-authenticate-user';
 import request from 'supertest';
 import { beforeAll, describe, expect, it } from 'vitest';
 

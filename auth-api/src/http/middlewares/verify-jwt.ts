@@ -1,4 +1,4 @@
-import { UnauthorizedError } from '@/use-cases/@errors/unauthorized-error';
+import { UnauthorizedError } from '@/@errors/use-cases/unauthorized-error';
 import type { FastifyRequest } from 'fastify';
 
 export async function verifyJwt(request: FastifyRequest) {

@@ -6,6 +6,6 @@ export interface SessionsRepository {
   listByUserAndDate(userId: string, from: Date, to: Date): Promise<Session[]>;
   revoke(sessionId: string): Promise<void>;
   expire(sessionId: string): Promise<void>;
-  create?(data: { userId: string; ip: string }): Promise<Session>;
+  create(data: { userId: string; ip: string }): Promise<Session>;
   updateSessionInfo(sessionId: string, ip: string): Promise<void>;
 }

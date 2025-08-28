@@ -7,11 +7,14 @@ interface makeUserProps {
   password: string;
   username?: string;
   role?: UserRole;
-  name?: string;
-  surname?: string;
-  birthday?: Date;
-  location?: string;
-  avatarUrl?: string;
+  profile?: {
+    name?: string;
+    surname?: string;
+    birthday?: Date;
+    location?: string;
+    avatarUrl?: string;
+  };
+  deletedAt?: Date | null;
   usersRepository: InMemoryUsersRepository;
 }
 
@@ -20,11 +23,14 @@ export async function makeUser({
   password,
   username = '',
   role = 'USER',
-  name = '',
-  surname = '',
-  birthday,
-  location = '',
-  avatarUrl = '',
+  profile = {
+    name: '',
+    surname: '',
+    birthday: undefined,
+    location: '',
+    avatarUrl: '',
+  },
+  deletedAt = null,
   usersRepository,
 }: makeUserProps) {
   const createUserUseCase = new CreateUserUseCase(usersRepository);
@@ -35,12 +41,13 @@ export async function makeUser({
     username,
     role,
     profile: {
-      name,
-      surname,
-      birthday,
-      location,
-      avatarUrl,
+      name: profile.name,
+      surname: profile.surname,
+      birthday: profile.birthday,
+      location: profile.location,
+      avatarUrl: profile.avatarUrl,
     },
+    deletedAt,
   };
 
   return await createUserUseCase.execute(newMockUser);

@@ -1,6 +1,6 @@
-import type { UsersRepository } from '@/repositories/users-repository';
-import { ResourceNotFoundError } from '@/use-cases/@errors/resource-not-found';
-import type { User } from 'generated/prisma';
+import { ResourceNotFoundError } from '@/@errors/use-cases/resource-not-found';
+import { UserDTO, userToDTO } from '@/mappers/user/user-to-dto';
+import { UsersRepository } from '@/repositories/users-repository';
 
 interface ChangeUserRoleUseCaseRequest {
   userId: string;
@@ -8,20 +8,28 @@ interface ChangeUserRoleUseCaseRequest {
 }
 
 interface ChangeUserRoleUseCaseResponse {
-  user: User;
+  user: UserDTO;
 }
 
 export class ChangeUserRoleUseCase {
-  constructor(private usersRepository: UsersRepository) {}
+  private usersRepository: UsersRepository;
+
+  constructor(usersRepository: UsersRepository) {
+    this.usersRepository = usersRepository;
+  }
 
   async execute({
     userId,
     role,
   }: ChangeUserRoleUseCaseRequest): Promise<ChangeUserRoleUseCaseResponse> {
-    const user = await this.usersRepository.findById(userId);
-    if (!user || user.deletedAt)
-      throw new ResourceNotFoundError('User not found');
+    const existingUser = await this.usersRepository.findById(userId);
+    if (!existingUser || existingUser.deletedAt) {
+      throw new ResourceNotFoundError('User not found.');
+    }
+
     const updatedUser = await this.usersRepository.update({ id: userId, role });
-    return { user: updatedUser };
+
+    const user = userToDTO(updatedUser);
+    return { user };
   }
 }

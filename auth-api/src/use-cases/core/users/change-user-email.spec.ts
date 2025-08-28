@@ -1,19 +1,16 @@
-import { InMemoryProfilesRepository } from '@/repositories/in-memory/in-memory-profiles-repository';
+import { BadRequestError } from '@/@errors/use-cases/bad-request-error';
+import { ResourceNotFoundError } from '@/@errors/use-cases/resource-not-found';
 import { InMemoryUsersRepository } from '@/repositories/in-memory/in-memory-users-repository';
 import { makeUser } from '@/tests/factories/make-user';
-import { ResourceNotFoundError } from '@/use-cases/@errors/resource-not-found';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { BadRequestError } from '../../@errors/bad-request-error';
 import { ChangeUserEmailUseCase } from './change-user-email';
 
-describe('ChangeUserEmailUseCase', () => {
-  let usersRepository: InMemoryUsersRepository;
-  let profilesRepository: InMemoryProfilesRepository;
-  let sut: ChangeUserEmailUseCase;
+let usersRepository: InMemoryUsersRepository;
+let sut: ChangeUserEmailUseCase;
 
+describe('ChangeUserEmailUseCase', () => {
   beforeEach(() => {
     usersRepository = new InMemoryUsersRepository();
-    profilesRepository = new InMemoryProfilesRepository();
     sut = new ChangeUserEmailUseCase(usersRepository);
   });
 
@@ -22,7 +19,6 @@ describe('ChangeUserEmailUseCase', () => {
       email: 'old@example.com',
       password: '123456',
       usersRepository,
-      profilesRepository,
     });
     const result = await sut.execute({
       userId: user.id,
@@ -42,13 +38,11 @@ describe('ChangeUserEmailUseCase', () => {
       email: 'user1@example.com',
       password: '123456',
       usersRepository,
-      profilesRepository,
     });
     const { user: user2 } = await makeUser({
       email: 'user2@example.com',
       password: '123456',
       usersRepository,
-      profilesRepository,
     });
     await expect(() =>
       sut.execute({ userId: user2.id, email: 'user1@example.com' }),
@@ -60,9 +54,9 @@ describe('ChangeUserEmailUseCase', () => {
       email: 'deleted@example.com',
       password: '123456',
       usersRepository,
-      profilesRepository,
     });
-    user.deletedAt = new Date();
+    const storedUser = await usersRepository.findById(user.id);
+    if (storedUser) storedUser.deletedAt = new Date();
     await expect(() =>
       sut.execute({ userId: user.id, email: 'new@example.com' }),
     ).rejects.toBeInstanceOf(ResourceNotFoundError);

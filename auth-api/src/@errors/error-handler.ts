@@ -1,7 +1,7 @@
-import { BadRequestError } from '@/use-cases/@errors/bad-request-error';
-import { ForbiddenError } from '@/use-cases/@errors/forbidden-error';
-import { ResourceNotFoundError } from '@/use-cases/@errors/resource-not-found';
-import { UnauthorizedError } from '@/use-cases/@errors/unauthorized-error';
+import { BadRequestError } from '@/@errors/use-cases/bad-request-error';
+import { ForbiddenError } from '@/@errors/use-cases/forbidden-error';
+import { ResourceNotFoundError } from '@/@errors/use-cases/resource-not-found';
+import { UnauthorizedError } from '@/@errors/use-cases/unauthorized-error';
 import type { FastifyInstance } from 'fastify';
 import { env } from 'process';
 import z, { ZodError } from 'zod';

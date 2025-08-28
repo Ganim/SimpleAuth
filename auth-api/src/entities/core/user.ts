@@ -134,7 +134,10 @@ export class User extends Entity<UserProps> {
   }
 
   static create(
-    props: Optional<UserProps, 'createdAt' | 'failedLoginAttempts' | 'role'>,
+    props: Optional<
+      UserProps,
+      'createdAt' | 'failedLoginAttempts' | 'role' | 'deletedAt'
+    >,
     id?: UniqueEntityID,
   ) {
     const user = new User(
@@ -143,6 +146,7 @@ export class User extends Entity<UserProps> {
         role: props.role ?? 'USER',
         failedLoginAttempts: props.failedLoginAttempts ?? 0,
         createdAt: props.createdAt ?? new Date(),
+        deletedAt: props.deletedAt ?? undefined,
       },
       id,
     );

@@ -1,4 +1,4 @@
-import { ResourceNotFoundError } from '@/use-cases/@errors/resource-not-found';
+import { ResourceNotFoundError } from '@/@errors/use-cases/resource-not-found';
 
 import z from 'zod';
 

@@ -1,3 +1,4 @@
+import { ResourceNotFoundError } from '@/@errors/use-cases/resource-not-found';
 import type { UserRole } from '@/@types/user-role';
 import { User } from '@/entities/core/user';
 import { UserProfile } from '@/entities/core/user-profile';
@@ -7,7 +8,6 @@ import type {
   UpdateUserSchema,
   UsersRepository,
 } from '@/repositories/users-repository';
-import { ResourceNotFoundError } from '@/use-cases/@errors/resource-not-found';
 
 export class InMemoryUsersRepository implements UsersRepository {
   // IN MEMORY DATABASE
@@ -30,6 +30,7 @@ export class InMemoryUsersRepository implements UsersRepository {
       failedLoginAttempts: 0,
       createdAt: new Date(),
       profile: data.profile ?? null,
+      deletedAt: data.deletedAt ?? undefined,
     });
 
     // Cria o profile
@@ -56,8 +57,7 @@ export class InMemoryUsersRepository implements UsersRepository {
   // updateLastLoginAt(id: string, date: Date): Promise<void>;
 
   async update(data: UpdateUserSchema) {
-    // Verify user exists
-    const user = await this.findById(data.id);
+    const user = this.items.find((item) => item.id.toString() === data.id);
     if (!user) throw new ResourceNotFoundError('User not found');
 
     // Update
@@ -83,6 +83,8 @@ export class InMemoryUsersRepository implements UsersRepository {
         updatedAt: new Date(),
       });
     }
+    if (data.deletedAt !== undefined)
+      user.deletedAt = data.deletedAt === null ? undefined : data.deletedAt;
 
     return user;
   }
@@ -114,30 +116,27 @@ export class InMemoryUsersRepository implements UsersRepository {
   // findByUsername(username: string): Promise<User | null>;
 
   async findByEmail(email: string) {
-    // Verify user exists and its not deleted
-    const user = this.items.find(
-      (item) => item.email === email && !item.isDeleted,
-    );
+    // Verify user exists
+    const user = this.items.find((item) => item.email === email);
 
     // Return User
     return user ?? null;
   }
 
   async findById(id: string) {
-    // Verify user exists and its not deleted
-    const user = this.items.find(
-      (item) => item.id.toString() === id && !item.isDeleted,
-    );
-
-    // Return User
-    return user ?? null;
+    // Verify user exists and not deleted
+    const user = this.items.find((item) => item.id.toString() === id);
+    if (!user || user.deletedAt) {
+      return null;
+    }
+    return user;
   }
 
   async findByUsername(username: string | Username): Promise<User | null> {
     const usernameValue =
       username instanceof Username ? username.value : username;
     const user = this.items.find(
-      (item) => item.username.value === usernameValue && !item.isDeleted,
+      (item) => item.username.value === usernameValue,
     );
     return user ?? null;
   }

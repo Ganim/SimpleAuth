@@ -1,5 +1,5 @@
+import { ResourceNotFoundError } from '@/@errors/use-cases/resource-not-found';
 import { verifyJwt } from '@/http/middlewares/verify-jwt';
-import { ResourceNotFoundError } from '@/use-cases/@errors/resource-not-found';
 import { makeGetUserByIdUseCase } from '@/use-cases/core/users/factories/make-get-user-by-id-use-case';
 
 import type { FastifyInstance } from 'fastify';

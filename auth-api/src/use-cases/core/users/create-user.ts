@@ -1,10 +1,11 @@
-import type { UserRole } from '@/@types/user-role';
-import { env } from '@/env';
-import type { ProfilesRepository } from '@/repositories/profiles-repository';
-import type { UsersRepository } from '@/repositories/users-repository';
-import { ResourceNotFoundError } from '@/use-cases/@errors/resource-not-found';
-import { hash } from 'bcryptjs';
-import { randomUUID } from 'node:crypto';
+import { BadRequestError } from '@/@errors/use-cases/bad-request-error';
+import { UserRole } from '@/@types/user-role';
+import { UserProfile } from '@/entities/core/user-profile';
+import { Password } from '@/entities/core/value-objects/password';
+import { Username } from '@/entities/core/value-objects/username';
+import { UniqueEntityID } from '@/entities/domain/unique-entity-id';
+import { UserDTO, userToDTO } from '@/mappers/user/user-to-dto';
+import { UsersRepository } from '@/repositories/users-repository';
 
 interface CreateUserUseCaseRequest {
   username?: string;
@@ -18,31 +19,15 @@ interface CreateUserUseCaseRequest {
     location?: string;
     avatarUrl?: string;
   };
+  deletedAt?: Date | null;
 }
 
 interface CreateUserUseCaseResponse {
-  user: {
-    id: string;
-    email: string;
-    username: string;
-    role: string;
-    lastLoginAt: Date;
-    profile: {
-      name: string;
-      surname: string;
-      birthday: Date;
-      location: string;
-      bio: string;
-      avatarUrl: string;
-    };
-  };
+  user: UserDTO;
 }
 
 export class CreateUserUseCase {
-  constructor(
-    private userRespository: UsersRepository,
-    private profileRepository: ProfilesRepository,
-  ) {}
+  constructor(private userRespository: UsersRepository) {}
 
   async execute({
     username,
@@ -50,52 +35,72 @@ export class CreateUserUseCase {
     password,
     role = 'USER',
     profile = {},
+    deletedAt = null,
   }: CreateUserUseCaseRequest): Promise<CreateUserUseCaseResponse> {
-    const password_hash = await hash(password, env.HASH_ROUNDS);
-
     const userWithSameEmail = await this.userRespository.findByEmail(email);
     if (userWithSameEmail) {
-      throw new ResourceNotFoundError('User already exists');
+      throw new BadRequestError('This email is already in use.');
     }
 
-    // Gera username único se não informado
-    let finalUsername = username;
-    if (!finalUsername || finalUsername.trim() === '') {
-      finalUsername = `user${randomUUID().slice(0, 8)}`;
+    const validUsername = username
+      ? Username.create(username)
+      : Username.random();
+
+    const userWithSameUsername = await this.userRespository.findByUsername(
+      validUsername.toString(),
+    );
+    if (userWithSameUsername) {
+      throw new BadRequestError('This username is already in use.');
     }
 
-    const user = await this.userRespository.create({
-      username: finalUsername,
-      email,
-      password_hash,
-      role,
-    });
+    const passwordHash = await Password.hash(password);
 
-    const userProfile = await this.profileRepository.create({
-      user: { connect: { id: user.id } },
+    const exactDate = new Date();
+
+    const emptyProfile = new UserProfile({
+      userId: new UniqueEntityID(),
       name: profile?.name ?? '',
       surname: profile?.surname ?? '',
       birthday: profile?.birthday ?? undefined,
       location: profile?.location ?? '',
+      bio: '',
       avatarUrl: profile?.avatarUrl ?? '',
+      createdAt: exactDate,
+      updatedAt: exactDate,
     });
 
-    const formatedUser = {
-      id: user.id,
-      email: user.email,
-      username: user.username ?? '',
-      role: user.role,
-      lastLoginAt: user.lastLoginAt ?? new Date(0),
-      profile: {
-        name: userProfile.name,
-        surname: userProfile.surname,
-        birthday: userProfile.birthday ?? new Date(0),
-        location: userProfile.location,
-        bio: userProfile.bio,
-        avatarUrl: userProfile.avatarUrl,
-      },
-    };
+    const newUser = await this.userRespository.create({
+      username: validUsername,
+      email,
+      passwordHash,
+      role,
+      profile: emptyProfile,
+      deletedAt,
+    });
 
-    return { user: formatedUser };
+    const userProfile = new UserProfile({
+      userId: new UniqueEntityID(newUser.id.toString()),
+      name: profile?.name ?? '',
+      surname: profile?.surname ?? '',
+      birthday: profile?.birthday ?? undefined,
+      location: profile?.location ?? '',
+      bio: '',
+      avatarUrl: profile?.avatarUrl ?? '',
+      createdAt: exactDate,
+      updatedAt: exactDate,
+    });
+
+    await this.userRespository.update({
+      id: newUser.id.toString(),
+      profile: userProfile,
+    });
+
+    newUser.profile = userProfile;
+
+    const user = userToDTO(newUser);
+
+    return {
+      user,
+    };
   }
 }

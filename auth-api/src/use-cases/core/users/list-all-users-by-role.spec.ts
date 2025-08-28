@@ -1,20 +1,17 @@
-import type { UserRole } from '@/@types/user-role';
-import { InMemoryProfilesRepository } from '@/repositories/in-memory/in-memory-profiles-repository';
+import { ResourceNotFoundError } from '@/@errors/use-cases/resource-not-found';
+import { UserRole } from '@/@types/user-role';
 import { InMemoryUsersRepository } from '@/repositories/in-memory/in-memory-users-repository';
 import { makeUser } from '@/tests/factories/make-user';
-import { ResourceNotFoundError } from '@/use-cases/@errors/resource-not-found';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { ListAllUserByRoleUseCase } from './list-all-users-by-role';
 
 let usersRepository: InMemoryUsersRepository;
-let profilesRepository: InMemoryProfilesRepository;
 let sut: ListAllUserByRoleUseCase;
 
 describe('List All Users By Role Use Case', () => {
   beforeEach(() => {
     usersRepository = new InMemoryUsersRepository();
-    profilesRepository = new InMemoryProfilesRepository();
-    sut = new ListAllUserByRoleUseCase(usersRepository, profilesRepository);
+    sut = new ListAllUserByRoleUseCase(usersRepository);
   });
 
   it('should list only users with the specified role MANAGER', async () => {
@@ -23,21 +20,18 @@ describe('List All Users By Role Use Case', () => {
       password: 'hash',
       role: 'USER',
       usersRepository,
-      profilesRepository,
     });
     await makeUser({
       email: 'manager-1@example.com',
       password: 'hash',
       role: 'MANAGER',
       usersRepository,
-      profilesRepository,
     });
     await makeUser({
       email: 'admin-1@example.com',
       password: 'hash',
       role: 'ADMIN',
       usersRepository,
-      profilesRepository,
     });
 
     const { users } = await sut.execute({ role: 'MANAGER' });
@@ -48,7 +42,6 @@ describe('List All Users By Role Use Case', () => {
   });
 
   it('should return profile data for each user', async () => {
-    const { makeUser } = await import('@/tests/factories/make-user');
     await makeUser({
       email: 'manager-2@example.com',
       password: 'hash',
@@ -61,7 +54,6 @@ describe('List All Users By Role Use Case', () => {
         avatarUrl: 'avatar.png',
       },
       usersRepository,
-      profilesRepository,
     });
 
     const { users } = await sut.execute({ role: 'MANAGER' as UserRole });
@@ -75,13 +67,11 @@ describe('List All Users By Role Use Case', () => {
   });
 
   it('should not list users that are soft deleted', async () => {
-    const { makeUser } = await import('@/tests/factories/make-user');
     const { user } = await makeUser({
       email: 'manager-3@example.com',
       password: 'hash',
       role: 'MANAGER',
       usersRepository,
-      profilesRepository,
     });
     await usersRepository.delete(user.id);
 
@@ -91,22 +81,24 @@ describe('List All Users By Role Use Case', () => {
   });
 
   it('should not list deleted users by role', async () => {
-    const { user: deletedUser } = await makeUser({
+    await makeUser({
       email: 'deleted-manager@example.com',
       password: 'hash',
       role: 'MANAGER',
       usersRepository,
-      profilesRepository,
+      deletedAt: new Date(),
     });
-    deletedUser.deletedAt = new Date();
+
     await makeUser({
       email: 'active-manager@example.com',
       password: 'hash',
       role: 'MANAGER',
       usersRepository,
-      profilesRepository,
     });
+
     const { users } = await sut.execute({ role: 'MANAGER' });
+
+    expect(users).toHaveLength(1);
     expect(users.map((u) => u.email)).not.toContain(
       'deleted-manager@example.com',
     );

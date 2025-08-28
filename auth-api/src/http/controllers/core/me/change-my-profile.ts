@@ -1,4 +1,4 @@
-import { BadRequestError } from '@/use-cases/@errors/bad-request-error';
+import { BadRequestError } from '@/@errors/use-cases/bad-request-error';
 import { makeChangeMyProfileUseCase } from '@/use-cases/core/me/factories/make-change-my-profile-use-case';
 
 import z from 'zod';

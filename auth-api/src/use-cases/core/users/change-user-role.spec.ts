@@ -1,18 +1,15 @@
-import { InMemoryProfilesRepository } from '@/repositories/in-memory/in-memory-profiles-repository';
+import { ResourceNotFoundError } from '@/@errors/use-cases/resource-not-found';
 import { InMemoryUsersRepository } from '@/repositories/in-memory/in-memory-users-repository';
 import { makeUser } from '@/tests/factories/make-user';
-import { ResourceNotFoundError } from '@/use-cases/@errors/resource-not-found';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { ChangeUserRoleUseCase } from './change-user-role';
 
-describe('ChangeUserRoleUseCase', () => {
-  let usersRepository: InMemoryUsersRepository;
-  let profilesRepository: InMemoryProfilesRepository;
-  let sut: ChangeUserRoleUseCase;
+let usersRepository: InMemoryUsersRepository;
+let sut: ChangeUserRoleUseCase;
 
+describe('ChangeUserRoleUseCase', () => {
   beforeEach(() => {
     usersRepository = new InMemoryUsersRepository();
-    profilesRepository = new InMemoryProfilesRepository();
     sut = new ChangeUserRoleUseCase(usersRepository);
   });
 
@@ -22,7 +19,6 @@ describe('ChangeUserRoleUseCase', () => {
       password: '123456',
       role: 'USER',
       usersRepository,
-      profilesRepository,
     });
     const result = await sut.execute({ userId: user.id, role: 'ADMIN' });
     expect(result.user.role).toBe('ADMIN');
@@ -40,9 +36,9 @@ describe('ChangeUserRoleUseCase', () => {
       password: '123456',
       role: 'USER',
       usersRepository,
-      profilesRepository,
     });
-    user.deletedAt = new Date();
+    const storedUser = await usersRepository.findById(user.id);
+    if (storedUser) storedUser.deletedAt = new Date();
     await expect(() =>
       sut.execute({ userId: user.id, role: 'ADMIN' }),
     ).rejects.toBeInstanceOf(ResourceNotFoundError);

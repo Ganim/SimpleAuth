@@ -1,7 +1,6 @@
-import { env } from '@/env';
+import { Password } from '@/entities/core/value-objects/password';
 import { prisma } from '@/lib/prisma';
 import { faker } from '@faker-js/faker';
-import { hash } from 'bcryptjs';
 import type { FastifyInstance } from 'fastify';
 import type { Role } from 'generated/prisma';
 
@@ -17,7 +16,7 @@ export async function createAndAuthenticateUser(
   const userResponse = await prisma.user.create({
     data: {
       email: fakerEmail,
-      password_hash: await hash('123456', env.HASH_ROUNDS),
+      password_hash: await Password.hash('123456'),
       role,
       username,
     },

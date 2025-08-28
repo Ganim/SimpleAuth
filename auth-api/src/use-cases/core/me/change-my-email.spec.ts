@@ -1,6 +1,7 @@
+import { BadRequestError } from '@/@errors/use-cases/bad-request-error';
+import { ResourceNotFoundError } from '@/@errors/use-cases/resource-not-found';
 import { InMemoryUsersRepository } from '@/repositories/in-memory/in-memory-users-repository';
-import { BadRequestError } from '@/use-cases/@errors/bad-request-error';
-import { ResourceNotFoundError } from '@/use-cases/@errors/resource-not-found';
+import { makeUser } from '@/tests/factories/make-user';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { ChangeMyEmailUseCase } from './change-my-email';
 
@@ -14,34 +15,68 @@ describe('Change My Email Use Case', () => {
   });
 
   it('should change own email', async () => {
-    const user = await usersRepository.create({
+    const { user } = await makeUser({
       email: 'old@example.com',
-      password_hash: '123456',
+      password: '123456',
+      usersRepository,
     });
     const result = await sut.execute({
       userId: user.id,
       email: 'new@example.com',
     });
     expect(result.user.email).toBe('new@example.com');
+    const allUsers = await usersRepository.listAll();
+    expect(allUsers).toHaveLength(1);
   });
 
   it('should throw ResourceNotFoundError if user does not exist', async () => {
-    await expect(() =>
+    await expect(
       sut.execute({ userId: 'notfound', email: 'fail@example.com' }),
     ).rejects.toBeInstanceOf(ResourceNotFoundError);
   });
 
+  it('should throw ResourceNotFoundError if user is deleted', async () => {
+    const { user } = await makeUser({
+      email: 'deleted@example.com',
+      password: '123456',
+      deletedAt: new Date(),
+      usersRepository,
+    });
+    await expect(
+      sut.execute({ userId: user.id, email: 'new@example.com' }),
+    ).rejects.toBeInstanceOf(ResourceNotFoundError);
+  });
+
   it('should not allow changing to an already existing email', async () => {
-    await usersRepository.create({
+    await makeUser({
       email: 'user1@example.com',
-      password_hash: '123456',
+      password: '123456',
+      usersRepository,
     });
-    const user2 = await usersRepository.create({
+    const { user: user2 } = await makeUser({
       email: 'user2@example.com',
-      password_hash: '123456',
+      password: '123456',
+      usersRepository,
     });
-    await expect(() =>
+    await expect(
       sut.execute({ userId: user2.id, email: 'user1@example.com' }),
     ).rejects.toBeInstanceOf(BadRequestError);
+  });
+
+  it('should keep correct user count after email change', async () => {
+    await makeUser({
+      email: 'user1@example.com',
+      password: '123456',
+      usersRepository,
+    });
+    const { user } = await makeUser({
+      email: 'user2@example.com',
+      password: '123456',
+      usersRepository,
+    });
+    await sut.execute({ userId: user.id, email: 'changed@example.com' });
+    const allUsers = await usersRepository.listAll();
+    expect(allUsers).toHaveLength(2);
+    expect(allUsers.map((u) => u.email)).toContain('changed@example.com');
   });
 });

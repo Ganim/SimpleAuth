@@ -109,7 +109,6 @@ export class PrismaUsersRepository implements UsersRepository {
       include: { profile: true },
     });
     if (!newUserData) return null;
-
     const user = User.create(mapUserPrismaToDomain(newUserData));
     return user;
   }
@@ -120,7 +119,6 @@ export class PrismaUsersRepository implements UsersRepository {
       include: { profile: true },
     });
     if (!newUserData) return null;
-
     const user = User.create(mapUserPrismaToDomain(newUserData));
     return user;
   }
@@ -157,7 +155,7 @@ export class PrismaUsersRepository implements UsersRepository {
 
   async listAllByRole(role: UserRole): Promise<User[]> {
     const usersDb = await prisma.user.findMany({
-      where: { deletedAt: null, role },
+      where: { role, deletedAt: null },
       orderBy: { email: 'asc' },
       include: { profile: true },
     });

@@ -1,18 +1,15 @@
-import { InMemoryProfilesRepository } from '@/repositories/in-memory/in-memory-profiles-repository';
+import { ResourceNotFoundError } from '@/@errors/use-cases/resource-not-found';
 import { InMemoryUsersRepository } from '@/repositories/in-memory/in-memory-users-repository';
 import { makeUser } from '@/tests/factories/make-user';
-import { ResourceNotFoundError } from '@/use-cases/@errors/resource-not-found';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { DeleteUserByIdUseCase } from './delete-user-by-id';
 
 let usersRepository: InMemoryUsersRepository;
-let profilesRepository: InMemoryProfilesRepository;
 let sut: DeleteUserByIdUseCase;
 
-describe('DeleteUserByIdUseCase', () => {
+describe('Delete User By Id Use Case', () => {
   beforeEach(() => {
     usersRepository = new InMemoryUsersRepository();
-    profilesRepository = new InMemoryProfilesRepository();
     sut = new DeleteUserByIdUseCase(usersRepository);
   });
 
@@ -21,7 +18,6 @@ describe('DeleteUserByIdUseCase', () => {
       email: 'DeleteUserById@example.com',
       password: '123456',
       usersRepository,
-      profilesRepository,
     });
 
     await expect(sut.execute({ userId: user.id })).resolves.toBeUndefined();
@@ -29,17 +25,53 @@ describe('DeleteUserByIdUseCase', () => {
     const deletedUser = await usersRepository.findById(user.id);
 
     expect(deletedUser).toBeNull();
-    type UserInternal = typeof user & { deletedAt?: Date | null };
-    const items: UserInternal[] = (usersRepository as InMemoryUsersRepository)[
-      'items'
-    ];
-    const rawUser = items.find((u) => u.id === user.id);
+    const items = (usersRepository as InMemoryUsersRepository)['items'];
+    const rawUser = items.find((u) => u.id.toString() === user.id);
     expect(rawUser?.deletedAt).toEqual(expect.any(Date));
   });
 
-  it('should throw BadRequestError if user not found', async () => {
+  it('should throw ResourceNotFoundError if user not found', async () => {
     await expect(() =>
       sut.execute({ userId: 'notfound' }),
     ).rejects.toBeInstanceOf(ResourceNotFoundError);
+  });
+
+  it('should not allow deleting an already deleted user', async () => {
+    const { user } = await makeUser({
+      email: 'alreadydeleted@example.com',
+      password: '123456',
+      deletedAt: new Date(),
+      usersRepository,
+    });
+
+    await expect(sut.execute({ userId: user.id })).rejects.toBeInstanceOf(
+      ResourceNotFoundError,
+    );
+  });
+
+  it('should keep correct user count after deletion', async () => {
+    await makeUser({
+      email: 'user1@example.com',
+      password: '123456',
+      usersRepository,
+    });
+    await makeUser({
+      email: 'user2@example.com',
+      password: '123456',
+      usersRepository,
+    });
+    const { user } = await makeUser({
+      email: 'user3@example.com',
+      password: '123456',
+      usersRepository,
+    });
+
+    await expect(sut.execute({ userId: user.id })).resolves.toBeUndefined();
+    const allUsers = await usersRepository.listAll();
+    expect(allUsers).toHaveLength(2);
+    expect(allUsers.map((u) => u.email)).toEqual(
+      expect.arrayContaining(['user1@example.com', 'user2@example.com']),
+    );
+    expect(allUsers.map((u) => u.email)).not.toContain('user3@example.com');
   });
 });

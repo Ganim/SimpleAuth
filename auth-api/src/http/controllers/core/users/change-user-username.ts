@@ -1,7 +1,7 @@
+import { BadRequestError } from '@/@errors/use-cases/bad-request-error';
+import { ResourceNotFoundError } from '@/@errors/use-cases/resource-not-found';
 import { verifyJwt } from '@/http/middlewares/verify-jwt';
 import { verifyUserAdmin } from '@/http/middlewares/verify-user-admin';
-import { BadRequestError } from '@/use-cases/@errors/bad-request-error';
-import { ResourceNotFoundError } from '@/use-cases/@errors/resource-not-found';
 import { makeChangeUserUsernameUseCase } from '@/use-cases/core/users/factories/make-change-user-username-use-case';
 import type { FastifyInstance } from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';

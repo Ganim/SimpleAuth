@@ -1,6 +1,6 @@
+import { ResourceNotFoundError } from '@/@errors/use-cases/resource-not-found';
 import { verifyJwt } from '@/http/middlewares/verify-jwt';
 import { verifyUserAdmin } from '@/http/middlewares/verify-user-admin';
-import { ResourceNotFoundError } from '@/use-cases/@errors/resource-not-found';
 import { makeDeleteUserByIdUseCase } from '@/use-cases/core/users/factories/make-delete-user-by-id-use-case';
 import type { FastifyInstance } from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';

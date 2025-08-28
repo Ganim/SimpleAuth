@@ -1,7 +1,8 @@
+import { BadRequestError } from '@/@errors/use-cases/bad-request-error';
+import { UserDTO, userToDTO } from '@/mappers/user/user-to-dto';
+import type { SessionsRepository } from '@/repositories/sessions-repository';
 import type { UsersRepository } from '@/repositories/users-repository';
-import { BadRequestError } from '@/use-cases/@errors/bad-request-error';
 import { compare } from 'bcryptjs';
-import type { User } from 'generated/prisma';
 
 interface AuthenticateWithPasswordUseCaseRequest {
   email: string;
@@ -9,19 +10,14 @@ interface AuthenticateWithPasswordUseCaseRequest {
   ip: string;
 }
 interface AuthenticateWithPasswordUseCaseResponse {
-  user: User;
+  user: UserDTO;
   sessionId: string;
 }
 
 export class AuthenticateWithPasswordUseCase {
   constructor(
     private usersRepository: UsersRepository,
-    private createSessionUseCase: {
-      execute: (
-        userId: string,
-        ip: string,
-      ) => Promise<{ session: { id: string } }>;
-    },
+    private sessionsRepository: SessionsRepository,
   ) {}
 
   async execute({
@@ -29,16 +25,35 @@ export class AuthenticateWithPasswordUseCase {
     password,
     ip,
   }: AuthenticateWithPasswordUseCaseRequest): Promise<AuthenticateWithPasswordUseCaseResponse> {
-    const user = await this.usersRepository.findByEmail(email);
-    if (!user || user.deletedAt) {
+    const existingUser = await this.usersRepository.findByEmail(email);
+
+    if (!existingUser || existingUser.isDeleted) {
       throw new BadRequestError('Invalid credentials');
     }
-    const doesPasswordMatches = await compare(password, user.password_hash);
+
+    const doesPasswordMatches = await compare(
+      password,
+      existingUser.passwordHash,
+    );
+
     if (!doesPasswordMatches) {
       throw new BadRequestError('Invalid credentials');
     }
-    const { session } = await this.createSessionUseCase.execute(user.id, ip);
-    await this.usersRepository.updateLastLoginAt(user.id, new Date());
+
+    const session = await this.sessionsRepository.create({
+      userId: existingUser.id.toString(),
+      ip,
+    });
+
+    existingUser.lastLoginAt = new Date();
+
+    await this.usersRepository.updateLastLoginAt(
+      existingUser.id.toString(),
+      existingUser.lastLoginAt,
+    );
+
+    const user = userToDTO(existingUser);
+
     return { user, sessionId: session.id };
   }
 }

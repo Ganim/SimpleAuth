@@ -9,6 +9,7 @@ export interface CreateUserSchema {
   passwordHash: string;
   role: UserRole;
   profile: UserProfile;
+  deletedAt?: Date | null;
 }
 
 export interface UpdateUserSchema {
@@ -18,6 +19,7 @@ export interface UpdateUserSchema {
   username?: Username;
   passwordHash?: string;
   profile?: UserProfile;
+  deletedAt?: Date | null;
 }
 
 export interface UsersRepository {
@@ -34,7 +36,7 @@ export interface UsersRepository {
 
   // RETRIEVE
   findByEmail(email: string): Promise<User | null>;
-  findById(id: string): Promise<User | null>;
+  findById(id: string, ignoreDeleted?: boolean): Promise<User | null>;
   findByUsername(username: string): Promise<User | null>;
 
   // LIST

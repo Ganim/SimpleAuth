@@ -5,7 +5,7 @@ export async function verifyUserManager(request: FastifyRequest) {
 
   if (role !== 'ADMIN' && role !== 'MANAGER') {
     const { ForbiddenError } = await import(
-      '@/use-cases/@errors/forbidden-error'
+      '@/@errors/use-cases/forbidden-error'
     );
     throw new ForbiddenError('Only MANAGER or ADMIN can perform this action');
   }

@@ -1,5 +1,5 @@
+import { ResourceNotFoundError } from '@/@errors/use-cases/resource-not-found';
 import { verifyJwt } from '@/http/middlewares/verify-jwt';
-import { ResourceNotFoundError } from '@/use-cases/@errors/resource-not-found';
 
 import { verifyUserManager } from '@/http/middlewares/verify-user-manager';
 import { makeListAllUsersUseCase } from '@/use-cases/core/users/factories/make-list-all-users-use-case';

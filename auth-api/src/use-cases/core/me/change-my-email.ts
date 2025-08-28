@@ -1,7 +1,7 @@
-import type { UsersRepository } from '@/repositories/users-repository';
-import { BadRequestError } from '@/use-cases/@errors/bad-request-error';
-import { ResourceNotFoundError } from '@/use-cases/@errors/resource-not-found';
-import type { User } from 'generated/prisma';
+import { BadRequestError } from '@/@errors/use-cases/bad-request-error';
+import { ResourceNotFoundError } from '@/@errors/use-cases/resource-not-found';
+import { UserDTO, userToDTO } from '@/mappers/user/user-to-dto';
+import { UsersRepository } from '@/repositories/users-repository';
 
 interface ChangeMyEmailUseCaseRequest {
   userId: string;
@@ -9,7 +9,7 @@ interface ChangeMyEmailUseCaseRequest {
 }
 
 interface ChangeMyEmailUseCaseResponse {
-  user: User;
+  user: UserDTO;
 }
 
 export class ChangeMyEmailUseCase {
@@ -19,18 +19,22 @@ export class ChangeMyEmailUseCase {
     userId,
     email,
   }: ChangeMyEmailUseCaseRequest): Promise<ChangeMyEmailUseCaseResponse> {
-    const user = await this.usersRepository.findById(userId);
-    if (!user) throw new ResourceNotFoundError('User not found');
+    const existingUser = await this.usersRepository.findById(userId);
+    if (!existingUser || existingUser.deletedAt)
+      throw new ResourceNotFoundError('User not found.');
 
-    const existing = await this.usersRepository.findByEmail(email);
-    if (existing && existing.id !== userId) {
-      throw new BadRequestError('Email já está em uso');
+    const userWithSameEmail = await this.usersRepository.findByEmail(email);
+    if (userWithSameEmail && userWithSameEmail.id.toString() !== userId) {
+      throw new BadRequestError('This email is already in use.');
     }
 
     const updatedUser = await this.usersRepository.update({
       id: userId,
       email,
     });
-    return { user: updatedUser };
+
+    const user = userToDTO(updatedUser);
+
+    return { user };
   }
 }

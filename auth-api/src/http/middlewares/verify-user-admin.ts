@@ -5,7 +5,7 @@ export async function verifyUserAdmin(request: FastifyRequest) {
 
   if (role !== 'ADMIN') {
     const { ForbiddenError } = await import(
-      '@/use-cases/@errors/forbidden-error'
+      '@/@errors/use-cases/forbidden-error'
     );
     throw new ForbiddenError('Only ADMIN can change user roles');
   }
