@@ -1,3 +1,4 @@
+import { Entity } from '../domain/entities';
 import type { UniqueEntityID } from '../domain/unique-entity-id';
 
 export interface UserProfileProps {
@@ -12,38 +13,36 @@ export interface UserProfileProps {
   updatedAt?: Date;
 }
 
-export class UserProfile {
-  private props: UserProfileProps;
-
-  constructor(props: UserProfileProps) {
-    this.props = props;
-  }
-
-  get userId() {
+export class UserProfile extends Entity<UserProfileProps> {
+  get userId(): UniqueEntityID {
     return this.props.userId;
   }
-  get name() {
+  get name(): string {
     return this.props.name;
   }
-  get surname() {
+  get surname(): string {
     return this.props.surname;
   }
-  get birthday() {
+  get birthday(): Date | undefined {
     return this.props.birthday;
   }
-  get location() {
+  get location(): string {
     return this.props.location;
   }
-  get bio() {
+  get bio(): string {
     return this.props.bio;
   }
-  get avatarUrl() {
+  get avatarUrl(): string {
     return this.props.avatarUrl;
   }
-  get createdAt() {
+  get createdAt(): Date {
     return this.props.createdAt;
   }
-  get updatedAt() {
+  get updatedAt(): Date | undefined {
     return this.props.updatedAt;
+  }
+
+  static create(props: UserProfileProps, id?: UniqueEntityID) {
+    return new UserProfile(props, id);
   }
 }
