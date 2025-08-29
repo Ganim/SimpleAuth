@@ -36,7 +36,7 @@ export class InMemoryUsersRepository implements UsersRepository {
 
     // Cria o profile
     if (!data.profile) {
-      user.profile = new UserProfile({
+      user.profile = UserProfile.create({
         userId: user.id,
         name: '',
         surname: '',
@@ -72,7 +72,7 @@ export class InMemoryUsersRepository implements UsersRepository {
     }
     if (data.passwordHash !== undefined) user.passwordHash = data.passwordHash;
     if (data.profile !== undefined && user.profile) {
-      user.profile = new UserProfile({
+      user.profile = UserProfile.create({
         userId: user.id,
         name: data.profile.name ?? user.profile.name,
         surname: data.profile.surname ?? user.profile.surname,

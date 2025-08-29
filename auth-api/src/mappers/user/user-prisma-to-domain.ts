@@ -21,7 +21,7 @@ export function mapUserPrismaToDomain(
     createdAt: userDb.createdAt,
     updatedAt: userDb.updatedAt,
     profile: userDb.profile
-      ? new UserProfile({
+      ? UserProfile.create({
           userId: new UniqueEntityID(userDb.profile.userId ?? userDb.id),
           name: userDb.profile.name ?? '',
           surname: userDb.profile.surname ?? '',

@@ -39,6 +39,18 @@ export class Session extends Entity<SessionProps> {
     return this.expiredAt ? new Date() > this.expiredAt : false;
   }
 
+  set ip(ip: IpAddress) {
+    this.props.ip = ip;
+  }
+
+  set createdAt(createdAt: Date) {
+    this.props.createdAt = createdAt;
+  }
+
+  set expiredAt(expiredAt: Date | undefined) {
+    this.props.expiredAt = expiredAt;
+  }
+
   set revokedAt(date: Date | undefined) {
     this.props.revokedAt = date;
   }

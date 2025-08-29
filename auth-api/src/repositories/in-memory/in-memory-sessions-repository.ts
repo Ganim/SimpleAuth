@@ -1,24 +1,62 @@
-import type { Session } from 'generated/prisma';
+import { IpAddress } from '@/entities/core/value-objects/ip-address';
 
-import { SessionsRepository } from '../sessions-repository';
+import { Session } from '@/entities/core/session';
+import { UniqueEntityID } from '@/entities/domain/unique-entity-id';
+import {
+  CreateSessionSchema,
+  SessionsRepository,
+} from '../sessions-repository';
 
 export class InMemorySessionsRepository implements SessionsRepository {
-  async updateSessionInfo(sessionId: string, ip: string): Promise<void> {
-    const session = this.items.find((s) => s.id === sessionId);
-    if (!session) return;
+  // IN MEMORY DATABASE
+  private items: Session[] = [];
+
+  // CREATE
+  async create(data: CreateSessionSchema): Promise<Session> {
+    const session = Session.create({
+      userId: new UniqueEntityID(data.userId),
+      ip: data.ip,
+      createdAt: new Date(),
+    });
+    this.items.push(session);
+    return session;
+  }
+
+  // UPDATE / PATCH
+  async updateSessionInfo({
+    sessionId,
+    ip,
+  }: {
+    sessionId: string;
+    ip: IpAddress;
+  }): Promise<void> {
+    const session = this.items.find((s) => s.id.toString() === sessionId);
+    if (!session) throw new Error('Session not found');
     session.lastUsedAt = new Date();
-    if (session.ip !== ip) {
+    if (session.ip.value !== ip.value) {
       session.ip = ip;
     }
   }
-  public items: Session[] = [];
 
+  async revoke(sessionId: string): Promise<void> {
+    const session = this.items.find((s) => s.id.toString() === sessionId);
+    if (!session) throw new Error('Session not found');
+    session.revokedAt = new Date();
+  }
+
+  async expire(sessionId: string): Promise<void> {
+    const session = this.items.find((s) => s.id.toString() === sessionId);
+    if (!session) throw new Error('Session not found');
+    session.expiredAt = new Date();
+  }
+
+  // RETRIEVE
   async listAllActive(): Promise<Session[]> {
     return this.items.filter((s) => !s.expiredAt && !s.revokedAt);
   }
 
   async listByUser(userId: string): Promise<Session[]> {
-    return this.items.filter((s) => s.userId === userId);
+    return this.items.filter((s) => s.userId.toString() === userId);
   }
 
   async listByUserAndDate(
@@ -27,37 +65,15 @@ export class InMemorySessionsRepository implements SessionsRepository {
     to: Date,
   ): Promise<Session[]> {
     return this.items.filter(
-      (s) => s.userId === userId && s.createdAt >= from && s.createdAt <= to,
+      (s) =>
+        s.userId.toString() === userId &&
+        s.createdAt >= from &&
+        s.createdAt <= to,
     );
   }
 
-  async revoke(sessionId: string): Promise<void> {
-    const session = this.items.find((s) => s.id === sessionId);
-    if (session) session.revokedAt = new Date();
-  }
-
-  async expire(sessionId: string): Promise<void> {
-    const session = this.items.find((s) => s.id === sessionId);
-    if (session) session.expiredAt = new Date();
-  }
-
-  async create({
-    userId,
-    ip,
-  }: {
-    userId: string;
-    ip: string;
-  }): Promise<Session> {
-    const session: Session = {
-      id: Math.random().toString(36).slice(2),
-      userId,
-      ip,
-      createdAt: new Date(),
-      expiredAt: null,
-      revokedAt: null,
-      lastUsedAt: null,
-    };
-    this.items.push(session);
-    return session;
+  // LIST
+  async listAll(): Promise<Session[]> {
+    return [...this.items];
   }
 }
