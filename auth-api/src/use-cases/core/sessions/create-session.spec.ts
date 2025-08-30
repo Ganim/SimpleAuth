@@ -1,6 +1,6 @@
 import { InMemorySessionsRepository } from '@/repositories/core/in-memory/in-memory-sessions-repository';
 import { InMemoryUsersRepository } from '@/repositories/core/in-memory/in-memory-users-repository';
-import { makeUser } from '@/utils/tests/factories/make-user';
+import { makeUser } from '@/utils/tests/factories/core/make-user';
 import type { FastifyReply } from 'fastify';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CreateSessionUseCase } from './create-session';

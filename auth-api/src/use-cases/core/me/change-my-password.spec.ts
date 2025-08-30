@@ -1,7 +1,7 @@
 import { ResourceNotFoundError } from '@/@errors/use-cases/resource-not-found';
 import { UniqueEntityID } from '@/entities/domain/unique-entity-id';
 import { InMemoryUsersRepository } from '@/repositories/core/in-memory/in-memory-users-repository';
-import { makeUser } from '@/utils/tests/factories/make-user';
+import { makeUser } from '@/utils/tests/factories/core/make-user';
 import { compare } from 'bcryptjs';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { ChangeMyPasswordUseCase } from './change-my-password';

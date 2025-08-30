@@ -1,5 +1,5 @@
 import { InMemoryUsersRepository } from '@/repositories/core/in-memory/in-memory-users-repository';
-import { makeUser } from '@/utils/tests/factories/make-user';
+import { makeUser } from '@/utils/tests/factories/core/make-user';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { ResourceNotFoundError } from '../../../@errors/use-cases/resource-not-found';
 import { GetUserByIdUseCase } from './get-user-by-id';

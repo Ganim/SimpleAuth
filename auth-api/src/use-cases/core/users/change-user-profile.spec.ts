@@ -1,6 +1,6 @@
 import { ResourceNotFoundError } from '@/@errors/use-cases/resource-not-found';
 import { InMemoryUsersRepository } from '@/repositories/core/in-memory/in-memory-users-repository';
-import { makeUser } from '@/utils/tests/factories/make-user';
+import { makeUser } from '@/utils/tests/factories/core/make-user';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { ChangeUserProfileUseCase } from './change-user-profile';
 
