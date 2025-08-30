@@ -8,11 +8,13 @@ import { ChangeMyUsernameUseCase } from './change-my-username';
 let usersRepository: InMemoryUsersRepository;
 let sut: ChangeMyUsernameUseCase;
 
-describe('Change My Username Use Case', () => {
+describe('ChangeMyUsernameUseCase', () => {
   beforeEach(() => {
     usersRepository = new InMemoryUsersRepository();
     sut = new ChangeMyUsernameUseCase(usersRepository);
   });
+
+  // OBJECTIVE
 
   it('should change own username', async () => {
     const { user } = await makeUser({
@@ -23,13 +25,12 @@ describe('Change My Username Use Case', () => {
     });
     const result = await sut.execute({ userId: user.id, username: 'newuser' });
     expect(result.user.username).toBe('newuser');
-
-    const allUsers = await usersRepository.listAll();
-    expect(allUsers).toHaveLength(1);
   });
 
+  // REJECTS
+
   it('should throw ResourceNotFoundError if user does not exist', async () => {
-    await expect(
+    await expect(() =>
       sut.execute({ userId: 'notfound', username: 'fail' }),
     ).rejects.toBeInstanceOf(ResourceNotFoundError);
   });
@@ -42,7 +43,7 @@ describe('Change My Username Use Case', () => {
       deletedAt: new Date(),
       usersRepository,
     });
-    await expect(
+    await expect(() =>
       sut.execute({ userId: user.id, username: 'fail' }),
     ).rejects.toBeInstanceOf(ResourceNotFoundError);
   });
@@ -60,10 +61,12 @@ describe('Change My Username Use Case', () => {
       username: 'usertwo',
       usersRepository,
     });
-    await expect(
+    await expect(() =>
       sut.execute({ userId: user2.id, username: 'userone' }),
     ).rejects.toBeInstanceOf(BadRequestError);
   });
+
+  // INTEGRATION
 
   it('should keep correct user count after username change', async () => {
     await makeUser({

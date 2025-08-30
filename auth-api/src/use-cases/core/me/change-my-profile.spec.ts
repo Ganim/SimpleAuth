@@ -7,42 +7,42 @@ import { ChangeMyProfileUseCase } from './change-my-profile';
 let usersRepository: InMemoryUsersRepository;
 let sut: ChangeMyProfileUseCase;
 
-describe('Change My Profile Use Case', () => {
+describe('ChangeMyProfileUseCase', () => {
   beforeEach(() => {
     usersRepository = new InMemoryUsersRepository();
     sut = new ChangeMyProfileUseCase(usersRepository);
   });
 
-  it('should update user profile fields', async () => {
+  // OBJECTIVE
+
+  it('should update own profile fields', async () => {
     const { user } = await makeUser({
       email: 'user@example.com',
       password: '123456',
       usersRepository,
     });
 
-    const result = await sut.execute({
+    const { user: updatedUser } = await sut.execute({
       userId: user.id,
       profile: {
-        name: 'NewName',
-        surname: 'NewSurname',
+        name: 'New',
+        surname: 'Surname',
         location: 'Portugal',
-        bio: 'Edited bio',
-        avatarUrl: 'new-url',
+        bio: 'Bio',
+        avatarUrl: 'http://www.example.com',
       },
     });
-
-    expect(result.user.profile?.name).toBe('NewName');
-    expect(result.user.profile?.surname).toBe('NewSurname');
-    expect(result.user.profile?.location).toBe('Portugal');
-    expect(result.user.profile?.bio).toBe('Edited bio');
-    expect(result.user.profile?.avatarUrl).toBe('new-url');
-
-    const allUsers = await usersRepository.listAll();
-    expect(allUsers).toHaveLength(1);
+    expect(updatedUser.profile?.name).toBe('New');
+    expect(updatedUser.profile?.surname).toBe('Surname');
+    expect(updatedUser.profile?.location).toBe('Portugal');
+    expect(updatedUser.profile?.bio).toBe('Bio');
+    expect(updatedUser.profile?.avatarUrl).toBe('http://www.example.com');
   });
 
+  // REJECTS
+
   it('should throw ResourceNotFoundError if user does not exist', async () => {
-    await expect(
+    await expect(() =>
       sut.execute({ userId: 'notfound', profile: { name: 'fail' } }),
     ).rejects.toBeInstanceOf(ResourceNotFoundError);
   });
@@ -54,10 +54,12 @@ describe('Change My Profile Use Case', () => {
       deletedAt: new Date(),
       usersRepository,
     });
-    await expect(
+    await expect(() =>
       sut.execute({ userId: user.id, profile: { name: 'fail' } }),
     ).rejects.toBeInstanceOf(ResourceNotFoundError);
   });
+
+  // INTEGRATION
 
   it('should keep correct user count after profile change', async () => {
     await makeUser({

@@ -1,10 +1,9 @@
-import { ResourceNotFoundError } from '@/@errors/use-cases/resource-not-found';
 import { Session } from '@/entities/core/session';
 import { UniqueEntityID } from '@/entities/domain/unique-entity-id';
 import {
-  CreateSessionSchema,
+  type CreateSessionSchema,
+  type UpdateSessionSchema,
   SessionsRepository,
-  type UpdateSessionInfoSchema,
 } from '../sessions-repository';
 
 export class InMemorySessionsRepository implements SessionsRepository {
@@ -14,7 +13,7 @@ export class InMemorySessionsRepository implements SessionsRepository {
   // CREATE
   // - create(data: CreateSessionSchema): Promise<Session>;
 
-  async create(data: CreateSessionSchema): Promise<Session> {
+  async create(data: CreateSessionSchema) {
     const session = Session.create({
       userId: data.userId,
       ip: data.ip,
@@ -27,59 +26,84 @@ export class InMemorySessionsRepository implements SessionsRepository {
   }
 
   // UPDATE / PATCH
-  //  - updateSessionInfo(data: UpdateSessionInfoSchema): Promise<void>;
+  //  - update(data: UpdateSessionSchema): Promise<Session | null>;
 
-  async updateSessionInfo(data: UpdateSessionInfoSchema): Promise<void> {
+  async update(data: UpdateSessionSchema): Promise<Session | null> {
     const session = this.items.find((item) => item.id.equals(data.sessionId));
-    if (!session) throw new ResourceNotFoundError('Session not found');
+
+    if (!session) return null;
 
     session.lastUsedAt = new Date();
 
     if (session.ip.value !== data.ip.value) {
       session.ip = data.ip;
     }
+
+    return session;
   }
 
   // DELETE
-  //  - revoke(sessionId: UniqueEntityID): Promise<void>;
-  //  - expire(sessionId: UniqueEntityID): Promise<void>;
+  //  - revoke(sessionId: UniqueEntityID): Promise<void | null>;
+  //  - expire(sessionId: UniqueEntityID): Promise<void | null>;
 
-  async revoke(sessionId: UniqueEntityID): Promise<void> {
-    const session = this.items.find((s) => s.id.equals(sessionId));
-    if (!session) throw new ResourceNotFoundError('Session not found');
+  async revoke(sessionId: UniqueEntityID): Promise<void | null> {
+    const session = this.items.find((item) => item.id.equals(sessionId));
+
+    if (!session) return null;
+
     session.revokedAt = new Date();
   }
 
-  async expire(sessionId: UniqueEntityID): Promise<void> {
+  async expire(sessionId: UniqueEntityID): Promise<void | null> {
     const session = this.items.find((item) => item.id.equals(sessionId));
-    if (!session) throw new ResourceNotFoundError('Session not found');
+
+    if (!session) return null;
 
     session.expiredAt = new Date();
   }
 
   // RETRIEVE
-  // - listAllActive(): Promise<Session[]>;
-  // - listByUser(userId: UniqueEntityID): Promise<Session[]>;
-  // - listByUserAndDate(userId: UniqueEntityID, from: Date, to: Date): Promise<Session[]>;
+  // - findById(sessionId: UniqueEntityID): Promise<Session | null>;
 
-  async listAllActive(): Promise<Session[]> {
-    return this.items.filter((item) => !item.expiredAt && !item.revokedAt);
+  async findById(sessionId: UniqueEntityID): Promise<Session | null> {
+    return this.items.find((item) => item.id.equals(sessionId)) || null;
   }
 
-  async listByUser(userId: UniqueEntityID): Promise<Session[]> {
-    return this.items.filter((item) => item.userId.equals(userId));
+  // LIST
+  // - listAllActive(): Promise<Session[] | null>;
+  // - listByUser(userId: UniqueEntityID): Promise<Session[] | null>;
+  // - listByUserAndDate(userId: UniqueEntityID, from: Date, to: Date): Promise<Session[] | null>;
+
+  async listAllActive(): Promise<Session[] | null> {
+    const sessionList = this.items.filter(
+      (item) => !item.expiredAt && !item.revokedAt,
+    );
+    if (sessionList.length === 0) return null;
+    return sessionList;
+  }
+
+  async listByUser(userId: UniqueEntityID): Promise<Session[] | null> {
+    const sessionList = this.items.filter((item) => item.userId.equals(userId));
+
+    if (sessionList.length === 0) return null;
+
+    return sessionList;
   }
 
   async listByUserAndDate(
     userId: UniqueEntityID,
     from: Date,
     to: Date,
-  ): Promise<Session[]> {
-    return this.items.filter(
+  ): Promise<Session[] | null> {
+    const sessionList = this.items.filter(
       (item) =>
         item.userId.equals(userId) &&
         item.createdAt >= from &&
         item.createdAt <= to,
     );
+
+    if (sessionList.length === 0) return null;
+
+    return sessionList;
   }
 }

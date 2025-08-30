@@ -1,3 +1,4 @@
+import { BadRequestError } from '@/@errors/use-cases/bad-request-error';
 import { ResourceNotFoundError } from '@/@errors/use-cases/resource-not-found';
 import { UserProfile } from '@/entities/core/user-profile';
 import { Url } from '@/entities/core/value-objects/url';
@@ -32,9 +33,9 @@ export class ChangeUserProfileUseCase {
     userId,
     profile,
   }: ChangeUserProfileUseCaseRequest): Promise<ChangeUserProfileUseCaseResponse> {
-    const uniqueId = new UniqueEntityID(userId);
+    const validId = new UniqueEntityID(userId);
 
-    const existingUser = await this.usersRepository.findById(uniqueId);
+    const existingUser = await this.usersRepository.findById(validId);
     if (!existingUser || existingUser.deletedAt) {
       throw new ResourceNotFoundError('User not found');
     }
@@ -58,9 +59,13 @@ export class ChangeUserProfileUseCase {
     const updatedProfile = UserProfile.create(profileData);
 
     const updatedUser = await this.usersRepository.update({
-      id: uniqueId,
+      id: validId,
       profile: updatedProfile,
     });
+
+    if (!updatedUser) {
+      throw new BadRequestError('Unable to update user profile.');
+    }
 
     const user = userToDTO(updatedUser);
 

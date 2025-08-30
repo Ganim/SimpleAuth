@@ -10,13 +10,13 @@ export class DeleteUserByIdUseCase {
   constructor(private usersRepository: UsersRepository) {}
 
   async execute({ userId }: DeleteUserByIdUseCaseRequest): Promise<void> {
-    const uniqueId = new UniqueEntityID(userId);
+    const validId = new UniqueEntityID(userId);
 
-    const existingUser = await this.usersRepository.findById(uniqueId);
+    const existingUser = await this.usersRepository.findById(validId);
     if (!existingUser || existingUser.deletedAt) {
       throw new ResourceNotFoundError('User not found');
     }
 
-    await this.usersRepository.delete(uniqueId); // Soft delete: marca deletedAt
+    await this.usersRepository.delete(validId); // Soft delete: marca deletedAt
   }
 }

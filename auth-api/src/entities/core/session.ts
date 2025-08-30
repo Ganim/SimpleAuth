@@ -6,9 +6,9 @@ export interface SessionProps {
   userId: UniqueEntityID;
   ip: IpAddress;
   createdAt: Date;
-  expiredAt?: Date;
-  revokedAt?: Date;
-  lastUsedAt?: Date;
+  expiredAt?: Date | null;
+  revokedAt?: Date | null;
+  lastUsedAt?: Date | null;
 }
 
 export class Session extends Entity<SessionProps> {
@@ -21,14 +21,14 @@ export class Session extends Entity<SessionProps> {
   get createdAt(): Date {
     return this.props.createdAt;
   }
-  get expiredAt(): Date | undefined {
-    return this.props.expiredAt;
+  get expiredAt(): Date | null {
+    return this.props.expiredAt ?? null;
   }
-  get revokedAt(): Date | undefined {
-    return this.props.revokedAt;
+  get revokedAt(): Date | null {
+    return this.props.revokedAt ?? null;
   }
-  get lastUsedAt(): Date | undefined {
-    return this.props.lastUsedAt;
+  get lastUsedAt(): Date | null {
+    return this.props.lastUsedAt ?? null;
   }
 
   get isRevoked(): boolean {
@@ -47,19 +47,27 @@ export class Session extends Entity<SessionProps> {
     this.props.createdAt = createdAt;
   }
 
-  set expiredAt(expiredAt: Date | undefined) {
+  set expiredAt(expiredAt: Date | null) {
     this.props.expiredAt = expiredAt;
   }
 
-  set revokedAt(date: Date | undefined) {
+  set revokedAt(date: Date | null) {
     this.props.revokedAt = date;
   }
 
-  set lastUsedAt(date: Date | undefined) {
+  set lastUsedAt(date: Date | null) {
     this.props.lastUsedAt = date;
   }
 
   static create(props: SessionProps, id?: UniqueEntityID) {
-    return new Session(props, id);
+    return new Session(
+      {
+        ...props,
+        expiredAt: props.expiredAt ?? null,
+        revokedAt: props.revokedAt ?? null,
+        lastUsedAt: props.lastUsedAt ?? null,
+      },
+      id,
+    );
   }
 }

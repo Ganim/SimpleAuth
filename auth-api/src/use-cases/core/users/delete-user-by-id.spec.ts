@@ -26,9 +26,9 @@ describe('Delete User By Id Use Case', () => {
     await expect(sut.execute({ userId: user.id })).resolves.toBeUndefined();
 
     const userId = new UniqueEntityID(user.id);
-    const deletedUser = await usersRepository.findById(userId);
+    const deletedUser = await usersRepository.findById(userId, true);
 
-    expect(deletedUser!.deletedAt).toBeDefined();
+    expect(deletedUser?.deletedAt).toBeDefined();
 
     const items = (usersRepository as InMemoryUsersRepository)['items'];
     const rawUser = items.find((rawUser) => rawUser.id.toString() === user.id);
@@ -79,10 +79,10 @@ describe('Delete User By Id Use Case', () => {
     await expect(sut.execute({ userId: user.id })).resolves.toBeUndefined();
     const allUsers = await usersRepository.listAll();
     expect(allUsers).toHaveLength(2);
-    expect(allUsers.map((u) => u.email.value)).toEqual(
+    expect(allUsers?.map((user) => user.email.value)).toEqual(
       expect.arrayContaining(['user1@example.com', 'user2@example.com']),
     );
-    expect(allUsers.map((u) => u.email.value)).not.toContain(
+    expect(allUsers?.map((user) => user.email.value)).not.toContain(
       'user3@example.com',
     );
   });

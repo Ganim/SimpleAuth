@@ -38,12 +38,12 @@ export interface UsersRepository {
   create(data: CreateUserSchema): Promise<User>;
 
   // UPDATE / PATCH
-  update(data: UpdateUserSchema): Promise<User>;
+  update(data: UpdateUserSchema): Promise<User | null>;
 
-  updateLastLoginAt(id: UniqueEntityID, date: Date): Promise<void>;
+  updateLastLoginAt(id: UniqueEntityID, date: Date): Promise<User | null>;
 
   // DELETE
-  delete(id: UniqueEntityID): Promise<void>;
+  delete(id: UniqueEntityID): Promise<void | null>;
 
   // RETRIEVE
   findByEmail(email: Email): Promise<User | null>;
@@ -51,6 +51,6 @@ export interface UsersRepository {
   findByUsername(username: Username): Promise<User | null>;
 
   // LIST
-  listAll(): Promise<User[]>;
-  listAllByRole(role: UserRole): Promise<User[]>;
+  listAll(): Promise<User[] | null>;
+  listAllByRole(role: UserRole): Promise<User[] | null>;
 }

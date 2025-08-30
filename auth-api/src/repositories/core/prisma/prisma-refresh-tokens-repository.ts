@@ -26,31 +26,50 @@ export class PrismaRefreshTokensRepository implements RefreshTokensRepository {
   }
 
   // DELETE
-  // - revokeBySessionId(sessionId: UniqueEntityID): Promise<void>;
+  // - revokeBySessionId(sessionId: UniqueEntityID): Promise<void | null>;
 
-  async revokeBySessionId(sessionId: UniqueEntityID): Promise<void> {
-    await prisma.refreshToken.updateMany({
+  async revokeBySessionId(sessionId: UniqueEntityID): Promise<void | null> {
+    const result = await prisma.refreshToken.updateMany({
       where: { sessionId: sessionId.toString() },
       data: { revokedAt: new Date() },
     });
+    if (result.count === 0) return null;
   }
 
   // RETRIEVE
   // - findByToken(token: Token): Promise<RefreshToken | null>;
-  // - listBySession(sessionId: UniqueEntityID): Promise<RefreshToken[]>;
+  // - findBySessionId(sessionId: UniqueEntityID): Promise<RefreshToken | null>;
 
-  async findByToken(token: Token): Promise<RefreshToken | null> {
+  async findByToken(token: Token) {
     const refreshTokenDb = await prisma.refreshToken.findUnique({
       where: { token: token.value },
     });
+
     if (!refreshTokenDb) return null;
+
     return mapRefreshTokenPrismaToDomain(refreshTokenDb);
   }
 
-  async listBySession(sessionId: UniqueEntityID): Promise<RefreshToken[]> {
+  async findBySessionId(sessionId: UniqueEntityID) {
+    const refreshTokenDb = await prisma.refreshToken.findFirst({
+      where: { sessionId: sessionId.toString() },
+    });
+
+    if (!refreshTokenDb) return null;
+
+    return mapRefreshTokenPrismaToDomain(refreshTokenDb);
+  }
+
+  // LIST
+  // - listBySession(sessionId: UniqueEntityID): Promise<RefreshToken[] | null>;
+
+  async listBySession(
+    sessionId: UniqueEntityID,
+  ): Promise<RefreshToken[] | null> {
     const refreshTokensDb = await prisma.refreshToken.findMany({
       where: { sessionId: sessionId.toString() },
     });
+    if (!refreshTokensDb || refreshTokensDb.length === 0) return null;
     return refreshTokensDb.map(mapRefreshTokenPrismaToDomain);
   }
 }

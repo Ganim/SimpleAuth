@@ -8,15 +8,26 @@ import { AuthenticateWithPasswordUseCase } from './authenticate-with-password';
 
 let usersRepository: InMemoryUsersRepository;
 let sessionsRepository: InMemorySessionsRepository;
+
+import { CreateSessionUseCase } from '../sessions/create-session';
+let createSessionUseCase: CreateSessionUseCase;
 let authenticateWithPasswordUseCase: AuthenticateWithPasswordUseCase;
+let reply: { jwtSign: () => Promise<string> };
 
 describe('Authenticate With Password Use Case', () => {
   beforeEach(() => {
     usersRepository = new InMemoryUsersRepository();
     sessionsRepository = new InMemorySessionsRepository();
+    reply = {
+      jwtSign: async () => 'fake-token',
+    };
+    createSessionUseCase = new CreateSessionUseCase(
+      sessionsRepository,
+      usersRepository,
+    );
     authenticateWithPasswordUseCase = new AuthenticateWithPasswordUseCase(
       usersRepository,
-      sessionsRepository,
+      createSessionUseCase,
     );
   });
 
@@ -31,10 +42,13 @@ describe('Authenticate With Password Use Case', () => {
       email: 'johndoe@example.com',
       password: '123456',
       ip: '127.0.0.1',
+      reply: reply as unknown as import('fastify').FastifyReply,
     });
 
     expect(result.user).toBeDefined();
-    expect(result.user.email).toBe('johndoe@example.com'); // DTO retorna string
+    expect(result.user.email).toBe('johndoe@example.com');
+    expect(result.token).toBe('fake-token');
+    expect(result.refreshToken).toBe('fake-token');
 
     const allUsers = await usersRepository.listAll();
     expect(allUsers).toHaveLength(1);
@@ -52,6 +66,7 @@ describe('Authenticate With Password Use Case', () => {
         email: 'johndoe@example.com',
         password: 'wrongpassword',
         ip: '127.0.0.1',
+        reply: reply as unknown as import('fastify').FastifyReply,
       }),
     ).rejects.toBeInstanceOf(BadRequestError);
   });
@@ -62,6 +77,7 @@ describe('Authenticate With Password Use Case', () => {
         email: 'notfound@example.com',
         password: '123456',
         ip: '127.0.0.1',
+        reply: reply as unknown as import('fastify').FastifyReply,
       }),
     ).rejects.toBeInstanceOf(BadRequestError);
   });
@@ -79,6 +95,7 @@ describe('Authenticate With Password Use Case', () => {
         email: 'deleted@example.com',
         password: '123456',
         ip: '127.0.0.1',
+        reply: reply as unknown as import('fastify').FastifyReply,
       }),
     ).rejects.toBeInstanceOf(BadRequestError);
   });
@@ -94,6 +111,7 @@ describe('Authenticate With Password Use Case', () => {
       email: 'lastlogin@example.com',
       password: '123456',
       ip: '127.0.0.1',
+      reply: reply as unknown as import('fastify').FastifyReply,
     });
 
     expect(user.lastLoginAt).toBeInstanceOf(Date);

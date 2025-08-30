@@ -24,10 +24,10 @@ export class ChangeUserEmailUseCase {
     userId,
     email,
   }: ChangeUserEmailUseCaseRequest): Promise<ChangeUserEmailUseCaseResponse> {
-    const uniqueId = new UniqueEntityID(userId);
+    const validId = new UniqueEntityID(userId);
     const validEmail = new Email(email);
 
-    const existingUser = await this.usersRepository.findById(uniqueId);
+    const existingUser = await this.usersRepository.findById(validId);
 
     if (!existingUser || existingUser.deletedAt) {
       throw new ResourceNotFoundError('User not found.');
@@ -36,14 +36,18 @@ export class ChangeUserEmailUseCase {
     const userWithSameEmail =
       await this.usersRepository.findByEmail(validEmail);
 
-    if (userWithSameEmail && !userWithSameEmail.id.equals(uniqueId)) {
+    if (userWithSameEmail && !userWithSameEmail.id.equals(validId)) {
       throw new BadRequestError('This email is already in use.');
     }
 
     const updatedUser = await this.usersRepository.update({
-      id: uniqueId,
+      id: validId,
       email: validEmail,
     });
+
+    if (!updatedUser) {
+      throw new BadRequestError('Unable to update user email.');
+    }
 
     const user = userToDTO(updatedUser);
     return { user };

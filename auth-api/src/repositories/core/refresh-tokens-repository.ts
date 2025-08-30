@@ -14,9 +14,12 @@ export interface RefreshTokensRepository {
   create(data: CreateRefreshTokenSchema): Promise<RefreshToken>;
 
   // DELETE
-  revokeBySessionId(sessionId: UniqueEntityID): Promise<void>;
+  revokeBySessionId(sessionId: UniqueEntityID): Promise<void | null>;
 
   // RETRIEVE
   findByToken(token: Token): Promise<RefreshToken | null>;
-  listBySession(sessionId: UniqueEntityID): Promise<RefreshToken[]>;
+  findBySessionId(sessionId: UniqueEntityID): Promise<RefreshToken | null>;
+
+  // LIST
+  listBySession(sessionId: UniqueEntityID): Promise<RefreshToken[] | null>;
 }

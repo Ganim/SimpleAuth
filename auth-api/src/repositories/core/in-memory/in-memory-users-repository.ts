@@ -1,4 +1,3 @@
-import { ResourceNotFoundError } from '@/@errors/use-cases/resource-not-found';
 import { UserRole } from '@/@types/user-role';
 import { User } from '@/entities/core/user';
 import { UserProfile } from '@/entities/core/user-profile';
@@ -52,17 +51,16 @@ export class InMemoryUsersRepository implements UsersRepository {
   // - update(data: UpdateUserSchema): Promise<User>;
   // - updateLastLoginAt(id: UniqueEntityID, date: Date): Promise<void>;
 
-  async update(data: UpdateUserSchema) {
+  async update(data: UpdateUserSchema): Promise<User | null> {
     const user = this.items.find((item) => item.id.equals(data.id));
-    if (!user) throw new ResourceNotFoundError('User not found');
+
+    if (!user) return null;
 
     if (data.email) user.email = data.email;
     if (data.role) user.role = data.role;
-    if (data.username !== undefined) {
-      user.username = data.username;
-    }
-    if (data.passwordHash !== undefined) user.password = data.passwordHash;
-    if (data.profile !== undefined && user.profile) {
+    if (data.username) user.username = data.username;
+    if (data.passwordHash) user.password = data.passwordHash;
+    if (data.profile && user.profile) {
       user.profile = UserProfile.create({
         userId: user.id,
         name: data.profile.name ?? user.profile.name,
@@ -75,25 +73,32 @@ export class InMemoryUsersRepository implements UsersRepository {
         updatedAt: new Date(),
       });
     }
-    if (data.deletedAt !== undefined)
+    if (data.deletedAt)
       user.deletedAt = data.deletedAt === null ? undefined : data.deletedAt;
 
     return user;
   }
 
-  async updateLastLoginAt(id: UniqueEntityID, date: Date): Promise<void> {
+  async updateLastLoginAt(
+    id: UniqueEntityID,
+    date: Date,
+  ): Promise<User | null> {
     const user = await this.findById(id);
-    if (!user) throw new ResourceNotFoundError('User not found');
+
+    if (!user) return null;
 
     user.lastLoginAt = date;
+
+    return user;
   }
 
   // DELETE
-  // - delete(id: UniqueEntityID): Promise<void>;
+  // - delete(id: UniqueEntityID): Promise<void | null>;
 
-  async delete(id: UniqueEntityID) {
+  async delete(id: UniqueEntityID): Promise<void | null> {
     const user = await this.findById(id);
-    if (!user) throw new ResourceNotFoundError('User not found');
+
+    if (!user) return null;
 
     user.deletedAt = new Date();
   }
@@ -105,34 +110,42 @@ export class InMemoryUsersRepository implements UsersRepository {
 
   async findByEmail(email: Email): Promise<User | null> {
     const user = this.items.find((user) => user.email.equals(email));
+
     if (!user) return null;
 
     return user;
   }
 
-  async findById(id: UniqueEntityID) {
+  async findById(
+    id: UniqueEntityID,
+    ignoreDeleted?: boolean,
+  ): Promise<User | null> {
     const user = this.items.find((item) => item.id.equals(id));
+
     if (!user) return null;
+
+    if (!ignoreDeleted && user.isDeleted) return null;
 
     return user;
   }
 
   async findByUsername(username: Username): Promise<User | null> {
     const user = this.items.find((item) => item.username.equals(username));
+
     if (!user) return null;
 
     return user;
   }
 
   // LIST
-  // - listAll(): Promise<User[]>;
-  // - listAllByRole(role: UserRole): Promise<User[]>;
+  // - listAll(): Promise<User[] | null>;
+  // - listAllByRole(role: UserRole): Promise<User[] | null>;
 
-  async listAll() {
+  async listAll(): Promise<User[] | null> {
     return this.items.filter((user) => !user.isDeleted);
   }
 
-  async listAllByRole(role: UserRole) {
+  async listAllByRole(role: UserRole): Promise<User[] | null> {
     return this.items.filter((user) => !user.isDeleted && user.role === role);
   }
 }

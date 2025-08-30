@@ -9,11 +9,13 @@ import { ChangeMyEmailUseCase } from './change-my-email';
 let usersRepository: InMemoryUsersRepository;
 let sut: ChangeMyEmailUseCase;
 
-describe('Change My Email Use Case', () => {
+describe('ChangeMyEmailUseCase', () => {
   beforeEach(() => {
     usersRepository = new InMemoryUsersRepository();
     sut = new ChangeMyEmailUseCase(usersRepository);
   });
+
+  // OBJECTIVE
 
   it('should change own email', async () => {
     const { user } = await makeUser({
@@ -25,13 +27,13 @@ describe('Change My Email Use Case', () => {
       userId: user.id,
       email: 'new@example.com',
     });
-    expect(result.user.email).toBe('new@example.com'); // DTO retorna string
-    const allUsers = await usersRepository.listAll();
-    expect(allUsers).toHaveLength(1);
+    expect(result.user.email).toBe('new@example.com');
   });
 
+  // REJECTS
+
   it('should throw ResourceNotFoundError if user does not exist', async () => {
-    await expect(
+    await expect(() =>
       sut.execute({ userId: 'notfound', email: 'fail@example.com' }),
     ).rejects.toBeInstanceOf(ResourceNotFoundError);
   });
@@ -43,7 +45,7 @@ describe('Change My Email Use Case', () => {
       deletedAt: new Date(),
       usersRepository,
     });
-    await expect(
+    await expect(() =>
       sut.execute({ userId: user.id, email: 'new@example.com' }),
     ).rejects.toBeInstanceOf(ResourceNotFoundError);
   });
@@ -59,10 +61,22 @@ describe('Change My Email Use Case', () => {
       password: '123456',
       usersRepository,
     });
-    await expect(
+    await expect(() =>
       sut.execute({ userId: user2.id, email: 'user1@example.com' }),
     ).rejects.toBeInstanceOf(BadRequestError);
   });
+
+  // VALIDATIONS
+
+  it('should not allow invalid email format', () => {
+    expect(() => new Email('invalid-email')).toThrow(BadRequestError);
+    expect(() => new Email('user@invalid')).toThrow(BadRequestError);
+    expect(() => new Email('user@.com')).toThrow(BadRequestError);
+    expect(() => new Email('user@com')).toThrow(BadRequestError);
+    expect(() => new Email('user.com')).toThrow(BadRequestError);
+  });
+
+  // INTEGRATION
 
   it('should keep correct user count after email change', async () => {
     await makeUser({
@@ -78,14 +92,8 @@ describe('Change My Email Use Case', () => {
     await sut.execute({ userId: user.id, email: 'changed@example.com' });
     const allUsers = await usersRepository.listAll();
     expect(allUsers).toHaveLength(2);
-    expect(allUsers.map((u) => u.email.value)).toContain('changed@example.com');
-  });
-
-  it('should not allow invalid email format (Email VO)', () => {
-    expect(() => new Email('invalid-email')).toThrow(BadRequestError);
-    expect(() => new Email('user@invalid')).toThrow(BadRequestError);
-    expect(() => new Email('user@.com')).toThrow(BadRequestError);
-    expect(() => new Email('user@com')).toThrow(BadRequestError);
-    expect(() => new Email('user.com')).toThrow(BadRequestError);
+    expect(allUsers?.map((u) => u.email.value)).toContain(
+      'changed@example.com',
+    );
   });
 });

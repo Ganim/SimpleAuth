@@ -30,32 +30,54 @@ export class InMemoryRefreshTokensRepository
   }
 
   // DELETE
-  // - revokeBySessionId(sessionId: UniqueEntityID): Promise<void>;
+  // - revokeBySessionId(sessionId: UniqueEntityID): Promise<void | null>;
 
-  async revokeBySessionId(sessionId: UniqueEntityID): Promise<void> {
-    for (const refreshToken of this.items) {
-      if (refreshToken.sessionId.equals(sessionId)) {
-        refreshToken.revokedAt = new Date();
-      }
-    }
+  async revokeBySessionId(sessionId: UniqueEntityID): Promise<void | null> {
+    const refreshToken = this.items.find((item) =>
+      item.sessionId.equals(sessionId),
+    );
+    if (!refreshToken) return null;
+
+    refreshToken.revokedAt = new Date();
   }
 
   // RETRIEVE
   // - findByToken(token: Token): Promise<RefreshToken | null>;
-  // - listBySession(sessionId: UniqueEntityID): Promise<RefreshToken[]>;
+  // - findBySessionId(sessionId: UniqueEntityID): Promise<RefreshToken | null>;
 
   async findByToken(token: Token): Promise<RefreshToken | null> {
-    return (
-      this.items.find(
-        (refreshToken: RefreshToken) =>
-          refreshToken.token.value === token.value,
-      ) ?? null
+    const refreshToken = this.items.find(
+      (item) => item.token.value === token.value,
     );
+
+    if (!refreshToken) return null;
+
+    return refreshToken;
   }
 
-  async listBySession(sessionId: UniqueEntityID): Promise<RefreshToken[]> {
-    return this.items.filter((refreshToken: RefreshToken) =>
-      refreshToken.sessionId.equals(sessionId),
+  async findBySessionId(
+    sessionId: UniqueEntityID,
+  ): Promise<RefreshToken | null> {
+    const refreshToken = this.items.find((item) =>
+      item.sessionId.equals(sessionId),
     );
+
+    if (!refreshToken) return null;
+
+    return refreshToken;
+  }
+
+  // LIST
+  // - listBySession(sessionId: UniqueEntityID): Promise<RefreshToken[] | null>;
+  async listBySession(
+    sessionId: UniqueEntityID,
+  ): Promise<RefreshToken[] | null> {
+    const refreshTokenList = this.items.filter((item) =>
+      item.sessionId.equals(sessionId),
+    );
+
+    if (!refreshTokenList || refreshTokenList.length === 0) return null;
+
+    return refreshTokenList;
   }
 }

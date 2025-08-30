@@ -7,7 +7,7 @@ export interface CreateSessionSchema {
   ip: IpAddress;
 }
 
-export interface UpdateSessionInfoSchema {
+export interface UpdateSessionSchema {
   sessionId: UniqueEntityID;
   ip: IpAddress;
 }
@@ -17,18 +17,21 @@ export interface SessionsRepository {
   create(data: CreateSessionSchema): Promise<Session>;
 
   // UPDATE / PATCH
-  updateSessionInfo(data: UpdateSessionInfoSchema): Promise<void>;
+  update(data: UpdateSessionSchema): Promise<Session | null>;
 
   // DELETE
-  revoke(sessionId: UniqueEntityID): Promise<void>;
-  expire(sessionId: UniqueEntityID): Promise<void>;
+  revoke(sessionId: UniqueEntityID): Promise<void | null>;
+  expire(sessionId: UniqueEntityID): Promise<void | null>;
 
   // RETRIEVE
-  listAllActive(): Promise<Session[]>;
-  listByUser(userId: UniqueEntityID): Promise<Session[]>;
+  findById(sessionId: UniqueEntityID): Promise<Session | null>;
+
+  //LIST
+  listAllActive(): Promise<Session[] | null>;
+  listByUser(userId: UniqueEntityID): Promise<Session[] | null>;
   listByUserAndDate(
     userId: UniqueEntityID,
     from: Date,
     to: Date,
-  ): Promise<Session[]>;
+  ): Promise<Session[] | null>;
 }

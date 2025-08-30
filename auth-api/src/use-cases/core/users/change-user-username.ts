@@ -25,10 +25,10 @@ export class ChangeUserUsernameUseCase {
     userId,
     username,
   }: ChangeUserUsernameUseCaseRequest): Promise<ChangeUserUsernameUseCaseResponse> {
-    const uniqueId = new UniqueEntityID(userId);
+    const validId = new UniqueEntityID(userId);
     const validUsername = Username.create(username);
 
-    const existingUser = await this.usersRepository.findById(uniqueId);
+    const existingUser = await this.usersRepository.findById(validId);
     if (!existingUser || existingUser.deletedAt) {
       throw new ResourceNotFoundError('User not found');
     }
@@ -36,14 +36,18 @@ export class ChangeUserUsernameUseCase {
     const userWithSameUsername =
       await this.usersRepository.findByUsername(validUsername);
 
-    if (userWithSameUsername && !userWithSameUsername.id.equals(uniqueId)) {
+    if (userWithSameUsername && !userWithSameUsername.id.equals(validId)) {
       throw new BadRequestError('Username already in use');
     }
 
     const updatedUser = await this.usersRepository.update({
-      id: uniqueId,
+      id: validId,
       username: validUsername,
     });
+
+    if (!updatedUser) {
+      throw new BadRequestError('Unable to update user username.');
+    }
 
     const user = userToDTO(updatedUser);
     return { user };

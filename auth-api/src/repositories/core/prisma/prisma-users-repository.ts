@@ -44,56 +44,73 @@ export class PrismaUsersRepository implements UsersRepository {
   // - update(data: UpdateUserSchema): Promise<User>;
   // - updateLastLoginAt(id: UniqueEntityID, date: Date): Promise<void>;
 
-  async update(data: UpdateUserSchema): Promise<User> {
-    const newUserData = await prisma.user.update({
-      where: { id: data.id.toString() },
-      data: {
-        ...(data.username && {
-          username:
-            data.username instanceof Username
-              ? data.username.value
-              : typeof data.username === 'string'
-                ? data.username
-                : '',
-        }),
-        ...(data.email && { email: data.email.toString() }),
-        ...(data.role && { role: data.role }),
-        ...(data.passwordHash && { password_hash: data.passwordHash }),
-        profile: data.profile
-          ? {
-              update: {
-                name: data.profile.name,
-                surname: data.profile.surname,
-                birthday: data.profile.birthday,
-                location: data.profile.location,
-                bio: data.profile.bio,
-                avatarUrl: data.profile.avatarUrl?.toString(),
-              },
-            }
-          : undefined,
-      },
-      include: { profile: true },
-    });
+  async update(data: UpdateUserSchema): Promise<User | null> {
+    try {
+      const newUserData = await prisma.user.update({
+        where: { id: data.id.toString() },
+        data: {
+          ...(data.username && {
+            username:
+              data.username instanceof Username
+                ? data.username.value
+                : typeof data.username === 'string'
+                  ? data.username
+                  : '',
+          }),
+          ...(data.email && { email: data.email.toString() }),
+          ...(data.role && { role: data.role }),
+          ...(data.passwordHash && { password_hash: data.passwordHash }),
+          profile: data.profile
+            ? {
+                update: {
+                  name: data.profile.name,
+                  surname: data.profile.surname,
+                  birthday: data.profile.birthday,
+                  location: data.profile.location,
+                  bio: data.profile.bio,
+                  avatarUrl: data.profile.avatarUrl?.toString(),
+                },
+              }
+            : undefined,
+        },
+        include: { profile: true },
+      });
 
-    const user = User.create(mapUserPrismaToDomain(newUserData));
-    return user;
+      const user = User.create(mapUserPrismaToDomain(newUserData));
+      return user;
+    } catch {
+      return null;
+    }
   }
 
-  async updateLastLoginAt(id: UniqueEntityID, date: Date) {
-    await prisma.user.update({
-      where: { id: id.toString() },
-      data: { lastLoginAt: date },
-    });
+  async updateLastLoginAt(
+    id: UniqueEntityID,
+    date: Date,
+  ): Promise<User | null> {
+    try {
+      const newUserData = await prisma.user.update({
+        where: { id: id.toString() },
+        data: { lastLoginAt: date },
+        include: { profile: true },
+      });
+      return User.create(mapUserPrismaToDomain(newUserData));
+    } catch {
+      return null;
+    }
   }
 
   // DELETE
   // - delete(id: UniqueEntityID): Promise<void>;
 
-  async delete(id: UniqueEntityID) {
-    await prisma.user.update({
-      where: { id: id.toString() },
-      data: { deletedAt: new Date() },
-    });
+  async delete(id: UniqueEntityID): Promise<void | null> {
+    try {
+      await prisma.user.update({
+        where: { id: id.toString() },
+        data: { deletedAt: new Date() },
+      });
+    } catch {
+      return null;
+    }
   }
 
   // RETRIEVE
@@ -112,11 +129,19 @@ export class PrismaUsersRepository implements UsersRepository {
     return user;
   }
 
-  async findById(id: UniqueEntityID): Promise<User | null> {
+  async findById(
+    id: UniqueEntityID,
+    ignoreDeleted?: boolean,
+  ): Promise<User | null> {
+    const where: Record<string, unknown> = { id: id.toString() };
+
+    if (!ignoreDeleted) where.deletedAt = null;
+
     const newUserData = await prisma.user.findFirst({
-      where: { id: id.toString(), deletedAt: null },
+      where,
       include: { profile: true },
     });
+
     if (!newUserData) return null;
 
     const user = User.create(mapUserPrismaToDomain(newUserData));
@@ -125,12 +150,16 @@ export class PrismaUsersRepository implements UsersRepository {
 
   async findByUsername(username: Username): Promise<User | null> {
     const usernameValue = username instanceof Username ? username.value : '';
+
     const newUserData = await prisma.user.findFirst({
       where: { username: usernameValue, deletedAt: null },
       include: { profile: true },
     });
+
     if (!newUserData) return null;
+
     const user = User.create(mapUserPrismaToDomain(newUserData));
+
     return user;
   }
 
@@ -138,25 +167,35 @@ export class PrismaUsersRepository implements UsersRepository {
   // - listAll(): Promise<User[]>;
   // - listAllByRole(role: UserRole): Promise<User[]>;
 
-  async listAll(): Promise<User[]> {
+  async listAll(): Promise<User[] | null> {
     const usersDb = await prisma.user.findMany({
       where: { deletedAt: null },
       orderBy: { email: 'asc' },
       include: { profile: true },
     });
-    return usersDb.map((newUserData) =>
-      User.create(mapUserPrismaToDomain(newUserData)),
+
+    if (!usersDb) return null;
+
+    const userList = usersDb.map((userDb) =>
+      User.create(mapUserPrismaToDomain(userDb)),
     );
+
+    return userList;
   }
 
-  async listAllByRole(role: UserRole): Promise<User[]> {
+  async listAllByRole(role: UserRole): Promise<User[] | null> {
     const usersDb = await prisma.user.findMany({
       where: { role, deletedAt: null },
       orderBy: { email: 'asc' },
       include: { profile: true },
     });
-    return usersDb.map((newUserData) =>
-      User.create(mapUserPrismaToDomain(newUserData)),
+
+    if (!usersDb) return null;
+
+    const userList = usersDb.map((userDb) =>
+      User.create(mapUserPrismaToDomain(userDb)),
     );
+
+    return userList;
   }
 }

@@ -1,4 +1,5 @@
 import { ResourceNotFoundError } from '@/@errors/use-cases/resource-not-found';
+import { UniqueEntityID } from '@/entities/domain/unique-entity-id';
 import { InMemoryUsersRepository } from '@/repositories/core/in-memory/in-memory-users-repository';
 import { makeUser } from '@/utils/tests/factories/make-user';
 import { compare } from 'bcryptjs';
@@ -8,11 +9,13 @@ import { ChangeMyPasswordUseCase } from './change-my-password';
 let usersRepository: InMemoryUsersRepository;
 let sut: ChangeMyPasswordUseCase;
 
-describe('Change My Password Use Case', () => {
+describe('ChangeMyPasswordUseCase', () => {
   beforeEach(() => {
     usersRepository = new InMemoryUsersRepository();
     sut = new ChangeMyPasswordUseCase(usersRepository);
   });
+
+  // OBJECTIVE
 
   it('should change own password', async () => {
     const { user } = await makeUser({
@@ -22,21 +25,20 @@ describe('Change My Password Use Case', () => {
     });
     await sut.execute({ userId: user.id, password: 'newpass' });
 
-    const updatedUser = await usersRepository.findById(user.id);
-    expect(updatedUser).toBeDefined();
+    const userId = new UniqueEntityID(user.id);
+    const updatedUser = await usersRepository.findById(userId);
 
     const isPasswordHashed = await compare(
       'newpass',
-      updatedUser!.passwordHash,
+      updatedUser?.password.toString() ?? '',
     );
     expect(isPasswordHashed).toBe(true);
-
-    const allUsers = await usersRepository.listAll();
-    expect(allUsers).toHaveLength(1);
   });
 
+  // REJECTS
+
   it('should throw ResourceNotFoundError if user does not exist', async () => {
-    await expect(
+    await expect(() =>
       sut.execute({ userId: 'notfound', password: 'fail' }),
     ).rejects.toBeInstanceOf(ResourceNotFoundError);
   });
@@ -48,10 +50,12 @@ describe('Change My Password Use Case', () => {
       deletedAt: new Date(),
       usersRepository,
     });
-    await expect(
+    await expect(() =>
       sut.execute({ userId: user.id, password: 'fail' }),
     ).rejects.toBeInstanceOf(ResourceNotFoundError);
   });
+
+  // INTEGRATION
 
   it('should keep correct user count after password change', async () => {
     await makeUser({

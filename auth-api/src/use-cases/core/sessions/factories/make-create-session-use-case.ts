@@ -1,9 +1,9 @@
 import { PrismaSessionsRepository } from '@/repositories/core/prisma/prisma-sessions-repository';
 import { PrismaUsersRepository } from '@/repositories/core/prisma/prisma-users-repository';
-import { ListUserSessionsByDateUseCase } from '../list-user-sessions-by-date';
+import { CreateSessionUseCase } from '../create-session';
 
-export function makeListUserSessionsByDateUseCase() {
+export function makeCreateSessionUseCase() {
   const sessionsRepository = new PrismaSessionsRepository();
   const usersRepository = new PrismaUsersRepository();
-  return new ListUserSessionsByDateUseCase(sessionsRepository, usersRepository);
+  return new CreateSessionUseCase(sessionsRepository, usersRepository);
 }

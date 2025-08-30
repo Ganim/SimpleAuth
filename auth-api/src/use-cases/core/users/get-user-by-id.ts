@@ -17,9 +17,9 @@ export class GetUserByIdUseCase {
   async execute({
     userId,
   }: GetUserByIdUseCaseRequest): Promise<GetUserByIdUseCaseResponse> {
-    const uniqueId = new UniqueEntityID(userId);
+    const validId = new UniqueEntityID(userId);
 
-    const existingUser = await this.usersRepository.findById(uniqueId);
+    const existingUser = await this.usersRepository.findById(validId);
 
     if (!existingUser || existingUser.deletedAt) {
       throw new ResourceNotFoundError('User not found.');

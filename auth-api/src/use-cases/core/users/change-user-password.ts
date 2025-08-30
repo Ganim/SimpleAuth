@@ -1,3 +1,4 @@
+import { BadRequestError } from '@/@errors/use-cases/bad-request-error';
 import { ResourceNotFoundError } from '@/@errors/use-cases/resource-not-found';
 import { Password } from '@/entities/core/value-objects/password';
 import { UniqueEntityID } from '@/entities/domain/unique-entity-id';
@@ -24,18 +25,22 @@ export class ChangeUserPasswordUseCase {
     userId,
     password,
   }: ChangeUserPasswordUseCaseRequest): Promise<ChangeUserPasswordUseCaseResponse> {
-    const uniqueId = new UniqueEntityID(userId);
+    const validId = new UniqueEntityID(userId);
     const passwordHash = await Password.hash(password);
 
-    const existingUser = await this.usersRepository.findById(uniqueId);
+    const existingUser = await this.usersRepository.findById(validId);
     if (!existingUser || existingUser.deletedAt) {
       throw new ResourceNotFoundError('User not found.');
     }
 
     const updatedUser = await this.usersRepository.update({
-      id: uniqueId,
+      id: validId,
       passwordHash,
     });
+
+    if (!updatedUser) {
+      throw new BadRequestError('Unable to update user password.');
+    }
 
     const user = userToDTO(updatedUser);
 
