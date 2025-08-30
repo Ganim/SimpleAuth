@@ -1,4 +1,4 @@
-import { makeLogoutSessionUseCase } from '@/use-cases/sessions/factories/make-logout-session-use-case';
+import { makeLogoutSessionUseCase } from '@/use-cases/core/sessions/factories/make-logout-session-use-case';
 import { FastifyReply, FastifyRequest } from 'fastify';
 
 type LogoutSessionBody = {

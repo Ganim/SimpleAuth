@@ -1,4 +1,4 @@
-import { makeExpireSessionUseCase } from '@/use-cases/sessions/factories/make-expire-session-use-case';
+import { makeExpireSessionUseCase } from '@/use-cases/core/sessions/factories/make-expire-session-use-case';
 import { FastifyReply, FastifyRequest } from 'fastify';
 
 export async function expireSessionController(

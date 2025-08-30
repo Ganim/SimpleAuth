@@ -1,6 +1,6 @@
-import { PrismaSessionsRepository } from '@/repositories/prisma/prisma-sessions-repository';
-import { PrismaUsersRepository } from '@/repositories/prisma/prisma-users-repository';
-import { CreateSessionUseCase } from '@/use-cases/sessions/create-session';
+import { PrismaSessionsRepository } from '@/repositories/core/prisma/prisma-sessions-repository';
+import { PrismaUsersRepository } from '@/repositories/core/prisma/prisma-users-repository';
+import { CreateSessionUseCase } from '@/use-cases/core/sessions/create-session';
 import { AuthenticateWithPasswordUseCase } from '../authenticate-with-password';
 
 export function makeAuthenticateWithPasswordUseCase() {

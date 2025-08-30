@@ -1,7 +1,7 @@
 import { ResourceNotFoundError } from '@/@errors/use-cases/resource-not-found';
 import { Password } from '@/entities/core/value-objects/password';
-import { UserDTO, userToDTO } from '@/mappers/user/user-to-dto';
-import { UsersRepository } from '@/repositories/users-repository';
+import { UserDTO, userToDTO } from '@/mappers/core/user/user-to-dto';
+import { UsersRepository } from '@/repositories/core/users-repository';
 
 interface ChangeUserPasswordUseCaseRequest {
   userId: string;

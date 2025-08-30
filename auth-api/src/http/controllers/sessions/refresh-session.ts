@@ -1,4 +1,4 @@
-import { makeRefreshSessionUseCase } from '@/use-cases/sessions/factories/make-refresh-session-use-case';
+import { makeRefreshSessionUseCase } from '@/use-cases/core/sessions/factories/make-refresh-session-use-case';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 
 type RefreshSessionBody = { sessionId: string };

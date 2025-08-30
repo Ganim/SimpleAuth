@@ -1,5 +1,5 @@
 import { ResourceNotFoundError } from '@/@errors/use-cases/resource-not-found';
-import type { UsersRepository } from '@/repositories/users-repository';
+import type { UsersRepository } from '@/repositories/core/users-repository';
 
 interface DeleteUserByIdUseCaseRequest {
   userId: string;

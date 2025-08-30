@@ -1,8 +1,8 @@
 import { BadRequestError } from '@/@errors/use-cases/bad-request-error';
 import { ResourceNotFoundError } from '@/@errors/use-cases/resource-not-found';
 import { Email } from '@/entities/core/value-objects/email';
-import { InMemoryUsersRepository } from '@/repositories/in-memory/in-memory-users-repository';
-import { makeUser } from '@/tests/factories/make-user';
+import { InMemoryUsersRepository } from '@/repositories/core/in-memory/in-memory-users-repository';
+import { makeUser } from '@/utils/tests/factories/make-user';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { ChangeMyEmailUseCase } from './change-my-email';
 

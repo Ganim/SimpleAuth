@@ -1,8 +1,8 @@
 import { BadRequestError } from '@/@errors/use-cases/bad-request-error';
 import { Email } from '@/entities/core/value-objects/email';
-import { UserDTO, userToDTO } from '@/mappers/user/user-to-dto';
-import type { SessionsRepository } from '@/repositories/sessions-repository';
-import type { UsersRepository } from '@/repositories/users-repository';
+import { UserDTO, userToDTO } from '@/mappers/core/user/user-to-dto';
+import type { SessionsRepository } from '@/repositories/core/sessions-repository';
+import type { UsersRepository } from '@/repositories/core/users-repository';
 import { compare } from 'bcryptjs';
 
 interface AuthenticateWithPasswordUseCaseRequest {

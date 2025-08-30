@@ -1,6 +1,6 @@
 import { BadRequestError } from '@/@errors/use-cases/bad-request-error';
 import { Email } from '@/entities/core/value-objects/email';
-import { InMemoryUsersRepository } from '@/repositories/in-memory/in-memory-users-repository';
+import { InMemoryUsersRepository } from '@/repositories/core/in-memory/in-memory-users-repository';
 import { compare } from 'bcryptjs';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { CreateUserUseCase } from './create-user';

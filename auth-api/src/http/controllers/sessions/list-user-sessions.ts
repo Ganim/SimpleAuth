@@ -1,4 +1,4 @@
-import { makeListUserSessionsUseCase } from '@/use-cases/sessions/factories/make-list-user-sessions-use-case';
+import { makeListUserSessionsUseCase } from '@/use-cases/core/sessions/factories/make-list-user-sessions-use-case';
 import { FastifyReply, FastifyRequest } from 'fastify';
 
 export async function listUserSessionsController(

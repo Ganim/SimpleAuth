@@ -1,6 +1,6 @@
 import { app } from '@/app';
 import { prisma } from '@/lib/prisma';
-import { createAndAuthenticateUser } from '@/tests/factories/create-and-authenticate-user';
+import { createAndAuthenticateUser } from '@/utils/tests/factories/create-and-authenticate-user';
 import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 

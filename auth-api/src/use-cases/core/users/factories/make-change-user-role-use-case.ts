@@ -1,4 +1,4 @@
-import { PrismaUsersRepository } from '@/repositories/prisma/prisma-users-repository';
+import { PrismaUsersRepository } from '@/repositories/core/prisma/prisma-users-repository';
 import { ChangeUserRoleUseCase } from '../change-user-role';
 
 export function makeChangeUserRoleUseCase() {

@@ -1,4 +1,4 @@
-import { PrismaUsersRepository } from '@/repositories/prisma/prisma-users-repository';
+import { PrismaUsersRepository } from '@/repositories/core/prisma/prisma-users-repository';
 import { ChangeMyEmailUseCase } from '../change-my-email';
 
 export function makeChangeMyEmailUseCase() {

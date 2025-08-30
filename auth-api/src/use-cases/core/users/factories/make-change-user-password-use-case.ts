@@ -1,4 +1,4 @@
-import { PrismaUsersRepository } from '@/repositories/prisma/prisma-users-repository';
+import { PrismaUsersRepository } from '@/repositories/core/prisma/prisma-users-repository';
 import { ChangeUserPasswordUseCase } from '../change-user-password';
 
 export function makeChangeUserPasswordUseCase() {

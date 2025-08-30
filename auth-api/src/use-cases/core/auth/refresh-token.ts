@@ -1,4 +1,4 @@
-import type { SessionsRepository } from '@/repositories/sessions-repository';
+import type { SessionsRepository } from '@/repositories/core/sessions-repository';
 import type { FastifyReply } from 'fastify';
 
 export type JwtPayload = { sub: string; role: string; sessionId?: string };

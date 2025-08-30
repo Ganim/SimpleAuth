@@ -1,7 +1,7 @@
 import { ResourceNotFoundError } from '@/@errors/use-cases/resource-not-found';
 import { UserProfile } from '@/entities/core/user-profile';
-import { UserDTO, userToDTO } from '@/mappers/user/user-to-dto';
-import type { UsersRepository } from '@/repositories/users-repository';
+import { UserDTO, userToDTO } from '@/mappers/core/user/user-to-dto';
+import type { UsersRepository } from '@/repositories/core/users-repository';
 
 interface ChangeMyProfileUseCaseRequest {
   userId: string;

@@ -1,4 +1,4 @@
-import { makeRevokeSessionUseCase } from '@/use-cases/sessions/factories/make-revoke-session-use-case';
+import { makeRevokeSessionUseCase } from '@/use-cases/core/sessions/factories/make-revoke-session-use-case';
 import { FastifyReply, FastifyRequest } from 'fastify';
 
 export async function revokeSessionController(

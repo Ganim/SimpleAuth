@@ -1,4 +1,4 @@
-import { makeListUserSessionsByDateUseCase } from '@/use-cases/sessions/factories/make-list-user-sessions-by-date-use-case';
+import { makeListUserSessionsByDateUseCase } from '@/use-cases/core/sessions/factories/make-list-user-sessions-by-date-use-case';
 import { FastifyReply, FastifyRequest } from 'fastify';
 
 export async function listUserSessionsByDateController(

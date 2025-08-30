@@ -1,4 +1,4 @@
-import { PrismaSessionsRepository } from '@/repositories/prisma/prisma-sessions-repository';
+import { PrismaSessionsRepository } from '@/repositories/core/prisma/prisma-sessions-repository';
 import { RefreshTokenUseCase } from '../refresh-token';
 
 export function makeRefreshTokenUseCase() {

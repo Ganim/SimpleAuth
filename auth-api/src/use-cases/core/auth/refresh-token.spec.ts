@@ -1,4 +1,4 @@
-import { InMemorySessionsRepository } from '@/repositories/in-memory/in-memory-sessions-repository';
+import { InMemorySessionsRepository } from '@/repositories/core/in-memory/in-memory-sessions-repository';
 import type { FastifyReply } from 'fastify';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { JwtPayload, RefreshTokenUseCase } from './refresh-token';

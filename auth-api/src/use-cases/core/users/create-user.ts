@@ -5,8 +5,8 @@ import { Email } from '@/entities/core/value-objects/email';
 import { Password } from '@/entities/core/value-objects/password';
 import { Username } from '@/entities/core/value-objects/username';
 import { UniqueEntityID } from '@/entities/domain/unique-entity-id';
-import { UserDTO, userToDTO } from '@/mappers/user/user-to-dto';
-import { UsersRepository } from '@/repositories/users-repository';
+import { UserDTO, userToDTO } from '@/mappers/core/user/user-to-dto';
+import { UsersRepository } from '@/repositories/core/users-repository';
 
 interface CreateUserUseCaseRequest {
   username?: string;

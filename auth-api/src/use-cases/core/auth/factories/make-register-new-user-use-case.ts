@@ -1,5 +1,5 @@
+import { PrismaUsersRepository } from '@/repositories/core/prisma/prisma-users-repository';
 import { PrismaProfilesRepository } from '@/repositories/prisma/prisma-profiles-repository';
-import { PrismaUsersRepository } from '@/repositories/prisma/prisma-users-repository';
 import { RegisterNewUserUseCase } from '../register-new-user';
 
 export function makeRegisterNewUserUseCase() {

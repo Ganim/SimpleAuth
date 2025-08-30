@@ -1,7 +1,7 @@
 import { ResourceNotFoundError } from '@/@errors/use-cases/resource-not-found';
 import { Email } from '@/entities/core/value-objects/email';
-import { UserDTO, userToDTO } from '@/mappers/user/user-to-dto';
-import { UsersRepository } from '@/repositories/users-repository';
+import { UserDTO, userToDTO } from '@/mappers/core/user/user-to-dto';
+import { UsersRepository } from '@/repositories/core/users-repository';
 import { BadRequestError } from '../../../@errors/use-cases/bad-request-error';
 
 interface ChangeUserEmailUseCaseRequest {
