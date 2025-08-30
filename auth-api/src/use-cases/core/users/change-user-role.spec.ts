@@ -1,4 +1,5 @@
 import { ResourceNotFoundError } from '@/@errors/use-cases/resource-not-found';
+import { UniqueEntityID } from '@/entities/domain/unique-entity-id';
 import { InMemoryUsersRepository } from '@/repositories/core/in-memory/in-memory-users-repository';
 import { makeUser } from '@/utils/tests/factories/make-user';
 import { beforeEach, describe, expect, it } from 'vitest';
@@ -13,6 +14,8 @@ describe('ChangeUserRoleUseCase', () => {
     sut = new ChangeUserRoleUseCase(usersRepository);
   });
 
+  // OBJECTIVE
+
   it('should change user role', async () => {
     const { user } = await makeUser({
       email: 'user@example.com',
@@ -24,11 +27,7 @@ describe('ChangeUserRoleUseCase', () => {
     expect(result.user.role).toBe('ADMIN');
   });
 
-  it('should throw ResourceNotFoundError if user not found', async () => {
-    await expect(() =>
-      sut.execute({ userId: 'notfound', role: 'USER' }),
-    ).rejects.toBeInstanceOf(ResourceNotFoundError);
-  });
+  // REJECTS
 
   it('should not allow role change for deleted user', async () => {
     const { user } = await makeUser({
@@ -37,10 +36,20 @@ describe('ChangeUserRoleUseCase', () => {
       role: 'USER',
       usersRepository,
     });
-    const storedUser = await usersRepository.findById(user.id);
+
+    const userId = new UniqueEntityID(user.id);
+    const storedUser = await usersRepository.findById(userId);
+
     if (storedUser) storedUser.deletedAt = new Date();
+
     await expect(() =>
       sut.execute({ userId: user.id, role: 'ADMIN' }),
+    ).rejects.toBeInstanceOf(ResourceNotFoundError);
+  });
+
+  it('should throw ResourceNotFoundError if user not found', async () => {
+    await expect(() =>
+      sut.execute({ userId: 'notfound', role: 'USER' }),
     ).rejects.toBeInstanceOf(ResourceNotFoundError);
   });
 });

@@ -13,6 +13,8 @@ describe('Get User By Id Use Case', () => {
     sut = new GetUserByIdUseCase(usersRepository);
   });
 
+  // OBJECTIVE
+
   it('should return the user by id', async () => {
     const { user } = await makeUser({
       email: 'getuser@example.com',
@@ -31,22 +33,7 @@ describe('Get User By Id Use Case', () => {
     expect(result.user.profile?.surname).toBe('User');
   });
 
-  it('should return the user with empty profile if profile data does not exist', async () => {
-    const { user } = await makeUser({
-      email: 'noprofile@example.com',
-      password: 'hash',
-      usersRepository,
-    });
-    const result = await sut.execute({ userId: user.id });
-    expect(result.user.id).toBe(user.id);
-    expect(result.user.profile).toBeDefined();
-    expect(result.user.profile?.name).toBe('');
-    expect(result.user.profile?.surname).toBe('');
-    expect(result.user.profile?.bio).toBe('');
-    expect(result.user.profile?.avatarUrl).toBe('');
-    expect(result.user.profile?.location).toBe('');
-    expect(result.user.profile?.birthday).toBeUndefined();
-  });
+  // REJECTS
 
   it('should throw ResourceNotFoundError if user does not exist', async () => {
     await expect(() =>
@@ -64,5 +51,24 @@ describe('Get User By Id Use Case', () => {
     await expect(sut.execute({ userId: user.id })).rejects.toBeInstanceOf(
       ResourceNotFoundError,
     );
+  });
+
+  // INTEGRATION
+
+  it('should return the user with empty profile if profile data does not exist', async () => {
+    const { user } = await makeUser({
+      email: 'noprofile@example.com',
+      password: 'hash',
+      usersRepository,
+    });
+    const result = await sut.execute({ userId: user.id });
+    expect(result.user.id).toBe(user.id);
+    expect(result.user.profile).toBeDefined();
+    expect(result.user.profile?.name).toBe('');
+    expect(result.user.profile?.surname).toBe('');
+    expect(result.user.profile?.bio).toBe('');
+    expect(result.user.profile?.avatarUrl).toBe('');
+    expect(result.user.profile?.location).toBe('');
+    expect(result.user.profile?.birthday).toBeUndefined();
   });
 });

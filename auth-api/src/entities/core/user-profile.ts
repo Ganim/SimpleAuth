@@ -1,6 +1,6 @@
 import { Entity } from '../domain/entities';
-import type { UniqueEntityID } from '../domain/unique-entity-id';
-import type { Url } from './value-objects/url';
+import { UniqueEntityID } from '../domain/unique-entity-id';
+import { Url } from './value-objects/url';
 
 export interface UserProfileProps {
   userId: UniqueEntityID;
@@ -45,5 +45,19 @@ export class UserProfile extends Entity<UserProfileProps> {
 
   static create(props: UserProfileProps, id?: UniqueEntityID) {
     return new UserProfile(props, id);
+  }
+
+  static empty(userId?: UniqueEntityID): UserProfile {
+    return new UserProfile({
+      userId: userId ?? new UniqueEntityID(),
+      name: '',
+      surname: '',
+      birthday: undefined,
+      location: '',
+      bio: '',
+      avatarUrl: Url.empty(),
+      createdAt: new Date(),
+      updatedAt: undefined,
+    });
   }
 }

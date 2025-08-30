@@ -1,5 +1,6 @@
 import { ResourceNotFoundError } from '@/@errors/use-cases/resource-not-found';
 import { Email } from '@/entities/core/value-objects/email';
+import { UniqueEntityID } from '@/entities/domain/unique-entity-id';
 import { UserDTO, userToDTO } from '@/mappers/core/user/user-to-dto';
 import { UsersRepository } from '@/repositories/core/users-repository';
 import { BadRequestError } from '../../../@errors/use-cases/bad-request-error';
@@ -23,20 +24,24 @@ export class ChangeUserEmailUseCase {
     userId,
     email,
   }: ChangeUserEmailUseCaseRequest): Promise<ChangeUserEmailUseCaseResponse> {
-    const existingUser = await this.usersRepository.findById(userId);
+    const uniqueId = new UniqueEntityID(userId);
+    const validEmail = new Email(email);
+
+    const existingUser = await this.usersRepository.findById(uniqueId);
+
     if (!existingUser || existingUser.deletedAt) {
       throw new ResourceNotFoundError('User not found.');
     }
 
-    const validEmail = new Email(email);
     const userWithSameEmail =
       await this.usersRepository.findByEmail(validEmail);
-    if (userWithSameEmail && userWithSameEmail.id.toString() !== userId) {
+
+    if (userWithSameEmail && !userWithSameEmail.id.equals(uniqueId)) {
       throw new BadRequestError('This email is already in use.');
     }
 
     const updatedUser = await this.usersRepository.update({
-      id: userId,
+      id: uniqueId,
       email: validEmail,
     });
 

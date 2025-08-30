@@ -1,4 +1,5 @@
 import { ResourceNotFoundError } from '@/@errors/use-cases/resource-not-found';
+import { UniqueEntityID } from '@/entities/domain/unique-entity-id';
 import { UserDTO, userToDTO } from '@/mappers/core/user/user-to-dto';
 import type { UsersRepository } from '@/repositories/core/users-repository';
 
@@ -16,7 +17,10 @@ export class GetUserByIdUseCase {
   async execute({
     userId,
   }: GetUserByIdUseCaseRequest): Promise<GetUserByIdUseCaseResponse> {
-    const existingUser = await this.usersRepository.findById(userId);
+    const uniqueId = new UniqueEntityID(userId);
+
+    const existingUser = await this.usersRepository.findById(uniqueId);
+
     if (!existingUser || existingUser.deletedAt) {
       throw new ResourceNotFoundError('User not found.');
     }

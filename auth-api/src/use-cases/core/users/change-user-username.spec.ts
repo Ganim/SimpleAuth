@@ -1,5 +1,6 @@
 import { BadRequestError } from '@/@errors/use-cases/bad-request-error';
 import { ResourceNotFoundError } from '@/@errors/use-cases/resource-not-found';
+import { UniqueEntityID } from '@/entities/domain/unique-entity-id';
 import { InMemoryUsersRepository } from '@/repositories/core/in-memory/in-memory-users-repository';
 import { makeUser } from '@/utils/tests/factories/make-user';
 import { beforeEach, describe, expect, it } from 'vitest';
@@ -14,6 +15,8 @@ describe('ChangeUserUsernameUseCase', () => {
     sut = new ChangeUserUsernameUseCase(usersRepository);
   });
 
+  // OBJECTIVE
+
   it('should change user username', async () => {
     const { user } = await makeUser({
       email: 'user@example.com',
@@ -24,6 +27,8 @@ describe('ChangeUserUsernameUseCase', () => {
     const result = await sut.execute({ userId: user.id, username: 'newuser' });
     expect(result.user.username).toBe('newuser');
   });
+
+  // REJECTS
 
   it('should throw ResourceNotFoundError if user not found', async () => {
     await expect(() =>
@@ -56,7 +61,10 @@ describe('ChangeUserUsernameUseCase', () => {
       username: 'deleteduser',
       usersRepository,
     });
-    const storedUser = await usersRepository.findById(user.id);
+
+    const userId = new UniqueEntityID(user.id);
+    const storedUser = await usersRepository.findById(userId);
+
     if (storedUser) storedUser.deletedAt = new Date();
     await expect(() =>
       sut.execute({ userId: user.id, username: 'newuser' }),

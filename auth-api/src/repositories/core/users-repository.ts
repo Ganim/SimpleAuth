@@ -3,6 +3,7 @@ import { User } from '@/entities/core/user';
 import { UserProfile } from '@/entities/core/user-profile';
 import type { Email } from '@/entities/core/value-objects/email';
 import type { Password } from '@/entities/core/value-objects/password';
+import type { Url } from '@/entities/core/value-objects/url';
 import type { Username } from '@/entities/core/value-objects/username';
 import type { UniqueEntityID } from '@/entities/domain/unique-entity-id';
 
@@ -11,7 +12,14 @@ export interface CreateUserSchema {
   email: Email;
   passwordHash: Password;
   role: UserRole;
-  profile: UserProfile;
+  profile: {
+    name: string;
+    surname: string;
+    birthday: Date | null;
+    location: string;
+    bio: string;
+    avatarUrl: Url;
+  };
   deletedAt?: Date | null;
 }
 

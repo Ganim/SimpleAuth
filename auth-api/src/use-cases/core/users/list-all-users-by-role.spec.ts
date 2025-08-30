@@ -1,5 +1,6 @@
 import { ResourceNotFoundError } from '@/@errors/use-cases/resource-not-found';
 import { UserRole } from '@/@types/user-role';
+import { UniqueEntityID } from '@/entities/domain/unique-entity-id';
 import { InMemoryUsersRepository } from '@/repositories/core/in-memory/in-memory-users-repository';
 import { makeUser } from '@/utils/tests/factories/make-user';
 import { beforeEach, describe, expect, it } from 'vitest';
@@ -12,6 +13,34 @@ describe('List All Users By Role Use Case', () => {
   beforeEach(() => {
     usersRepository = new InMemoryUsersRepository();
     sut = new ListAllUserByRoleUseCase(usersRepository);
+  });
+
+  // OBJECTIVE
+  it('should list only users with the specified role USER', async () => {
+    await makeUser({
+      email: 'user-1@example.com',
+      password: 'hash',
+      role: 'USER',
+      usersRepository,
+    });
+    await makeUser({
+      email: 'manager-1@example.com',
+      password: 'hash',
+      role: 'MANAGER',
+      usersRepository,
+    });
+    await makeUser({
+      email: 'admin-1@example.com',
+      password: 'hash',
+      role: 'ADMIN',
+      usersRepository,
+    });
+
+    const { users } = await sut.execute({ role: 'USER' });
+
+    expect(users).toHaveLength(1);
+    expect(users[0].email).toBe('user-1@example.com');
+    expect(users[0].role).toBe('USER');
   });
 
   it('should list only users with the specified role MANAGER', async () => {
@@ -41,6 +70,34 @@ describe('List All Users By Role Use Case', () => {
     expect(users[0].role).toBe('MANAGER');
   });
 
+  it('should list only users with the specified role ADMIN', async () => {
+    await makeUser({
+      email: 'user-1@example.com',
+      password: 'hash',
+      role: 'USER',
+      usersRepository,
+    });
+    await makeUser({
+      email: 'manager-1@example.com',
+      password: 'hash',
+      role: 'MANAGER',
+      usersRepository,
+    });
+    await makeUser({
+      email: 'admin-1@example.com',
+      password: 'hash',
+      role: 'ADMIN',
+      usersRepository,
+    });
+
+    const { users } = await sut.execute({ role: 'ADMIN' });
+
+    expect(users).toHaveLength(1);
+    expect(users[0].email).toBe('admin-1@example.com');
+    expect(users[0].role).toBe('ADMIN');
+  });
+
+  // INTEGRATION
   it('should return profile data for each user', async () => {
     await makeUser({
       email: 'manager-2@example.com',
@@ -51,7 +108,7 @@ describe('List All Users By Role Use Case', () => {
         surname: 'Test',
         birthday: new Date('1990-01-01'),
         location: 'Brazil',
-        avatarUrl: 'avatar.png',
+        avatarUrl: 'http://www.example.com/avatar.png',
       },
       usersRepository,
     });
@@ -63,8 +120,12 @@ describe('List All Users By Role Use Case', () => {
     expect(users[0].profile?.surname).toBe('Test');
     expect(users[0].profile?.birthday).toEqual(new Date('1990-01-01'));
     expect(users[0].profile?.location).toBe('Brazil');
-    expect(users[0].profile?.avatarUrl).toBe('avatar.png');
+    expect(users[0].profile?.avatarUrl).toBe(
+      'http://www.example.com/avatar.png',
+    );
   });
+
+  // VALIDATIONS
 
   it('should not list users that are soft deleted', async () => {
     const { user } = await makeUser({
@@ -73,7 +134,9 @@ describe('List All Users By Role Use Case', () => {
       role: 'MANAGER',
       usersRepository,
     });
-    await usersRepository.delete(user.id);
+
+    const userId = new UniqueEntityID(user.id);
+    await usersRepository.delete(userId);
 
     await expect(
       sut.execute({ role: 'MANAGER' as UserRole }),

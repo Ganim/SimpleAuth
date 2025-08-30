@@ -1,4 +1,5 @@
 import { ResourceNotFoundError } from '@/@errors/use-cases/resource-not-found';
+import { UniqueEntityID } from '@/entities/domain/unique-entity-id';
 import type { UsersRepository } from '@/repositories/core/users-repository';
 
 interface DeleteUserByIdUseCaseRequest {
@@ -9,11 +10,13 @@ export class DeleteUserByIdUseCase {
   constructor(private usersRepository: UsersRepository) {}
 
   async execute({ userId }: DeleteUserByIdUseCaseRequest): Promise<void> {
-    const existingUser = await this.usersRepository.findById(userId);
+    const uniqueId = new UniqueEntityID(userId);
+
+    const existingUser = await this.usersRepository.findById(uniqueId);
     if (!existingUser || existingUser.deletedAt) {
       throw new ResourceNotFoundError('User not found');
     }
-    // Soft delete: marca deletedAt
-    await this.usersRepository.delete(userId);
+
+    await this.usersRepository.delete(uniqueId); // Soft delete: marca deletedAt
   }
 }

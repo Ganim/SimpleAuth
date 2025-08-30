@@ -1,5 +1,6 @@
 import { ResourceNotFoundError } from '@/@errors/use-cases/resource-not-found';
 import { Username } from '@/entities/core/value-objects/username';
+import { UniqueEntityID } from '@/entities/domain/unique-entity-id';
 import { UserDTO, userToDTO } from '@/mappers/core/user/user-to-dto';
 import { UsersRepository } from '@/repositories/core/users-repository';
 import { BadRequestError } from '../../../@errors/use-cases/bad-request-error';
@@ -24,20 +25,24 @@ export class ChangeUserUsernameUseCase {
     userId,
     username,
   }: ChangeUserUsernameUseCaseRequest): Promise<ChangeUserUsernameUseCaseResponse> {
-    const existingUser = await this.usersRepository.findById(userId);
+    const uniqueId = new UniqueEntityID(userId);
+    const validUsername = Username.create(username);
+
+    const existingUser = await this.usersRepository.findById(uniqueId);
     if (!existingUser || existingUser.deletedAt) {
       throw new ResourceNotFoundError('User not found');
     }
 
-    // Validação de unicidade do username
-    const existing = await this.usersRepository.findByUsername(username);
-    if (existing && existing.id.toString() !== userId) {
+    const userWithSameUsername =
+      await this.usersRepository.findByUsername(validUsername);
+
+    if (userWithSameUsername && !userWithSameUsername.id.equals(uniqueId)) {
       throw new BadRequestError('Username already in use');
     }
 
     const updatedUser = await this.usersRepository.update({
-      id: userId,
-      username: Username.create(username),
+      id: uniqueId,
+      username: validUsername,
     });
 
     const user = userToDTO(updatedUser);

@@ -13,7 +13,9 @@ describe('List All Users Use Case', () => {
     sut = new ListAllUserUseCase(usersRepository);
   });
 
-  it('deve listar todos os usuários ativos', async () => {
+  // OBJECTIVE
+
+  it('should list all active users', async () => {
     await makeUser({
       email: 'user-1@example.com',
       password: '123456',
@@ -39,44 +41,21 @@ describe('List All Users Use Case', () => {
     expect(users[0].email).toBe('user-1@example.com');
     expect(users[1].email).toBe('user-2@example.com');
     expect(users[2].email).toBe('user-3@example.com');
-    // Verifica dados do perfil
+
     users.forEach((user, idx) => {
       expect(user.profile).toBeDefined();
       expect(user.profile?.name).toBe(`User ${['One', 'Two', 'Three'][idx]}`);
     });
   });
 
-  it('não deve listar usuários soft deleted (deletedAt preenchido)', async () => {
-    await makeUser({
-      email: 'user-1@example.com',
-      password: '123456',
-      profile: { name: 'User One' },
-      deletedAt: new Date(),
-      usersRepository,
-    });
-    await makeUser({
-      email: 'user-2@example.com',
-      password: '123456',
-      profile: { name: 'User Two' },
-      usersRepository,
-    });
-    await makeUser({
-      email: 'user-3@example.com',
-      password: '123456',
-      profile: { name: 'User Three' },
-      usersRepository,
-    });
+  // VALIDATIONS
 
-    const { users } = await sut.execute();
-
-    expect(users).toHaveLength(2);
-    expect(users.map((user) => user.email)).toEqual(
-      expect.arrayContaining(['user-2@example.com', 'user-3@example.com']),
-    );
-    expect(users.map((user) => user.email)).not.toContain('user-1@example.com');
+  it('should return error if there are no users', async () => {
+    await expect(sut.execute()).rejects.toBeInstanceOf(ResourceNotFoundError);
+    await expect(sut.execute()).rejects.toBeInstanceOf(ResourceNotFoundError);
   });
 
-  it('não deve listar usuários deletados (deletedAt preenchido)', async () => {
+  it('should not list deleted users (deletedAt filled)', async () => {
     await makeUser({
       email: 'deleted@example.com',
       password: '123456',
@@ -96,10 +75,5 @@ describe('List All Users Use Case', () => {
     expect(users).toHaveLength(1);
     expect(users.map((u) => u.email)).not.toContain('deleted@example.com');
     expect(users.map((u) => u.email)).toContain('active@example.com');
-  });
-
-  it('deve retornar erro se não houver usuários', async () => {
-    await expect(sut.execute()).rejects.toBeInstanceOf(ResourceNotFoundError);
-    await expect(sut.execute()).rejects.toBeInstanceOf(ResourceNotFoundError);
   });
 });

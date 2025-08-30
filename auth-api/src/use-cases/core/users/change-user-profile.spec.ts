@@ -13,12 +13,15 @@ describe('ChangeUserProfileUseCase', () => {
     sut = new ChangeUserProfileUseCase(usersRepository);
   });
 
+  // OBJECTIVE
+
   it('should update user profile fields', async () => {
     const { user } = await makeUser({
       email: 'user@example.com',
       password: '123456',
       usersRepository,
     });
+
     const { user: updatedUser } = await sut.execute({
       userId: user.id,
       profile: {
@@ -26,15 +29,17 @@ describe('ChangeUserProfileUseCase', () => {
         surname: 'Surname',
         location: 'Portugal',
         bio: 'Bio',
-        avatarUrl: 'url',
+        avatarUrl: 'http://www.example.com',
       },
     });
     expect(updatedUser.profile?.name).toBe('New');
     expect(updatedUser.profile?.surname).toBe('Surname');
     expect(updatedUser.profile?.location).toBe('Portugal');
     expect(updatedUser.profile?.bio).toBe('Bio');
-    expect(updatedUser.profile?.avatarUrl).toBe('url');
+    expect(updatedUser.profile?.avatarUrl).toBe('http://www.example.com');
   });
+
+  // REJECTS
 
   it('should throw ResourceNotFoundError if profile not found', async () => {
     await expect(() =>

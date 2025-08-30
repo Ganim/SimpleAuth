@@ -1,4 +1,5 @@
 import { ResourceNotFoundError } from '@/@errors/use-cases/resource-not-found';
+import { UniqueEntityID } from '@/entities/domain/unique-entity-id';
 import { UserDTO, userToDTO } from '@/mappers/core/user/user-to-dto';
 import { UsersRepository } from '@/repositories/core/users-repository';
 
@@ -22,12 +23,17 @@ export class ChangeUserRoleUseCase {
     userId,
     role,
   }: ChangeUserRoleUseCaseRequest): Promise<ChangeUserRoleUseCaseResponse> {
-    const existingUser = await this.usersRepository.findById(userId);
+    const uniqueId = new UniqueEntityID(userId);
+
+    const existingUser = await this.usersRepository.findById(uniqueId);
     if (!existingUser || existingUser.deletedAt) {
       throw new ResourceNotFoundError('User not found.');
     }
 
-    const updatedUser = await this.usersRepository.update({ id: userId, role });
+    const updatedUser = await this.usersRepository.update({
+      id: uniqueId,
+      role,
+    });
 
     const user = userToDTO(updatedUser);
     return { user };

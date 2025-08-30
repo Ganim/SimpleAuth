@@ -1,5 +1,7 @@
 import { ResourceNotFoundError } from '@/@errors/use-cases/resource-not-found';
 import { UserProfile } from '@/entities/core/user-profile';
+import { Url } from '@/entities/core/value-objects/url';
+import { UniqueEntityID } from '@/entities/domain/unique-entity-id';
 import { UserDTO, userToDTO } from '@/mappers/core/user/user-to-dto';
 import { UsersRepository } from '@/repositories/core/users-repository';
 
@@ -30,25 +32,33 @@ export class ChangeUserProfileUseCase {
     userId,
     profile,
   }: ChangeUserProfileUseCaseRequest): Promise<ChangeUserProfileUseCaseResponse> {
-    const existingUser = await this.usersRepository.findById(userId);
+    const uniqueId = new UniqueEntityID(userId);
+
+    const existingUser = await this.usersRepository.findById(uniqueId);
     if (!existingUser || existingUser.deletedAt) {
       throw new ResourceNotFoundError('User not found');
     }
 
-    const updatedProfile = new UserProfile({
+    const profileData = {
       userId: existingUser.id,
       name: profile.name ?? existingUser.profile?.name ?? '',
       surname: profile.surname ?? existingUser.profile?.surname ?? '',
       birthday: profile.birthday ?? existingUser.profile?.birthday,
       location: profile.location ?? existingUser.profile?.location ?? '',
       bio: profile.bio ?? existingUser.profile?.bio ?? '',
-      avatarUrl: profile.avatarUrl ?? existingUser.profile?.avatarUrl ?? '',
+      avatarUrl: profile.avatarUrl
+        ? new Url(profile.avatarUrl)
+        : existingUser.profile?.avatarUrl
+          ? existingUser.profile.avatarUrl
+          : Url.empty(),
       createdAt: existingUser.profile?.createdAt ?? existingUser.createdAt,
       updatedAt: new Date(),
-    });
+    };
+
+    const updatedProfile = UserProfile.create(profileData);
 
     const updatedUser = await this.usersRepository.update({
-      id: userId,
+      id: uniqueId,
       profile: updatedProfile,
     });
 

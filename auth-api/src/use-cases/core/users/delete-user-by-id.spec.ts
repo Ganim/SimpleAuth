@@ -1,4 +1,5 @@
 import { ResourceNotFoundError } from '@/@errors/use-cases/resource-not-found';
+import { UniqueEntityID } from '@/entities/domain/unique-entity-id';
 import { InMemoryUsersRepository } from '@/repositories/core/in-memory/in-memory-users-repository';
 import { makeUser } from '@/utils/tests/factories/make-user';
 import { beforeEach, describe, expect, it } from 'vitest';
@@ -13,6 +14,8 @@ describe('Delete User By Id Use Case', () => {
     sut = new DeleteUserByIdUseCase(usersRepository);
   });
 
+  // OBJECTIVE
+
   it('should soft delete user by id', async () => {
     const { user } = await makeUser({
       email: 'DeleteUserById@example.com',
@@ -22,13 +25,18 @@ describe('Delete User By Id Use Case', () => {
 
     await expect(sut.execute({ userId: user.id })).resolves.toBeUndefined();
 
-    const deletedUser = await usersRepository.findById(user.id);
+    const userId = new UniqueEntityID(user.id);
+    const deletedUser = await usersRepository.findById(userId);
 
-    expect(deletedUser).toBeNull();
+    expect(deletedUser!.deletedAt).toBeDefined();
+
     const items = (usersRepository as InMemoryUsersRepository)['items'];
-    const rawUser = items.find((u) => u.id.toString() === user.id);
+    const rawUser = items.find((rawUser) => rawUser.id.toString() === user.id);
+
     expect(rawUser?.deletedAt).toEqual(expect.any(Date));
   });
+
+  // REJECTS
 
   it('should throw ResourceNotFoundError if user not found', async () => {
     await expect(() =>
@@ -48,6 +56,8 @@ describe('Delete User By Id Use Case', () => {
       ResourceNotFoundError,
     );
   });
+
+  // INTEGRATION
 
   it('should keep correct user count after deletion', async () => {
     await makeUser({

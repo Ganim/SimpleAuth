@@ -1,12 +1,12 @@
 import { ResourceNotFoundError } from '@/@errors/use-cases/resource-not-found';
-import type { UserRole } from '@/@types/user-role';
+import { UserRole } from '@/@types/user-role';
 import { User } from '@/entities/core/user';
 import { UserProfile } from '@/entities/core/user-profile';
-import type { Email } from '@/entities/core/value-objects/email';
+import { Email } from '@/entities/core/value-objects/email';
 import { Url } from '@/entities/core/value-objects/url';
 import { Username } from '@/entities/core/value-objects/username';
-import type { UniqueEntityID } from '@/entities/domain/unique-entity-id';
-import type {
+import { UniqueEntityID } from '@/entities/domain/unique-entity-id';
+import {
   CreateUserSchema,
   UpdateUserSchema,
   UsersRepository,
@@ -27,23 +27,21 @@ export class InMemoryUsersRepository implements UsersRepository {
       role: data.role ?? 'USER',
       failedLoginAttempts: 0,
       createdAt: new Date(),
-      profile: data.profile ?? null,
+      profile: null,
       deletedAt: data.deletedAt ?? undefined,
     });
 
-    if (!data.profile) {
-      user.profile = UserProfile.create({
-        userId: user.id,
-        name: '',
-        surname: '',
-        birthday: undefined,
-        location: '',
-        bio: '',
-        avatarUrl: Url.empty(),
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      });
-    }
+    user.profile = UserProfile.create({
+      userId: user.id,
+      name: data.profile.name ?? '',
+      surname: data.profile.surname ?? '',
+      birthday: data.profile.birthday ?? undefined,
+      location: data.profile.location ?? '',
+      bio: data.profile.bio ?? '',
+      avatarUrl: data.profile.avatarUrl ?? Url.empty(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
 
     this.items.push(user);
 
