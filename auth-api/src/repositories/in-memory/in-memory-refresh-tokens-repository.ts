@@ -13,28 +13,37 @@ export class InMemoryRefreshTokensRepository
   private items: RefreshToken[] = [];
 
   // CREATE
+  // - create(data: CreateRefreshTokenSchema): Promise<RefreshToken;>
+
   async create(data: CreateRefreshTokenSchema): Promise<RefreshToken> {
     const refreshToken = RefreshToken.create({
-      userId: new UniqueEntityID(data.userId),
-      sessionId: new UniqueEntityID(data.sessionId),
+      userId: data.userId,
+      sessionId: data.sessionId,
       token: data.token,
       expiresAt: data.expiresAt,
       createdAt: new Date(),
     });
+
     this.items.push(refreshToken);
+
     return refreshToken;
   }
 
-  // UPDATE / PATCH
-  async revokeBySessionId(sessionId: string): Promise<void> {
+  // DELETE
+  // - revokeBySessionId(sessionId: UniqueEntityID): Promise<void>;
+
+  async revokeBySessionId(sessionId: UniqueEntityID): Promise<void> {
     for (const refreshToken of this.items) {
-      if (refreshToken.sessionId.toString() === sessionId) {
+      if (refreshToken.sessionId.equals(sessionId)) {
         refreshToken.revokedAt = new Date();
       }
     }
   }
 
   // RETRIEVE
+  // - findByToken(token: Token): Promise<RefreshToken | null>;
+  // - listBySession(sessionId: UniqueEntityID): Promise<RefreshToken[]>;
+
   async findByToken(token: Token): Promise<RefreshToken | null> {
     return (
       this.items.find(
@@ -44,10 +53,9 @@ export class InMemoryRefreshTokensRepository
     );
   }
 
-  async listBySession(sessionId: string): Promise<RefreshToken[]> {
-    return this.items.filter(
-      (refreshToken: RefreshToken) =>
-        refreshToken.sessionId.toString() === sessionId,
+  async listBySession(sessionId: UniqueEntityID): Promise<RefreshToken[]> {
+    return this.items.filter((refreshToken: RefreshToken) =>
+      refreshToken.sessionId.equals(sessionId),
     );
   }
 }

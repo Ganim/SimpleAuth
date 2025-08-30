@@ -2,23 +2,25 @@ import type { UserRole } from '@/@types/user-role';
 import { User } from '@/entities/core/user';
 import { UserProfile } from '@/entities/core/user-profile';
 import type { Email } from '@/entities/core/value-objects/email';
+import type { Password } from '@/entities/core/value-objects/password';
 import type { Username } from '@/entities/core/value-objects/username';
+import type { UniqueEntityID } from '@/entities/domain/unique-entity-id';
 
 export interface CreateUserSchema {
   username: Username;
   email: Email;
-  passwordHash: string;
+  passwordHash: Password;
   role: UserRole;
   profile: UserProfile;
   deletedAt?: Date | null;
 }
 
 export interface UpdateUserSchema {
-  id: string;
+  id: UniqueEntityID;
   email?: Email;
   role?: UserRole;
   username?: Username;
-  passwordHash?: string;
+  passwordHash?: Password;
   profile?: UserProfile;
   deletedAt?: Date | null;
 }
@@ -30,15 +32,15 @@ export interface UsersRepository {
   // UPDATE / PATCH
   update(data: UpdateUserSchema): Promise<User>;
 
-  updateLastLoginAt(id: string, date: Date): Promise<void>;
+  updateLastLoginAt(id: UniqueEntityID, date: Date): Promise<void>;
 
   // DELETE
-  delete(id: string): Promise<void>;
+  delete(id: UniqueEntityID): Promise<void>;
 
   // RETRIEVE
   findByEmail(email: Email): Promise<User | null>;
-  findById(id: string, ignoreDeleted?: boolean): Promise<User | null>;
-  findByUsername(username: string): Promise<User | null>;
+  findById(id: UniqueEntityID, ignoreDeleted?: boolean): Promise<User | null>;
+  findByUsername(username: Username): Promise<User | null>;
 
   // LIST
   listAll(): Promise<User[]>;

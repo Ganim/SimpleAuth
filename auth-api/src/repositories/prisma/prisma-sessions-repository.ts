@@ -1,18 +1,22 @@
-import type { Session } from '@/entities/core/session';
-import { IpAddress } from '@/entities/core/value-objects/ip-address';
+import { ResourceNotFoundError } from '@/@errors/use-cases/resource-not-found';
+import { Session } from '@/entities/core/session';
+import type { UniqueEntityID } from '@/entities/domain/unique-entity-id';
 import { prisma } from '@/lib/prisma';
 import { mapSessionPrismaToDomain } from '@/mappers/session/session-prisma-to-domain';
-import type {
+import {
   CreateSessionSchema,
   SessionsRepository,
+  UpdateSessionInfoSchema,
 } from '../sessions-repository';
 
 export class PrismaSessionsRepository implements SessionsRepository {
   // CREATE
+  // - create(data: CreateSessionSchema): Promise<Session>;
+
   async create(data: CreateSessionSchema): Promise<Session> {
     const sessionDb = await prisma.session.create({
       data: {
-        userId: data.userId,
+        userId: data.userId.toString(),
         ip: data.ip.value,
         createdAt: new Date(),
       },
@@ -21,37 +25,46 @@ export class PrismaSessionsRepository implements SessionsRepository {
   }
 
   // UPDATE / PATCH
-  async updateSessionInfo({
-    sessionId,
-    ip,
-  }: {
-    sessionId: string;
-    ip: IpAddress;
-  }): Promise<void> {
+  //  - updateSessionInfo(data: UpdateSessionInfoSchema): Promise<void>;
+
+  async updateSessionInfo(data: UpdateSessionInfoSchema): Promise<void> {
+    const session = await prisma.session.findUnique({
+      where: { id: data.sessionId.toString() },
+    });
+    if (!session) throw new ResourceNotFoundError('Session not found');
+
     await prisma.session.update({
-      where: { id: sessionId },
+      where: { id: data.sessionId.toString() },
       data: {
-        ip: ip.value,
+        ip: data.ip.value,
         lastUsedAt: new Date(),
       },
     });
   }
 
-  async revoke(sessionId: string): Promise<void> {
+  // DELETE
+  //  - revoke(sessionId: UniqueEntityID): Promise<void>;
+  //  - expire(sessionId: UniqueEntityID): Promise<void>;
+
+  async revoke(sessionId: UniqueEntityID): Promise<void> {
     await prisma.session.update({
-      where: { id: sessionId },
+      where: { id: sessionId.toString() },
       data: { revokedAt: new Date() },
     });
   }
 
-  async expire(sessionId: string): Promise<void> {
+  async expire(sessionId: UniqueEntityID): Promise<void> {
     await prisma.session.update({
-      where: { id: sessionId },
+      where: { id: sessionId.toString() },
       data: { expiredAt: new Date() },
     });
   }
 
   // RETRIEVE
+  // - listAllActive(): Promise<Session[]>;
+  // - listByUser(userId: UniqueEntityID): Promise<Session[]>;
+  // - listByUserAndDate(userId: UniqueEntityID, from: Date, to: Date): Promise<Session[]>;
+
   async listAllActive(): Promise<Session[]> {
     const sessionsDb = await prisma.session.findMany({
       where: {
@@ -62,33 +75,27 @@ export class PrismaSessionsRepository implements SessionsRepository {
     return sessionsDb.map(mapSessionPrismaToDomain);
   }
 
-  async listByUser(userId: string): Promise<Session[]> {
+  async listByUser(userId: UniqueEntityID): Promise<Session[]> {
     const sessionsDb = await prisma.session.findMany({
-      where: { userId },
+      where: { id: userId.toString() },
     });
     return sessionsDb.map(mapSessionPrismaToDomain);
   }
 
   async listByUserAndDate(
-    userId: string,
+    userId: UniqueEntityID,
     from: Date,
     to: Date,
   ): Promise<Session[]> {
     const sessionsDb = await prisma.session.findMany({
       where: {
-        userId,
+        id: userId.toString(),
         createdAt: {
           gte: from,
           lte: to,
         },
       },
     });
-    return sessionsDb.map(mapSessionPrismaToDomain);
-  }
-
-  // LIST
-  async listAll(): Promise<Session[]> {
-    const sessionsDb = await prisma.session.findMany();
     return sessionsDb.map(mapSessionPrismaToDomain);
   }
 }

@@ -1,13 +1,14 @@
 import type { Session } from '@/entities/core/session';
 import { IpAddress } from '@/entities/core/value-objects/ip-address';
+import type { UniqueEntityID } from '@/entities/domain/unique-entity-id';
 
 export interface CreateSessionSchema {
-  userId: string;
+  userId: UniqueEntityID;
   ip: IpAddress;
 }
 
 export interface UpdateSessionInfoSchema {
-  sessionId: string;
+  sessionId: UniqueEntityID;
   ip: IpAddress;
 }
 
@@ -17,11 +18,17 @@ export interface SessionsRepository {
 
   // UPDATE / PATCH
   updateSessionInfo(data: UpdateSessionInfoSchema): Promise<void>;
-  revoke(sessionId: string): Promise<void>;
-  expire(sessionId: string): Promise<void>;
+
+  // DELETE
+  revoke(sessionId: UniqueEntityID): Promise<void>;
+  expire(sessionId: UniqueEntityID): Promise<void>;
 
   // RETRIEVE
   listAllActive(): Promise<Session[]>;
-  listByUser(userId: string): Promise<Session[]>;
-  listByUserAndDate(userId: string, from: Date, to: Date): Promise<Session[]>;
+  listByUser(userId: UniqueEntityID): Promise<Session[]>;
+  listByUserAndDate(
+    userId: UniqueEntityID,
+    from: Date,
+    to: Date,
+  ): Promise<Session[]>;
 }

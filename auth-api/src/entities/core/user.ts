@@ -1,21 +1,25 @@
-import type { UserRole } from '@/@types/user-role';
+import { UserRole } from '@/@types/user-role';
 import dayjs from 'dayjs';
 import { Entity } from '../domain/entities';
-import type { Optional } from '../domain/optional';
-import type { UniqueEntityID } from '../domain/unique-entity-id';
-import type { UserProfile } from './user-profile';
+import { Optional } from '../domain/optional';
+import { UniqueEntityID } from '../domain/unique-entity-id';
+import { UserProfile } from './user-profile';
 import { Email } from './value-objects/email';
-import type { Username } from './value-objects/username';
+import { IpAddress } from './value-objects/ip-address';
+import { Password } from './value-objects/password';
+import { Token } from './value-objects/token';
+import { Username } from './value-objects/username';
 
 export interface UserProps {
+  id: UniqueEntityID;
   username: Username;
   email: Email;
-  passwordHash: string;
+  password: Password;
   role: UserRole;
-  lastLoginIp?: string;
+  lastLoginIp?: IpAddress;
   failedLoginAttempts: number;
   blockedUntil?: Date;
-  passwordResetToken?: string;
+  passwordResetToken?: Token;
   passwordResetExpires?: Date;
   deletedAt?: Date;
   lastLoginAt?: Date;
@@ -25,43 +29,46 @@ export interface UserProps {
 }
 
 export class User extends Entity<UserProps> {
+  get id(): UniqueEntityID {
+    return this.props.id;
+  }
   get username(): Username {
     return this.props.username;
   }
   get email(): Email {
     return this.props.email;
   }
-  get passwordHash() {
-    return this.props.passwordHash;
+  get password(): Password {
+    return this.props.password;
   }
-  get role() {
+  get role(): UserRole {
     return this.props.role;
   }
-  get lastLoginIp() {
+  get lastLoginIp(): IpAddress | undefined {
     return this.props.lastLoginIp;
   }
-  get failedLoginAttempts() {
+  get failedLoginAttempts(): number {
     return this.props.failedLoginAttempts;
   }
-  get blockedUntil() {
+  get blockedUntil(): Date | undefined {
     return this.props.blockedUntil;
   }
-  get passwordResetToken() {
+  get passwordResetToken(): Token | undefined {
     return this.props.passwordResetToken;
   }
-  get passwordResetExpires() {
+  get passwordResetExpires(): Date | undefined {
     return this.props.passwordResetExpires;
   }
-  get deletedAt() {
+  get deletedAt(): Date | undefined {
     return this.props.deletedAt;
   }
-  get lastLoginAt() {
+  get lastLoginAt(): Date | undefined {
     return this.props.lastLoginAt;
   }
-  get createdAt() {
+  get createdAt(): Date {
     return this.props.createdAt;
   }
-  get updatedAt() {
+  get updatedAt(): Date | undefined {
     return this.props.updatedAt;
   }
   get profile(): UserProfile | null {
@@ -102,8 +109,8 @@ export class User extends Entity<UserProps> {
     this.touch();
   }
 
-  set passwordHash(hash: string) {
-    this.props.passwordHash = hash;
+  set password(password: Password) {
+    this.props.password = password;
     this.touch();
   }
 
@@ -126,8 +133,16 @@ export class User extends Entity<UserProps> {
     this.touch();
   }
 
+  set lastLoginIp(ip: IpAddress | undefined) {
+    this.props.lastLoginIp = ip;
+  }
+
   set lastLoginAt(date: Date | undefined) {
     this.props.lastLoginAt = date;
+  }
+
+  set passwordResetToken(token: Token | undefined) {
+    this.props.passwordResetToken = token;
   }
 
   set failedLoginAttempts(attempts: number) {
@@ -137,13 +152,14 @@ export class User extends Entity<UserProps> {
   static create(
     props: Optional<
       UserProps,
-      'createdAt' | 'failedLoginAttempts' | 'role' | 'deletedAt'
+      'createdAt' | 'failedLoginAttempts' | 'role' | 'deletedAt' | 'id'
     >,
     id?: UniqueEntityID,
   ) {
     const user = new User(
       {
         ...props,
+        id: id ?? new UniqueEntityID(),
         role: props.role ?? 'USER',
         failedLoginAttempts: props.failedLoginAttempts ?? 0,
         createdAt: props.createdAt ?? new Date(),

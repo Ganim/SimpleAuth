@@ -2,7 +2,7 @@ import { env } from '@/@env';
 import { compare as bcryptCompare, hash as bcryptHash } from 'bcryptjs';
 
 export class Password {
-  private static readonly DEFAULT_ROUNDS = env.HASH_ROUNDS ?? 8;
+  private static readonly DEFAULT_ROUNDS = env.HASH_ROUNDS ?? 6;
 
   static async hash(
     password: string,

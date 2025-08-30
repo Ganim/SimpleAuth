@@ -3,7 +3,9 @@ import type { UserRole } from '@/@types/user-role';
 import { User } from '@/entities/core/user';
 import { UserProfile } from '@/entities/core/user-profile';
 import type { Email } from '@/entities/core/value-objects/email';
+import { Url } from '@/entities/core/value-objects/url';
 import { Username } from '@/entities/core/value-objects/username';
+import type { UniqueEntityID } from '@/entities/domain/unique-entity-id';
 import type {
   CreateUserSchema,
   UpdateUserSchema,
@@ -15,18 +17,13 @@ export class InMemoryUsersRepository implements UsersRepository {
   private items: User[] = [];
 
   // CREATE
-  // create(data: CreateUserSchema): Promise<User>;
+  // - create(data: CreateUserSchema): Promise<User>;
 
   async create(data: CreateUserSchema): Promise<User> {
-    // Cria perfil com id temporário
-    // Cria usuário com profile: null
     const user = User.create({
-      username:
-        data.username instanceof Username
-          ? data.username
-          : Username.create(data.username ?? ''),
+      username: data.username,
       email: data.email,
-      passwordHash: data.passwordHash,
+      password: data.passwordHash,
       role: data.role ?? 'USER',
       failedLoginAttempts: 0,
       createdAt: new Date(),
@@ -34,7 +31,6 @@ export class InMemoryUsersRepository implements UsersRepository {
       deletedAt: data.deletedAt ?? undefined,
     });
 
-    // Cria o profile
     if (!data.profile) {
       user.profile = UserProfile.create({
         userId: user.id,
@@ -43,34 +39,31 @@ export class InMemoryUsersRepository implements UsersRepository {
         birthday: undefined,
         location: '',
         bio: '',
-        avatarUrl: '',
+        avatarUrl: Url.empty(),
         createdAt: new Date(),
         updatedAt: new Date(),
       });
     }
 
     this.items.push(user);
+
     return user;
   }
 
   // UPDATE / PATCH
-  // update(data: UpdateUserSchema): Promise<User>;
-  // updateLastLoginAt(id: string, date: Date): Promise<void>;
+  // - update(data: UpdateUserSchema): Promise<User>;
+  // - updateLastLoginAt(id: UniqueEntityID, date: Date): Promise<void>;
 
   async update(data: UpdateUserSchema) {
-    const user = this.items.find((item) => item.id.toString() === data.id);
+    const user = this.items.find((item) => item.id.equals(data.id));
     if (!user) throw new ResourceNotFoundError('User not found');
 
-    // Update
     if (data.email) user.email = data.email;
     if (data.role) user.role = data.role;
     if (data.username !== undefined) {
-      user.username =
-        data.username instanceof Username
-          ? data.username
-          : Username.create(data.username ?? '');
+      user.username = data.username;
     }
-    if (data.passwordHash !== undefined) user.passwordHash = data.passwordHash;
+    if (data.passwordHash !== undefined) user.password = data.passwordHash;
     if (data.profile !== undefined && user.profile) {
       user.profile = UserProfile.create({
         userId: user.id,
@@ -90,65 +83,58 @@ export class InMemoryUsersRepository implements UsersRepository {
     return user;
   }
 
-  async updateLastLoginAt(id: string, date: Date): Promise<void> {
-    // Verify user exists
+  async updateLastLoginAt(id: UniqueEntityID, date: Date): Promise<void> {
     const user = await this.findById(id);
     if (!user) throw new ResourceNotFoundError('User not found');
 
-    // Update
     user.lastLoginAt = date;
   }
 
   // DELETE
-  // delete(id: string): Promise<void>;
+  // - delete(id: UniqueEntityID): Promise<void>;
 
-  async delete(id: string) {
-    // Verify user exists
+  async delete(id: UniqueEntityID) {
     const user = await this.findById(id);
     if (!user) throw new ResourceNotFoundError('User not found');
 
-    // Delete
     user.deletedAt = new Date();
   }
 
   // RETRIEVE
-  // findByEmail(email: string): Promise<User | null>;
-  // findById(id: string): Promise<User | null>;
-  // findByUsername(username: string): Promise<User | null>;
+  // - findByEmail(email: Email): Promise<User | null>;
+  // - findById(id: UniqueEntityID): Promise<User | null>;
+  // - findByUsername(username: Username): Promise<User | null>;
 
   async findByEmail(email: Email): Promise<User | null> {
-    return this.items.find((user) => user.email.equals(email)) ?? null;
-  }
+    const user = this.items.find((user) => user.email.equals(email));
+    if (!user) return null;
 
-  async findById(id: string) {
-    // Verify user exists and not deleted
-    const user = this.items.find((item) => item.id.toString() === id);
-    if (!user || user.deletedAt) {
-      return null;
-    }
     return user;
   }
 
-  async findByUsername(username: string | Username): Promise<User | null> {
-    const usernameValue =
-      username instanceof Username ? username.value : username;
-    const user = this.items.find(
-      (item) => item.username.value === usernameValue,
-    );
-    return user ?? null;
+  async findById(id: UniqueEntityID) {
+    const user = this.items.find((item) => item.id.equals(id));
+    if (!user) return null;
+
+    return user;
+  }
+
+  async findByUsername(username: Username): Promise<User | null> {
+    const user = this.items.find((item) => item.username.equals(username));
+    if (!user) return null;
+
+    return user;
   }
 
   // LIST
-  // listAll(): Promise<User[]>;
-  // listAllByRole(role: UserRole): Promise<User[]>;
+  // - listAll(): Promise<User[]>;
+  // - listAllByRole(role: UserRole): Promise<User[]>;
 
   async listAll() {
-    // Return All Not Deleted Users
     return this.items.filter((user) => !user.isDeleted);
   }
 
   async listAllByRole(role: UserRole) {
-    // Return All Not Deleted Users by Role
     return this.items.filter((user) => !user.isDeleted && user.role === role);
   }
 }

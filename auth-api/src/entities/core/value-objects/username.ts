@@ -40,4 +40,7 @@ export class Username {
   toString(): string {
     return this._value;
   }
+  equals(other: Username): boolean {
+    return this._value === other.value;
+  }
 }

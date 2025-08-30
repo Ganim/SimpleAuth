@@ -1,5 +1,6 @@
 import { Entity } from '../domain/entities';
 import type { UniqueEntityID } from '../domain/unique-entity-id';
+import type { Url } from './value-objects/url';
 
 export interface UserProfileProps {
   userId: UniqueEntityID;
@@ -8,7 +9,7 @@ export interface UserProfileProps {
   birthday?: Date;
   location: string;
   bio: string;
-  avatarUrl: string;
+  avatarUrl: Url;
   createdAt: Date;
   updatedAt?: Date;
 }
@@ -32,7 +33,7 @@ export class UserProfile extends Entity<UserProfileProps> {
   get bio(): string {
     return this.props.bio;
   }
-  get avatarUrl(): string {
+  get avatarUrl(): Url {
     return this.props.avatarUrl;
   }
   get createdAt(): Date {
