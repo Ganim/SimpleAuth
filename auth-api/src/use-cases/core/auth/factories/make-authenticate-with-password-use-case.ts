@@ -1,12 +1,10 @@
-import { PrismaSessionsRepository } from '@/repositories/core/prisma/prisma-sessions-repository';
 import { PrismaUsersRepository } from '@/repositories/core/prisma/prisma-users-repository';
-import { CreateSessionUseCase } from '@/use-cases/core/sessions/create-session';
+import { makeCreateSessionUseCase } from '../../sessions/factories/make-create-session-use-case';
 import { AuthenticateWithPasswordUseCase } from '../authenticate-with-password';
 
 export function makeAuthenticateWithPasswordUseCase() {
   const usersRepository = new PrismaUsersRepository();
-  const sessionsRepository = new PrismaSessionsRepository();
-  const createSessionUseCase = new CreateSessionUseCase(sessionsRepository);
+  const createSessionUseCase = makeCreateSessionUseCase();
 
   const authenticateUseCase = new AuthenticateWithPasswordUseCase(
     usersRepository,

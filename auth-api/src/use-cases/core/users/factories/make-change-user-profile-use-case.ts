@@ -1,7 +1,7 @@
-import { PrismaProfilesRepository } from '@/repositories/prisma/prisma-profiles-repository';
+import { PrismaUsersRepository } from '@/repositories/core/prisma/prisma-users-repository';
 import { ChangeUserProfileUseCase } from '../change-user-profile';
 
 export function makeChangeUserProfileUseCase() {
-  const profilesRepository = new PrismaProfilesRepository();
-  return new ChangeUserProfileUseCase(profilesRepository);
+  const usersRepository = new PrismaUsersRepository();
+  return new ChangeUserProfileUseCase(usersRepository);
 }
