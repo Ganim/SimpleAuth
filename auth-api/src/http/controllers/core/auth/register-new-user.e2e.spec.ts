@@ -12,7 +12,7 @@ describe('Register New User (e2e)', () => {
 
   it('should register a new user with all fields', async () => {
     const response = await request(app.server)
-      .post('/users')
+      .post('/register')
       .send({
         email: 'johndoe@example.com',
         password: '123456',
@@ -24,12 +24,13 @@ describe('Register New User (e2e)', () => {
           location: 'USA',
         },
       });
+
     expect(response.statusCode).toEqual(201);
-    expect(response.body.email).toBe('johndoe@example.com');
-    expect(response.body.profile).toBeDefined();
-    expect(response.body.profile.name).toBe('John');
-    expect(response.body.profile.surname).toBe('Doe');
-    expect(response.body.profile.birthday.slice(0, 10)).toBe('1990-01-01');
-    expect(response.body.profile.location).toBe('USA');
+    expect(response.body.user.email).toBe('johndoe@example.com');
+    expect(response.body.user.profile).toBeDefined();
+    expect(response.body.user.profile.name).toBe('John');
+    expect(response.body.user.profile.surname).toBe('Doe');
+    expect(response.body.user.profile.birthday.slice(0, 10)).toBe('1990-01-01');
+    expect(response.body.user.profile.location).toBe('USA');
   });
 });

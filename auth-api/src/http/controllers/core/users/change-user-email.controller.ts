@@ -23,7 +23,29 @@ export async function changeUserEmail(app: FastifyInstance) {
       }),
       response: {
         200: z.object({
-          message: z.string(),
+          user: z.object({
+            id: z.string(),
+            email: z.string(),
+            username: z.string(),
+            role: z.string(),
+            lastLoginAt: z.coerce.date().nullable(),
+            deletedAt: z.coerce.date().nullable().optional(),
+            profile: z
+              .object({
+                id: z.string(),
+                userId: z.string(),
+                name: z.string(),
+                surname: z.string(),
+                birthday: z.coerce.date().optional(),
+                location: z.string(),
+                bio: z.string(),
+                avatarUrl: z.string(),
+                createdAt: z.coerce.date(),
+                updatedAt: z.coerce.date().optional(),
+              })
+              .nullable()
+              .optional(),
+          }),
         }),
         400: z.object({
           message: z.string(),
@@ -32,7 +54,7 @@ export async function changeUserEmail(app: FastifyInstance) {
           message: z.string(),
         }),
       },
-      required: ['userId  ', 'email'],
+      required: ['userId', 'email'],
     },
 
     handler: async (request, reply) => {
@@ -43,9 +65,12 @@ export async function changeUserEmail(app: FastifyInstance) {
       try {
         const changeUserEmailUseCase = makeChangeUserEmailUseCase();
 
-        await changeUserEmailUseCase.execute({ userId, email });
+        const { user } = await changeUserEmailUseCase.execute({
+          userId,
+          email,
+        });
 
-        return reply.status(200).send({ message: 'Email updated' });
+        return reply.status(200).send({ user });
       } catch (error) {
         if (error instanceof BadRequestError) {
           return reply.status(400).send({ message: error.message });

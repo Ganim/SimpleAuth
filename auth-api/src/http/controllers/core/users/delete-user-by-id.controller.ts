@@ -1,46 +1,38 @@
 import { ResourceNotFoundError } from '@/@errors/use-cases/resource-not-found';
 import { verifyJwt } from '@/http/middlewares/verify-jwt';
 import { verifyUserAdmin } from '@/http/middlewares/verify-user-admin';
-import { makeChangeUserPasswordUseCase } from '@/use-cases/core/users/factories/make-change-user-password-use-case';
+import { makeDeleteUserByIdUseCase } from '@/use-cases/core/users/factories/make-delete-user-by-id-use-case';
 import type { FastifyInstance } from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import z from 'zod';
 
-export async function changeUserPassword(app: FastifyInstance) {
+export async function DeleteUserById(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({
-    method: 'PATCH',
-    url: '/users/:userId/password',
+    method: 'DELETE',
+    url: '/users/:userId',
     preHandler: [verifyJwt, verifyUserAdmin],
     schema: {
       tags: ['Users'],
-      summary: 'Change user password',
+      summary: 'Delete a user',
       params: z.object({
         userId: z.uuid(),
       }),
-      body: z.object({
-        password: z.string().min(6),
-      }),
       response: {
-        200: z.object({
-          message: z.string(),
-        }),
+        200: z.void(),
         404: z.object({
           message: z.string(),
         }),
       },
-      required: ['userId', 'password'],
+      required: ['userId'],
     },
 
     handler: async (request, reply) => {
       const { userId } = request.params;
-      const { password } = request.body;
 
       try {
-        const changeUserPasswordUseCase = makeChangeUserPasswordUseCase();
-
-        await changeUserPasswordUseCase.execute({ userId, password });
-
-        return reply.status(200).send({ message: 'Password updated' });
+        const DeleteUserByIdUseCase = makeDeleteUserByIdUseCase();
+        await DeleteUserByIdUseCase.execute({ userId });
+        return reply.status(200).send();
       } catch (error) {
         if (error instanceof ResourceNotFoundError) {
           return reply.status(404).send({ message: error.message });

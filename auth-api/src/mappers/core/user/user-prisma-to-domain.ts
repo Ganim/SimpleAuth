@@ -1,6 +1,7 @@
 import { Email } from '@/entities/core/value-objects/email';
 import { Token } from '@/entities/core/value-objects/token';
 import { Username } from '@/entities/core/value-objects/username';
+import { UniqueEntityID } from '@/entities/domain/unique-entity-id';
 import { Prisma } from 'generated/prisma';
 import { mapUserProfilePrismaToDomain } from './user-profile-prisma-to-domain';
 
@@ -8,6 +9,7 @@ export function mapUserPrismaToDomain(
   userDb: Prisma.UserGetPayload<{ include: { profile: true } }>,
 ) {
   return {
+    id: new UniqueEntityID(userDb.id),
     username: Username.create(userDb.username ?? ''),
     email: new Email(userDb.email),
     password: userDb.password_hash,
@@ -23,7 +25,7 @@ export function mapUserPrismaToDomain(
     createdAt: userDb.createdAt,
     updatedAt: userDb.updatedAt,
     profile: userDb.profile
-      ? mapUserProfilePrismaToDomain(userDb.profile)
+      ? mapUserProfilePrismaToDomain(userDb.profile, userDb.id)
       : null,
   };
 }

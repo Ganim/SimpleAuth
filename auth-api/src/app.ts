@@ -9,8 +9,8 @@ import { env } from './@env';
 import { errorHandler } from './@errors/error-handler';
 import { authRoutes } from './http/controllers/core/auth/routes';
 import { meRoutes } from './http/controllers/core/me/routes';
+import { sessionsRoutes } from './http/controllers/core/sessions/routes';
 import { usersRoutes } from './http/controllers/core/users/routes';
-import { sessionsRoutes } from './http/controllers/sessions/routes';
 
 export const app = fastify();
 

@@ -23,7 +23,29 @@ export async function changeUserUsername(app: FastifyInstance) {
       }),
       response: {
         200: z.object({
-          message: z.string(),
+          user: z.object({
+            id: z.string(),
+            email: z.string(),
+            username: z.string(),
+            role: z.string(),
+            lastLoginAt: z.coerce.date().nullable(),
+            deletedAt: z.coerce.date().nullable().optional(),
+            profile: z
+              .object({
+                id: z.string(),
+                userId: z.string(),
+                name: z.string(),
+                surname: z.string(),
+                birthday: z.coerce.date().optional(),
+                location: z.string(),
+                bio: z.string(),
+                avatarUrl: z.string(),
+                createdAt: z.coerce.date(),
+                updatedAt: z.coerce.date().optional(),
+              })
+              .nullable()
+              .optional(),
+          }),
         }),
         400: z.object({
           message: z.string(),
@@ -42,9 +64,12 @@ export async function changeUserUsername(app: FastifyInstance) {
       try {
         const changeUserUsernameUseCase = makeChangeUserUsernameUseCase();
 
-        await changeUserUsernameUseCase.execute({ userId, username });
+        const { user } = await changeUserUsernameUseCase.execute({
+          userId,
+          username,
+        });
 
-        return reply.status(200).send({ message: 'Username updated' });
+        return reply.status(200).send({ user });
       } catch (error) {
         if (error instanceof BadRequestError) {
           return reply.status(400).send({ message: error.message });

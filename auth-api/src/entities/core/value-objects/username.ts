@@ -1,3 +1,4 @@
+import { BadRequestError } from '@/@errors/use-cases/bad-request-error';
 import { randomUUID } from 'node:crypto';
 
 export class Username {
@@ -6,7 +7,7 @@ export class Username {
   private constructor(value: string) {
     this._value = Username.format(value);
     if (!Username.isValid(this._value)) {
-      throw new Error('Invalid username');
+      throw new BadRequestError('Invalid username');
     }
   }
 

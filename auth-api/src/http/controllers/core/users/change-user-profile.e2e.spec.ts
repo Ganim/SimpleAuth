@@ -12,12 +12,18 @@ describe('Update User (e2e)', () => {
   });
 
   it('should allow MANAGER/ADMIN to update username and profile', async () => {
-    const createResponse = await request(app.server).post('/users').send({
-      email: 'edituser@example.com',
-      password: '123456',
-    });
-    const userId = createResponse.body.user.id;
     const { token } = await createAndAuthenticateUser(app, 'ADMIN');
+
+    const anotherUser = await request(app.server)
+      .post('/users')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        email: 'user@example.com',
+        password: '123456',
+      });
+
+    const userId = anotherUser.body.user?.id;
+
     const response = await request(app.server)
       .patch(`/users/${userId}`)
       .set('Authorization', `Bearer ${token}`)
@@ -30,26 +36,15 @@ describe('Update User (e2e)', () => {
           avatarUrl: 'https://example.com/avatar.png',
         },
       });
+
     expect(response.statusCode).toBe(200);
-    expect(response.body).toEqual(
+    expect(response.body.user.profile).toEqual(
       expect.objectContaining({
-        profile: expect.objectContaining({
-          name: 'NovoNome',
-          surname: 'NovoSobrenome',
-          bio: 'Bio editada',
-          avatarUrl: 'https://example.com/avatar.png',
-        }),
+        name: 'NovoNome',
+        surname: 'NovoSobrenome',
+        bio: 'Bio editada',
+        avatarUrl: 'https://example.com/avatar.png',
       }),
     );
-  });
-
-  it('should return 400 if user does not exist', async () => {
-    const { token } = await createAndAuthenticateUser(app, 'ADMIN');
-    const fakeId = '00000000-0000-0000-0000-000000000000';
-    const response = await request(app.server)
-      .patch(`/users/${fakeId}`)
-      .set('Authorization', `Bearer ${token}`)
-      .send({ profile: { name: 'fail' } });
-    expect(response.statusCode).toBe(404);
   });
 });

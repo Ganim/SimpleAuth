@@ -59,7 +59,9 @@ export class PrismaUsersRepository implements UsersRepository {
           }),
           ...(data.email && { email: data.email.toString() }),
           ...(data.role && { role: data.role }),
-          ...(data.passwordHash && { password_hash: data.passwordHash }),
+          ...(data.passwordHash && {
+            password_hash: data.passwordHash.toString(),
+          }),
           profile: data.profile
             ? {
                 update: {
@@ -123,6 +125,7 @@ export class PrismaUsersRepository implements UsersRepository {
       where: { email: email.value, deletedAt: null },
       include: { profile: true },
     });
+
     if (!newUserData) return null;
 
     const user = User.create(mapUserPrismaToDomain(newUserData));

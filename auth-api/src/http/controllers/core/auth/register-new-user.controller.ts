@@ -1,7 +1,6 @@
-import { ResourceNotFoundError } from '@/@errors/use-cases/resource-not-found';
-
 import z from 'zod';
 
+import { BadRequestError } from '@/@errors/use-cases/bad-request-error';
 import { makeRegisterNewUserUseCase } from '@/use-cases/core/auth/factories/make-register-new-user-use-case';
 import type { FastifyInstance } from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
@@ -14,33 +13,47 @@ export async function registerNewUser(app: FastifyInstance) {
       tags: ['Auth'],
       summary: 'Register a new user',
       body: z.object({
+        username: z.string().min(3).max(30).optional(),
         email: z.email(),
         password: z.string().min(6),
-        username: z.string().min(3).max(30).optional(),
         profile: z
           .object({
             name: z.string().min(1).max(50).optional(),
             surname: z.string().min(1).max(50).optional(),
             birthday: z.coerce.date().optional(),
             location: z.string().min(1).max(128).optional(),
+            bio: z.string().min(1).max(128).optional(),
+            avatarUrl: z.url().optional(),
           })
           .optional(),
       }),
       response: {
         201: z.object({
-          email: z.email(),
-          profile: z.object({
+          user: z.object({
             id: z.string(),
-            userId: z.string(),
-            name: z.string(),
-            surname: z.string(),
-            location: z.string(),
-            birthday: z.date().nullable(),
-            bio: z.string(),
-            avatarUrl: z.string(),
+            email: z.string(),
+            username: z.string(),
+            role: z.string(),
+            lastLoginAt: z.coerce.date().nullable(),
+            deletedAt: z.coerce.date().nullable().optional(),
+            profile: z
+              .object({
+                id: z.string(),
+                userId: z.string(),
+                name: z.string(),
+                surname: z.string(),
+                birthday: z.coerce.date().optional(),
+                location: z.string(),
+                bio: z.string(),
+                avatarUrl: z.string(),
+                createdAt: z.coerce.date(),
+                updatedAt: z.coerce.date().optional(),
+              })
+              .nullable()
+              .optional(),
           }),
         }),
-        404: z.object({
+        400: z.object({
           message: z.string(),
         }),
       },
@@ -52,20 +65,16 @@ export async function registerNewUser(app: FastifyInstance) {
 
       try {
         const registerNewUserUseCase = makeRegisterNewUserUseCase();
-        const { user, profile: newUserProfile } =
-          await registerNewUserUseCase.execute({
-            email,
-            password,
-            username,
-            profile,
-          });
-        return reply.status(201).send({
-          email: user.email,
-          profile: newUserProfile,
+        const { user } = await registerNewUserUseCase.execute({
+          email,
+          password,
+          username,
+          profile,
         });
+        return reply.status(201).send({ user });
       } catch (error) {
-        if (error instanceof ResourceNotFoundError) {
-          return reply.status(404).send({ message: error.message });
+        if (error instanceof BadRequestError) {
+          return reply.status(400).send({ message: error.message });
         }
         throw error;
       }

@@ -18,8 +18,32 @@ export async function authenticateWithPassword(app: FastifyInstance) {
       }),
       response: {
         200: z.object({
-          token: z.string(),
+          user: z.object({
+            id: z.string(),
+            email: z.string(),
+            username: z.string(),
+            role: z.string(),
+            lastLoginAt: z.coerce.date().nullable(),
+            deletedAt: z.coerce.date().nullable().optional(),
+            profile: z
+              .object({
+                id: z.string(),
+                userId: z.string(),
+                name: z.string(),
+                surname: z.string(),
+                birthday: z.coerce.date().optional(),
+                location: z.string(),
+                bio: z.string(),
+                avatarUrl: z.string(),
+                createdAt: z.coerce.date(),
+                updatedAt: z.coerce.date().optional(),
+              })
+              .nullable()
+              .optional(),
+          }),
           sessionId: z.string(),
+          token: z.string(),
+          refreshToken: z.string(),
         }),
         404: z.object({
           message: z.string(),
@@ -30,27 +54,25 @@ export async function authenticateWithPassword(app: FastifyInstance) {
 
     handler: async (request, reply) => {
       const { email, password } = request.body;
-
-      const ip = request.ip ?? request.headers['x-forwarded-for'] ?? '';
+      const forwardedFor = request.headers['x-forwarded-for'];
+      const ip =
+        typeof forwardedFor === 'string'
+          ? forwardedFor
+          : Array.isArray(forwardedFor)
+            ? forwardedFor[0]
+            : '';
 
       try {
         const authenticateUseCase = makeAuthenticateWithPasswordUseCase();
 
-        const { user, sessionId } = await authenticateUseCase.execute({
-          email,
-          password,
-          ip,
-        });
+        const { user, sessionId, token, refreshToken } =
+          await authenticateUseCase.execute({
+            email,
+            password,
+            ip,
+            reply,
+          });
 
-        const token = await reply.jwtSign(
-          { role: user.role, sessionId },
-          { sign: { sub: user.id } },
-        );
-
-        const refreshToken = await reply.jwtSign(
-          { role: user.role, sessionId },
-          { sign: { sub: user.id, expiresIn: '7d' } },
-        );
         return reply
           .setCookie('refreshToken', refreshToken, {
             path: '/',
@@ -59,7 +81,7 @@ export async function authenticateWithPassword(app: FastifyInstance) {
             httpOnly: true,
           })
           .status(200)
-          .send({ token, sessionId });
+          .send({ user, sessionId, token, refreshToken });
       } catch (error) {
         if (error instanceof ResourceNotFoundError) {
           return reply.status(404).send({ message: error.message });

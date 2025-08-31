@@ -19,7 +19,9 @@ export class InMemoryUsersRepository implements UsersRepository {
   // - create(data: CreateUserSchema): Promise<User>;
 
   async create(data: CreateUserSchema): Promise<User> {
+    const id = new UniqueEntityID();
     const user = User.create({
+      id,
       username: data.username,
       email: data.email,
       password: data.passwordHash,
@@ -31,7 +33,7 @@ export class InMemoryUsersRepository implements UsersRepository {
     });
 
     user.profile = UserProfile.create({
-      userId: user.id,
+      userId: id,
       name: data.profile.name ?? '',
       surname: data.profile.surname ?? '',
       birthday: data.profile.birthday ?? undefined,

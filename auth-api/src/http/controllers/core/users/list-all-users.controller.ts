@@ -23,15 +23,23 @@ export async function listAllUsers(app: FastifyInstance) {
               email: z.string(),
               username: z.string(),
               role: z.string(),
-              lastLoginAt: z.date(),
-              profile: z.object({
-                name: z.string(),
-                surname: z.string(),
-                birthday: z.date(),
-                location: z.string(),
-                bio: z.string(),
-                avatarUrl: z.string(),
-              }),
+              lastLoginAt: z.coerce.date().nullable(),
+              deletedAt: z.coerce.date().nullable().optional(),
+              profile: z
+                .object({
+                  id: z.string(),
+                  userId: z.string(),
+                  name: z.string(),
+                  surname: z.string(),
+                  birthday: z.coerce.date().optional(),
+                  location: z.string(),
+                  bio: z.string(),
+                  avatarUrl: z.string(),
+                  createdAt: z.coerce.date(),
+                  updatedAt: z.coerce.date().optional(),
+                })
+                .nullable()
+                .optional(),
             }),
           ),
         }),

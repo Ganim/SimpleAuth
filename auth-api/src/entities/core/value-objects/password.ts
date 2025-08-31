@@ -4,6 +4,12 @@ import { compare as bcryptCompare, hash as bcryptHash } from 'bcryptjs';
 export class Password {
   private static readonly DEFAULT_ROUNDS = env.HASH_ROUNDS ?? 6;
 
+  static fromHash(hash: string): Password {
+    const password = Object.create(Password.prototype);
+    password._value = hash;
+    return password;
+  }
+
   static async hash(
     password: string,
     rounds: number = Password.DEFAULT_ROUNDS,

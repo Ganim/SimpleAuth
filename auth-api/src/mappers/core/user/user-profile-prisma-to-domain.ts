@@ -5,9 +5,10 @@ import { Prisma } from 'generated/prisma';
 
 export function mapUserProfilePrismaToDomain(
   userProfileDB: Prisma.UserProfileGetPayload<object>,
+  userId: string,
 ) {
   return UserProfile.create({
-    userId: new UniqueEntityID(userProfileDB.userId ?? userProfileDB.id),
+    userId: new UniqueEntityID(userId), // sempre igual ao id do usuário!
     name: userProfileDB.name ?? '',
     surname: userProfileDB.surname ?? '',
     birthday: userProfileDB.birthday ?? undefined,
