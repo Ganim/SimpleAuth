@@ -77,9 +77,7 @@ export async function createUserController(app: FastifyInstance) {
           role,
           profile,
         });
-        return reply.status(201).send({
-          user,
-        });
+        return reply.status(201).send({ user });
       } catch (error) {
         if (error instanceof BadRequestError) {
           return reply.status(400).send({ message: error.message });

@@ -57,7 +57,6 @@ export async function registerNewUserController(app: FastifyInstance) {
           message: z.string(),
         }),
       },
-      required: ['email', 'password'],
     },
 
     handler: async (request, reply) => {
@@ -65,12 +64,14 @@ export async function registerNewUserController(app: FastifyInstance) {
 
       try {
         const registerNewUserUseCase = makeRegisterNewUserUseCase();
+        console.log('[register] use case criado');
         const { user } = await registerNewUserUseCase.execute({
           email,
           password,
           username,
           profile,
         });
+
         return reply.status(201).send({ user });
       } catch (error) {
         if (error instanceof BadRequestError) {
