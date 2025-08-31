@@ -64,7 +64,6 @@ export async function registerNewUserController(app: FastifyInstance) {
 
       try {
         const registerNewUserUseCase = makeRegisterNewUserUseCase();
-        console.log('[register] use case criado');
         const { user } = await registerNewUserUseCase.execute({
           email,
           password,

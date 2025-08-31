@@ -62,11 +62,13 @@ app.register(fastifyJwt, {
 app.register(fastifyCookie);
 
 // Routes
-app.register(healthRoutes);
-app.register(meRoutes);
-app.register(authRoutes);
-app.register(usersRoutes);
-app.register(sessionsRoutes);
+app.after(() => {
+  app.register(healthRoutes);
+  app.register(meRoutes);
+  app.register(authRoutes);
+  app.register(usersRoutes);
+  app.register(sessionsRoutes);
+});
 
 // Swagger UI
 const swaggerTheme = new SwaggerTheme();
