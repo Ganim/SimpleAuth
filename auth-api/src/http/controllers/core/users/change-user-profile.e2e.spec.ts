@@ -3,7 +3,7 @@ import { createAndAuthenticateUser } from '@/utils/tests/factories/core/create-a
 import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
-describe('Update User (e2e)', () => {
+describe('Update User Profile (e2e)', () => {
   beforeAll(async () => {
     await app.ready();
   });
@@ -11,8 +11,8 @@ describe('Update User (e2e)', () => {
     await app.close();
   });
 
-  it('should allow MANAGER/ADMIN to update username and profile', async () => {
-    const { token } = await createAndAuthenticateUser(app, 'ADMIN');
+  it('should allow MANAGER/ADMIN to CHANGE another user PROFILE', async () => {
+    const { token } = await createAndAuthenticateUser(app, 'MANAGER');
 
     const anotherUser = await request(app.server)
       .post('/users')
@@ -38,6 +38,7 @@ describe('Update User (e2e)', () => {
       });
 
     expect(response.statusCode).toBe(200);
+
     expect(response.body.user.profile).toEqual(
       expect.objectContaining({
         name: 'NovoNome',

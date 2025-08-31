@@ -20,19 +20,17 @@ export async function createAndAuthenticateUser(
     role,
   });
 
-  const authResponse = await request(app.server)
-    .post('/auth/password')
-    .set('X-Forwarded-For', '127.0.0.1')
-    .send({
-      email: fakeEmail,
-      password: '123456',
-    });
+  const authResponse = await request(app.server).post('/auth/password').send({
+    email: fakeEmail,
+    password: '123456',
+  });
 
-  const { token, sessionId } = authResponse.body;
+  const { token, refreshToken, sessionId } = authResponse.body;
 
   return {
     user: userResponse,
     token,
+    refreshToken,
     sessionId,
   };
 }

@@ -8,7 +8,7 @@ import { makeCreateUserUseCase } from '@/use-cases/core/users/factories/make-cre
 import type { FastifyInstance } from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 
-export async function createUser(app: FastifyInstance) {
+export async function createUserController(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({
     method: 'POST',
     url: '/users',

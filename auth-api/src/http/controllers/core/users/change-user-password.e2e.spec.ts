@@ -11,7 +11,7 @@ describe('Change User Password (e2e)', () => {
     await app.close();
   });
 
-  it('should allow ADMIN to change password of another user', async () => {
+  it('should allow ADMIN to CHANGE another user PASSWORD', async () => {
     const { token } = await createAndAuthenticateUser(app, 'ADMIN');
 
     const anotherUser = await request(app.server)

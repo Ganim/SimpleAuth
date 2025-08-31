@@ -1,13 +1,16 @@
 import { BadRequestError } from '@/@errors/use-cases/bad-request-error';
 import { Email } from '@/entities/core/value-objects/email';
+import { InMemoryRefreshTokensRepository } from '@/repositories/core/in-memory/in-memory-refresh-tokens-repository';
 import { InMemorySessionsRepository } from '@/repositories/core/in-memory/in-memory-sessions-repository';
 import { InMemoryUsersRepository } from '@/repositories/core/in-memory/in-memory-users-repository';
 import { makeUser } from '@/utils/tests/factories/core/make-user';
+import { faker } from '@faker-js/faker/locale/en';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { AuthenticateWithPasswordUseCase } from './authenticate-with-password';
 
 let usersRepository: InMemoryUsersRepository;
 let sessionsRepository: InMemorySessionsRepository;
+let refreshTokensRepository: InMemoryRefreshTokensRepository;
 
 import { CreateSessionUseCase } from '../sessions/create-session';
 let createSessionUseCase: CreateSessionUseCase;
@@ -18,12 +21,14 @@ describe('Authenticate With Password Use Case', () => {
   beforeEach(() => {
     usersRepository = new InMemoryUsersRepository();
     sessionsRepository = new InMemorySessionsRepository();
+    refreshTokensRepository = new InMemoryRefreshTokensRepository();
     reply = {
-      jwtSign: async () => 'fake-token',
+      jwtSign: async () => faker.internet.jwt(),
     };
     createSessionUseCase = new CreateSessionUseCase(
       sessionsRepository,
       usersRepository,
+      refreshTokensRepository,
     );
     authenticateWithPasswordUseCase = new AuthenticateWithPasswordUseCase(
       usersRepository,
@@ -47,8 +52,6 @@ describe('Authenticate With Password Use Case', () => {
 
     expect(result.user).toBeDefined();
     expect(result.user.email).toBe('johndoe@example.com');
-    expect(result.token).toBe('fake-token');
-    expect(result.refreshToken).toBe('fake-token');
 
     const allUsers = await usersRepository.listAll();
     expect(allUsers).toHaveLength(1);

@@ -13,8 +13,6 @@ export class InMemoryRefreshTokensRepository
   private items: RefreshToken[] = [];
 
   // CREATE
-  // - create(data: CreateRefreshTokenSchema): Promise<RefreshToken;>
-
   async create(data: CreateRefreshTokenSchema): Promise<RefreshToken> {
     const refreshToken = RefreshToken.create({
       userId: data.userId,
@@ -30,15 +28,26 @@ export class InMemoryRefreshTokensRepository
   }
 
   // DELETE
+  // - revokeById(id: UniqueEntityID): Promise<void | null>;
   // - revokeBySessionId(sessionId: UniqueEntityID): Promise<void | null>;
 
+  async revokeById(id: UniqueEntityID): Promise<void | null> {
+    const token = this.items.find((item) => item.id.equals(id));
+    if (!token) return null;
+
+    token.revokedAt = new Date();
+  }
+
   async revokeBySessionId(sessionId: UniqueEntityID): Promise<void | null> {
-    const refreshToken = this.items.find((item) =>
+    const tokensToRevoke = this.items.filter((item) =>
       item.sessionId.equals(sessionId),
     );
-    if (!refreshToken) return null;
 
-    refreshToken.revokedAt = new Date();
+    tokensToRevoke.forEach((item) => {
+      item.revokedAt = new Date();
+    });
+
+    if (tokensToRevoke.length === 0) return null;
   }
 
   // RETRIEVE

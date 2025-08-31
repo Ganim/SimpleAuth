@@ -5,6 +5,7 @@ import { InMemoryUsersRepository } from '@/repositories/core/in-memory/in-memory
 import { makeRefreshToken } from '@/utils/tests/factories/core/make-refresh-token';
 import { makeSession } from '@/utils/tests/factories/core/make-session';
 import { makeUser } from '@/utils/tests/factories/core/make-user';
+import { faker } from '@faker-js/faker/locale/en';
 import type { FastifyReply } from 'fastify';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { LogoutSessionUseCase } from './logout-session';
@@ -21,7 +22,7 @@ describe('LogoutSessionUseCase', () => {
     usersRepository = new InMemoryUsersRepository();
     refreshTokensRepository = new InMemoryRefreshTokensRepository();
     sut = new LogoutSessionUseCase(sessionsRepository, refreshTokensRepository);
-    const jwtSignMock = vi.fn().mockResolvedValue('new-refresh-token');
+    const jwtSignMock = vi.fn().mockResolvedValue(faker.internet.jwt());
     reply = { jwtSign: jwtSignMock } as unknown as FastifyReply;
   });
 
@@ -37,6 +38,7 @@ describe('LogoutSessionUseCase', () => {
       ip: '1.1.1.1',
       sessionsRepository,
       usersRepository,
+      refreshTokensRepository,
       reply,
     });
 
@@ -73,11 +75,15 @@ describe('LogoutSessionUseCase', () => {
       ip: '2.2.2.2',
       sessionsRepository,
       usersRepository,
+      refreshTokensRepository,
       reply,
     });
-    session.expiredAt = new Date();
+
+    const sessionId = new UniqueEntityID(session.id);
+    await sessionsRepository.expire(sessionId);
+
     await expect(
-      sut.execute({ sessionId: session.id.toString() }),
+      sut.execute({ sessionId: sessionId.toString() }),
     ).rejects.toThrow();
   });
 
@@ -92,11 +98,15 @@ describe('LogoutSessionUseCase', () => {
       ip: '3.3.3.3',
       sessionsRepository,
       usersRepository,
+      refreshTokensRepository,
       reply,
     });
-    session.revokedAt = new Date();
+
+    const sessionId = new UniqueEntityID(session.id);
+    await sessionsRepository.revoke(sessionId);
+
     await expect(
-      sut.execute({ sessionId: session.id.toString() }),
+      sut.execute({ sessionId: sessionId.toString() }),
     ).rejects.toThrow();
   });
 
@@ -106,15 +116,20 @@ describe('LogoutSessionUseCase', () => {
       password: 'password123',
       usersRepository,
     });
-    const { session } = await makeSession({
+
+    await makeSession({
       userId: user.id,
       ip: '4.4.4.4',
       sessionsRepository,
       usersRepository,
+      refreshTokensRepository,
       reply,
     });
+
+    const fakeSessionId = new UniqueEntityID(faker.string.uuid());
+
     await expect(
-      sut.execute({ sessionId: session.id.toString() }),
+      sut.execute({ sessionId: fakeSessionId.toString() }),
     ).rejects.toThrow();
   });
 
@@ -130,6 +145,7 @@ describe('LogoutSessionUseCase', () => {
       ip: '5.5.5.5',
       sessionsRepository,
       usersRepository,
+      refreshTokensRepository,
       reply,
     });
     await makeRefreshToken({

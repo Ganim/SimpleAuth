@@ -4,27 +4,23 @@ import { createAndAuthenticateUser } from '@/utils/tests/factories/core/create-a
 import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
-let token: string;
-
-describe('Change My Username (e2)', () => {
+describe('Change My Password (e2e)', () => {
   beforeAll(async () => {
-    await app.ready();
-    const { token: userToken } = await createAndAuthenticateUser(app, 'USER');
-    token = userToken;
+    app.ready();
   });
 
   afterAll(async () => {
     await app.close();
   });
 
-  it('should change own username', async () => {
+  it('should allow a USER to CHANGE their OWN PASSWORD', async () => {
+    const { token } = await createAndAuthenticateUser(app, 'USER');
+
     const response = await request(app.server)
-      .patch('/me/username')
+      .patch('/me/password')
       .set('Authorization', `Bearer ${token}`)
-      .send({ username: 'novousername' });
+      .send({ password: 'novasenha123' });
 
     expect(response.statusCode).toBe(200);
-
-    expect(response.body.message).toBe('Username updated');
   });
 });

@@ -6,7 +6,7 @@ declare module '@fastify/jwt' {
     user: {
       sub: string;
       role: ADMIN | MEMBER | USER;
-      sessionId?: string;
+      sessionId: string;
     };
   }
 }

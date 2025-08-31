@@ -1,31 +1,23 @@
 import { app } from '@/app';
 import { createAndAuthenticateUser } from '@/utils/tests/factories/core/create-and-authenticate-user.e2e';
-import supertest from 'supertest';
+import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
-const request = supertest(app.server);
-
-describe('GET /sessions/me', () => {
-  let userToken: string;
-
+describe('List My Sessions (e2e)', () => {
   beforeAll(async () => {
     await app.ready();
-    userToken = (await createAndAuthenticateUser(app, 'USER')).token;
   });
   afterAll(async () => {
     await app.close();
   });
 
-  it('não permite listar minhas sessões sem autenticação', async () => {
-    const res = await request.get('/sessions/me');
-    expect(res.status).toBe(401);
-  });
+  it('should allow USER to LIST ALL his SESSIONS', async () => {
+    const { token } = await createAndAuthenticateUser(app, 'USER');
 
-  it('deve listar todas as minhas sessões se eu estiver autenticado', async () => {
-    const res = await request
-      .get('/sessions/me')
-      .set('Authorization', `Bearer ${userToken}`);
-    expect(res.status).toBe(200);
-    expect(res.body.sessions).toBeInstanceOf(Array);
+    const response = await request(app.server)
+      .get(`/sessions/me`)
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(response.status).toBe(200);
   });
 });

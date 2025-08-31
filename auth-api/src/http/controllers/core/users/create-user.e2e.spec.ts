@@ -11,7 +11,7 @@ describe('Create User (e2e)', () => {
     await app.close();
   });
 
-  it('should be able to a MANAGER OR ADMIN create an user and profile', async () => {
+  it('should allow MANAGER/ADMIN to CREATE a NEW USER', async () => {
     const { token } = await createAndAuthenticateUser(app, 'MANAGER');
 
     const response = await request(app.server)
@@ -29,6 +29,7 @@ describe('Create User (e2e)', () => {
       });
 
     expect(response.statusCode).toEqual(201);
+
     expect(response.body.user.email).toBe('johndoe@example.com');
     expect(response.body.user.profile).toBeDefined();
     expect(response.body.user.profile.name).toBe('John');

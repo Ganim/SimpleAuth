@@ -5,7 +5,7 @@ import { makeRegisterNewUserUseCase } from '@/use-cases/core/auth/factories/make
 import type { FastifyInstance } from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 
-export async function registerNewUser(app: FastifyInstance) {
+export async function registerNewUserController(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({
     method: 'POST',
     url: '/register',

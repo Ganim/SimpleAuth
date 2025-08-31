@@ -1,15 +1,18 @@
 import { ResourceNotFoundError } from '@/@errors/use-cases/resource-not-found';
 import { UniqueEntityID } from '@/entities/domain/unique-entity-id';
+import { InMemoryRefreshTokensRepository } from '@/repositories/core/in-memory/in-memory-refresh-tokens-repository';
 import { InMemorySessionsRepository } from '@/repositories/core/in-memory/in-memory-sessions-repository';
 import { InMemoryUsersRepository } from '@/repositories/core/in-memory/in-memory-users-repository';
 import { makeSession } from '@/utils/tests/factories/core/make-session';
 import { makeUser } from '@/utils/tests/factories/core/make-user';
+import { faker } from '@faker-js/faker/locale/en';
 import type { FastifyReply } from 'fastify';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ExpireSessionUseCase } from './expire-session';
 
 let sessionsRepository: InMemorySessionsRepository;
 let usersRepository: InMemoryUsersRepository;
+let refreshTokensRepository: InMemoryRefreshTokensRepository;
 let sut: ExpireSessionUseCase;
 let reply: FastifyReply;
 
@@ -17,8 +20,9 @@ describe('ExpireSessionUseCase', () => {
   beforeEach(() => {
     sessionsRepository = new InMemorySessionsRepository();
     usersRepository = new InMemoryUsersRepository();
+    refreshTokensRepository = new InMemoryRefreshTokensRepository();
     sut = new ExpireSessionUseCase(sessionsRepository);
-    const jwtSignMock = vi.fn().mockResolvedValue('new-refresh-token');
+    const jwtSignMock = vi.fn().mockResolvedValue(faker.internet.jwt());
     reply = { jwtSign: jwtSignMock } as unknown as FastifyReply;
   });
 
@@ -35,6 +39,7 @@ describe('ExpireSessionUseCase', () => {
       userId: user.id,
       sessionsRepository,
       usersRepository,
+      refreshTokensRepository,
       reply,
     });
 
@@ -66,6 +71,7 @@ it('should not expire an already expired session', async () => {
     userId: user.id,
     sessionsRepository,
     usersRepository,
+    refreshTokensRepository,
     reply,
   });
 
@@ -93,6 +99,7 @@ it('should expire a session with a valid IP', async () => {
     ip: '192.168.0.1',
     sessionsRepository,
     usersRepository,
+    refreshTokensRepository,
     reply,
   });
   await sut.execute({ sessionId: session.id });
@@ -111,6 +118,7 @@ it('should expire a session created a long time ago', async () => {
     userId: user.id,
     sessionsRepository,
     usersRepository,
+    refreshTokensRepository,
     reply,
   });
   // Simula sessão antiga
@@ -132,6 +140,7 @@ it('should expire a session for user with ADMIN role', async () => {
     userId: user.id,
     sessionsRepository,
     usersRepository,
+    refreshTokensRepository,
     reply,
   });
   await sut.execute({ sessionId: session.id });
@@ -159,6 +168,7 @@ it('should expire only the correct session among multiple users', async () => {
     userId: user1.id,
     sessionsRepository,
     usersRepository,
+    refreshTokensRepository,
     reply,
   });
 
@@ -166,6 +176,7 @@ it('should expire only the correct session among multiple users', async () => {
     userId: user2.id,
     sessionsRepository,
     usersRepository,
+    refreshTokensRepository,
     reply,
   });
 
@@ -191,6 +202,7 @@ it('should not alter revokedAt when expiring a session', async () => {
     userId: user.id,
     sessionsRepository,
     usersRepository,
+    refreshTokensRepository,
     reply,
   });
   expect(session.revokedAt).toBeNull();
@@ -210,12 +222,14 @@ it('should not expire other sessions when expiring one', async () => {
     userId: user.id,
     sessionsRepository,
     usersRepository,
+    refreshTokensRepository,
     reply,
   });
   const { session: session2 } = await makeSession({
     userId: user.id,
     sessionsRepository,
     usersRepository,
+    refreshTokensRepository,
     reply,
   });
   await sut.execute({ sessionId: session2.id });
@@ -236,6 +250,7 @@ it('should expire session with same IP as another session', async () => {
     ip,
     sessionsRepository,
     usersRepository,
+    refreshTokensRepository,
     reply,
   });
   const { session: session2 } = await makeSession({
@@ -243,6 +258,7 @@ it('should expire session with same IP as another session', async () => {
     ip,
     sessionsRepository,
     usersRepository,
+    refreshTokensRepository,
     reply,
   });
   await sut.execute({ sessionId: session2.id });
@@ -259,6 +275,7 @@ it('should throw error when expiring a session for deleted user', async () => {
       userId: 'deleted-user-id',
       sessionsRepository,
       usersRepository,
+      refreshTokensRepository,
       reply,
     }),
   ).rejects.toBeInstanceOf(ResourceNotFoundError);
@@ -274,6 +291,7 @@ it('should throw error when expiring a session already revoked', async () => {
     userId: user.id,
     sessionsRepository,
     usersRepository,
+    refreshTokensRepository,
     reply,
   });
 
@@ -300,6 +318,7 @@ it('should expire a session that was never used (lastUsedAt null)', async () => 
     userId: user.id,
     sessionsRepository,
     usersRepository,
+    refreshTokensRepository,
     reply,
   });
   expect(session.lastUsedAt).toBeNull();
@@ -322,6 +341,7 @@ it('should expire sessions created in quick succession', async () => {
       userId: user.id,
       sessionsRepository,
       usersRepository,
+      refreshTokensRepository,
       reply,
     });
     sessions.push(session);
@@ -348,6 +368,7 @@ it('should expire a session from a deleted User', async () => {
     userId: user.id,
     sessionsRepository,
     usersRepository,
+    refreshTokensRepository,
     reply,
   });
 

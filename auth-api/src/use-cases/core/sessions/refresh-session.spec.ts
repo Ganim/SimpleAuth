@@ -6,6 +6,7 @@ import { InMemoryUsersRepository } from '@/repositories/core/in-memory/in-memory
 import { makeRefreshToken } from '@/utils/tests/factories/core/make-refresh-token';
 import { makeSession } from '@/utils/tests/factories/core/make-session';
 import { makeUser } from '@/utils/tests/factories/core/make-user';
+import { faker } from '@faker-js/faker/locale/en';
 import type { FastifyReply } from 'fastify';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { RefreshSessionUseCase } from './refresh-session';
@@ -26,7 +27,7 @@ describe('RefreshSessionUseCase', () => {
       usersRepository,
       refreshTokensRepository,
     );
-    const jwtSignMock = vi.fn().mockResolvedValue('new-refresh-token');
+    const jwtSignMock = vi.fn().mockResolvedValue(faker.internet.jwt());
     reply = { jwtSign: jwtSignMock } as unknown as FastifyReply;
   });
 
@@ -44,19 +45,8 @@ describe('RefreshSessionUseCase', () => {
       ip: '1.2.3.4',
       sessionsRepository,
       usersRepository,
-      reply,
-    });
-
-    const token = await reply.jwtSign(
-      { sessionId: session.id, userId: user.id },
-      { sign: { sub: user.id, expiresIn: '7d' } },
-    );
-    await makeRefreshToken({
-      userId: user.id,
-      sessionId: session.id,
-      token,
-      expiresAt: new Date(Date.now() + 1000),
       refreshTokensRepository,
+      reply,
     });
 
     const result = await sut.execute({
@@ -68,7 +58,91 @@ describe('RefreshSessionUseCase', () => {
 
     expect(result.session.id).toBe(session.id);
     expect(result.session.ip).toBe('5.6.7.8');
-    expect(result.refreshToken.token).toBe('new-refresh-token');
+  });
+
+  it('should throw if refresh token is revoked', async () => {
+    const { user } = await makeUser({
+      email: 'user6@example.com',
+      password: 'password123',
+      usersRepository,
+    });
+
+    const { session } = await makeSession({
+      userId: user.id,
+      ip: '10.10.10.10',
+      sessionsRepository,
+      usersRepository,
+      refreshTokensRepository,
+      reply,
+    });
+
+    const token = await reply.jwtSign(
+      { sessionId: session.id, userId: user.id },
+      { sign: { sub: user.id, expiresIn: '7d' } },
+    );
+
+    await makeRefreshToken({
+      userId: user.id,
+      sessionId: session.id,
+      token,
+      expiresAt: new Date(Date.now() + 1000),
+      refreshTokensRepository,
+    });
+
+    const sessionId = new UniqueEntityID(session.id);
+    await refreshTokensRepository.revokeBySessionId(sessionId);
+
+    await expect(
+      sut.execute({
+        sessionId: session.id,
+        userId: user.id,
+        ip: '10.10.10.10',
+        reply,
+      }),
+    ).rejects.toThrow();
+  });
+
+  it('should throw if session belongs to a different user', async () => {
+    const { user: userA } = await makeUser({
+      email: 'userA@example.com',
+      password: 'password123',
+      usersRepository,
+    });
+    const { user: userB } = await makeUser({
+      email: 'userB@example.com',
+      password: 'password123',
+      usersRepository,
+    });
+
+    const { session } = await makeSession({
+      userId: userA.id,
+      ip: '12.12.12.12',
+      sessionsRepository,
+      usersRepository,
+      refreshTokensRepository,
+      reply,
+    });
+
+    const token = await reply.jwtSign(
+      { sessionId: session.id, userId: userA.id },
+      { sign: { sub: userA.id, expiresIn: '7d' } },
+    );
+    await makeRefreshToken({
+      userId: userA.id,
+      sessionId: session.id,
+      token,
+      expiresAt: new Date(Date.now() + 1000),
+      refreshTokensRepository,
+    });
+
+    await expect(
+      sut.execute({
+        sessionId: session.id,
+        userId: userB.id,
+        ip: '12.12.12.12',
+        reply,
+      }),
+    ).rejects.toThrow();
   });
 
   // REJECTS
@@ -125,17 +199,18 @@ describe('RefreshSessionUseCase', () => {
       usersRepository,
     });
 
-    const { session } = await makeSession({
+    await makeSession({
       userId: user.id,
       ip: '1.1.1.1',
       sessionsRepository,
       usersRepository,
+      refreshTokensRepository,
       reply,
     });
 
     await expect(
       sut.execute({
-        sessionId: session.id,
+        sessionId: faker.string.uuid(),
         userId: user.id,
         ip: '1.1.1.1',
         reply,
@@ -192,6 +267,7 @@ describe('RefreshSessionUseCase', () => {
       ip: '9.9.9.9',
       sessionsRepository,
       usersRepository,
+      refreshTokensRepository,
       reply,
     });
 
@@ -229,6 +305,7 @@ describe('RefreshSessionUseCase', () => {
       ip: '8.8.8.8',
       sessionsRepository,
       usersRepository,
+      refreshTokensRepository,
       reply,
     });
 

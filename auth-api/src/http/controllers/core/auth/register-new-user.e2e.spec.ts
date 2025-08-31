@@ -10,7 +10,7 @@ describe('Register New User (e2e)', () => {
     await app.close();
   });
 
-  it('should register a new user with all fields', async () => {
+  it('should allow ANYONE to REGISTER a NEW USER', async () => {
     const response = await request(app.server)
       .post('/register')
       .send({
@@ -26,6 +26,7 @@ describe('Register New User (e2e)', () => {
       });
 
     expect(response.statusCode).toEqual(201);
+
     expect(response.body.user.email).toBe('johndoe@example.com');
     expect(response.body.user.profile).toBeDefined();
     expect(response.body.user.profile.name).toBe('John');

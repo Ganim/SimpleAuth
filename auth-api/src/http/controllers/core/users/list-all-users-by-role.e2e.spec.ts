@@ -11,7 +11,7 @@ describe('List all Users By Role (e2e)', () => {
     await app.close();
   });
 
-  it('should allow only admin to list users by role', async () => {
+  it('should allow ADMIN to LIST ALL users BY ROLE', async () => {
     const { token: adminToken } = await createAndAuthenticateUser(app, 'ADMIN');
     const { token: managerToken } = await createAndAuthenticateUser(
       app,
@@ -37,6 +37,7 @@ describe('List all Users By Role (e2e)', () => {
     const managerResponse = await request(app.server)
       .get('/users/role/USER')
       .set('Authorization', `Bearer ${managerToken}`);
+
     expect(managerResponse.status).toBe(403);
   });
 });

@@ -11,7 +11,7 @@ describe('Get User By ID (e2e)', () => {
     await app.close();
   });
 
-  it('should return user and profile for any authenticated user', async () => {
+  it('should allow ADMIN to GET another user BY ID', async () => {
     const { token } = await createAndAuthenticateUser(app, 'ADMIN');
 
     const anotherUser = await request(app.server)
@@ -27,7 +27,9 @@ describe('Get User By ID (e2e)', () => {
     const response = await request(app.server)
       .get(`/users/${userId}`)
       .set('Authorization', `Bearer ${token}`);
+
     expect(response.statusCode).toBe(200);
+
     expect(response.body.user.id).toBe(userId);
     expect(response.body.user.profile.userId).toBe(userId);
   });

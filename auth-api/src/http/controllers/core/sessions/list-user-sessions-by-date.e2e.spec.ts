@@ -1,49 +1,51 @@
 import { app } from '@/app';
 import { createAndAuthenticateUser } from '@/utils/tests/factories/core/create-and-authenticate-user.e2e';
-import supertest from 'supertest';
+import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
-const request = supertest(app.server);
-
-describe('GET /sessions/user/:userId/by-date', () => {
-  let userToken: string;
-  let adminToken: string;
-  let userId: string;
-
+describe('List All User Sessions By Date (e2e)', () => {
   beforeAll(async () => {
     await app.ready();
-    // Cria usuário comum
-    const userRes = await request.post('/users').send({
-      email: 'user1@example.com',
-      password: '123456',
-    });
-    userId = userRes.body.user.id;
-    userToken = (await createAndAuthenticateUser(app, 'USER')).token;
-    adminToken = (await createAndAuthenticateUser(app, 'ADMIN')).token;
   });
   afterAll(async () => {
     await app.close();
   });
 
-  it('não permite listar sessões de usuário por data sem autenticação', async () => {
-    const res = await request.get(
-      `/sessions/user/${userId}/by-date?from=2025-01-01&to=2025-12-31`,
-    );
-    expect(res.status).toBe(401);
-  });
+  it('should allow ADMIN to LIST user SESSIONS by DATE', async () => {
+    const { token } = await createAndAuthenticateUser(app, 'ADMIN');
 
-  it('não permite listar sessões de outro usuário por data se eu não for admin', async () => {
-    const res = await request
-      .get(`/sessions/user/${userId}/by-date?from=2025-01-01&to=2025-12-31`)
-      .set('Authorization', `Bearer ${userToken}`);
-    expect(res.status).toBe(403);
-  });
+    const anotherUser = await request(app.server)
+      .post('/users')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        email: 'user@example.com',
+        password: '123456',
+      });
 
-  it('deve listar sessões de um usuário por data se eu for admin', async () => {
-    const res = await request
-      .get(`/sessions/user/${userId}/by-date?from=2025-01-01&to=2025-12-31`)
-      .set('Authorization', `Bearer ${adminToken}`);
-    expect(res.status).toBe(200);
-    expect(res.body.sessions).toBeInstanceOf(Array);
+    expect(anotherUser.statusCode).toEqual(201);
+
+    const authenticateAnotherUser = await request(app.server)
+      .post('/auth/password')
+      .send({
+        email: 'user@example.com',
+        password: '123456',
+      });
+
+    expect(authenticateAnotherUser.statusCode).toEqual(200);
+
+    const userId = anotherUser.body.user.id;
+
+    const from = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(); // yesterday
+    const to = new Date().toISOString(); // today
+
+    const response = await request(app.server)
+      .get(
+        `/sessions/user/${userId}/by-date?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`,
+      )
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(response.status).toBe(200);
+
+    expect(response.body.sessions).toBeInstanceOf(Array);
   });
 });

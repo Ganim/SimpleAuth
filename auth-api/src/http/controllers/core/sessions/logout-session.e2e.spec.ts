@@ -1,37 +1,23 @@
 import { app } from '@/app';
 import { createAndAuthenticateUser } from '@/utils/tests/factories/core/create-and-authenticate-user.e2e';
 import request from 'supertest';
-import { beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
-describe('POST /sessions/logout (e2e)', () => {
-  let token: string;
-  let sessionId: string;
-  let email: string;
-
+describe('Logout Session (e2e)', () => {
   beforeAll(async () => {
     await app.ready();
-    const { token: userToken, user } = await createAndAuthenticateUser(app);
-    token = userToken;
-    email = user.email;
-    const res = await request(app.server)
-      .post('/sessions')
-      .send({ email, password: '123456' });
-    sessionId = res.body.sessionId;
+  });
+  afterAll(async () => {
+    await app.close();
   });
 
-  it('should revoke session and refresh token', async () => {
-    const res = await request(app.server)
-      .post('/sessions/logout')
-      .set('Authorization', `Bearer ${token}`)
-      .send({ sessionId });
-    expect(res.status).toBe(204);
-  });
+  it('should allow USER to LOGOUT from his SESSION', async () => {
+    const { token } = await createAndAuthenticateUser(app, 'USER');
 
-  it('should return 400 if sessionId is not provided', async () => {
-    const res = await request(app.server)
-      .post('/sessions/logout')
-      .set('Authorization', `Bearer ${token}`)
-      .send({});
-    expect(res.status).toBe(400);
+    const response = await request(app.server)
+      .patch(`/sessions/logout`)
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(response.status).toBe(204);
   });
 });

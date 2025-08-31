@@ -11,7 +11,7 @@ describe('Change User Email (e2e)', () => {
     await app.close();
   });
 
-  it('should allow ADMIN to change email of another user', async () => {
+  it('should allow ADMIN to CHANGE another user EMAIL', async () => {
     const { token } = await createAndAuthenticateUser(app, 'ADMIN');
 
     const anotherUser = await request(app.server)
@@ -30,5 +30,7 @@ describe('Change User Email (e2e)', () => {
       .send({ email: 'new@example.com' });
 
     expect(response.statusCode).toBe(200);
+
+    expect(response.body.user.email).toBe('new@example.com');
   });
 });

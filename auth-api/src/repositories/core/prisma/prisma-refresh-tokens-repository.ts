@@ -13,8 +13,17 @@ export class PrismaRefreshTokensRepository implements RefreshTokensRepository {
   // - create(data: CreateRefreshTokenSchema): Promise<RefreshToken;>
 
   async create(data: CreateRefreshTokenSchema): Promise<RefreshToken> {
+    const refreshTokenEntity = RefreshToken.create({
+      userId: data.userId,
+      sessionId: data.sessionId,
+      token: data.token,
+      expiresAt: data.expiresAt,
+      createdAt: new Date(),
+    });
+
     const refreshTokenDb = await prisma.refreshToken.create({
       data: {
+        id: refreshTokenEntity.id.toString(),
         userId: data.userId.toString(),
         sessionId: data.sessionId.toString(),
         token: data.token.value,
@@ -26,7 +35,16 @@ export class PrismaRefreshTokensRepository implements RefreshTokensRepository {
   }
 
   // DELETE
+  // - revokeById(id: UniqueEntityID): Promise<void | null>;
   // - revokeBySessionId(sessionId: UniqueEntityID): Promise<void | null>;
+
+  async revokeById(id: UniqueEntityID): Promise<void | null> {
+    const result = await prisma.refreshToken.updateMany({
+      where: { id: id.toString() },
+      data: { revokedAt: new Date() },
+    });
+    if (result.count === 0) return null;
+  }
 
   async revokeBySessionId(sessionId: UniqueEntityID): Promise<void | null> {
     const result = await prisma.refreshToken.updateMany({

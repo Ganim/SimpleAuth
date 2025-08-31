@@ -11,7 +11,7 @@ describe('Change User Role (e2e)', () => {
     await app.close();
   });
 
-  it('should allow ADMIN to change user role', async () => {
+  it('should allow ADMIN to CHANGE another user ROLE', async () => {
     const { token } = await createAndAuthenticateUser(app, 'ADMIN');
 
     const anotherUser = await request(app.server)
@@ -30,5 +30,7 @@ describe('Change User Role (e2e)', () => {
       .send({ role: 'MANAGER' });
 
     expect(response.statusCode).toBe(200);
+
+    expect(response.body.user.role).toBe('MANAGER');
   });
 });

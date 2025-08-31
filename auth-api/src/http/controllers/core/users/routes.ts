@@ -1,29 +1,29 @@
 import { app } from '@/app';
-import { changeUserEmail } from './change-user-email.controller';
-import { changeUserPassword } from './change-user-password.controller';
-import { changeUserProfile } from './change-user-profile.controller';
-import { changeUserRole } from './change-user-role.controller';
-import { changeUserUsername } from './change-user-username.controller';
-import { createUser } from './create-user.controller';
-import { DeleteUserById } from './delete-user-by-id.controller';
-import { getUserById } from './get-user-by-id.controller';
-import { listAllUsersByRole } from './list-all-users-by-role.controller';
-import { listAllUsers } from './list-all-users.controller';
+import { changeUserEmailController } from './change-user-email.controller';
+import { changeUserPasswordController } from './change-user-password.controller';
+import { changeUserProfileController } from './change-user-profile.controller';
+import { changeUserRoleController } from './change-user-role.controller';
+import { changeUserUsernameController } from './change-user-username.controller';
+import { createUserController } from './create-user.controller';
+import { DeleteUserByIdController } from './delete-user-by-id.controller';
+import { getUserByIdController } from './get-user-by-id.controller';
+import { listAllUsersByRoleController } from './list-all-users-by-role.controller';
+import { listAllUsersController } from './list-all-users.controller';
 
 export async function usersRoutes() {
   // Admin routes
-  app.register(changeUserEmail);
-  app.register(changeUserPassword);
-  app.register(changeUserRole);
-  app.register(changeUserUsername);
-  app.register(changeUserProfile);
-  app.register(DeleteUserById);
-  app.register(listAllUsersByRole);
+  app.register(changeUserEmailController);
+  app.register(changeUserPasswordController);
+  app.register(changeUserRoleController);
+  app.register(changeUserUsernameController);
+  app.register(changeUserProfileController);
+  app.register(DeleteUserByIdController);
+  app.register(listAllUsersByRoleController);
 
   // Manager routes
-  app.register(createUser);
-  app.register(listAllUsers);
+  app.register(createUserController);
+  app.register(listAllUsersController);
 
   // Authenticated routes
-  app.register(getUserById);
+  app.register(getUserByIdController);
 }

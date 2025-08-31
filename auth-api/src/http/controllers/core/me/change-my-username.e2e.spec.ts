@@ -1,30 +1,27 @@
 import { app } from '@/app';
-
 import { createAndAuthenticateUser } from '@/utils/tests/factories/core/create-and-authenticate-user.e2e';
 import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
-let token: string;
-
-describe('Change My Email (e2e)', () => {
+describe('Change My Username (e2e)', () => {
   beforeAll(async () => {
-    await app.ready();
-    const { token: userToken } = await createAndAuthenticateUser(app, 'USER');
-    token = userToken;
+    app.ready();
   });
 
   afterAll(async () => {
     await app.close();
   });
 
-  it('should change own email', async () => {
+  it('should allow a USER to CHANGE their OWN USERNAME', async () => {
+    const { token } = await createAndAuthenticateUser(app, 'USER');
+
     const response = await request(app.server)
-      .patch('/me/email')
+      .patch('/me/username')
       .set('Authorization', `Bearer ${token}`)
-      .send({ email: 'novoemail@example.com' });
+      .send({ username: 'novousername' });
 
     expect(response.statusCode).toBe(200);
 
-    expect(response.body.message).toBe('Email updated');
+    expect(response.body.user.username).toBe('novousername');
   });
 });

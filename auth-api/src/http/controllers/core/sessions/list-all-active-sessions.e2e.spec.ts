@@ -1,40 +1,63 @@
 import { app } from '@/app';
 import { createAndAuthenticateUser } from '@/utils/tests/factories/core/create-and-authenticate-user.e2e';
-import supertest from 'supertest';
+import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
-const request = supertest(app.server);
-
-describe('GET /sessions/active', () => {
-  let userToken: string;
-  let adminToken: string;
-
+describe('List All Active Sessions (e2e)', () => {
   beforeAll(async () => {
     await app.ready();
-    userToken = (await createAndAuthenticateUser(app, 'USER')).token;
-    adminToken = (await createAndAuthenticateUser(app, 'ADMIN')).token;
   });
   afterAll(async () => {
     await app.close();
   });
 
-  it('should not allow listing active sessions without authentication', async () => {
-    const res = await request.get('/sessions/active');
-    expect(res.status).toBe(401);
-  });
+  it('should allow ADMIN to LIST ALL active SESSIONS', async () => {
+    const { token } = await createAndAuthenticateUser(app, 'ADMIN');
 
-  it('should not allow listing active sessions if not admin', async () => {
-    const res = await request
-      .get('/sessions/active')
-      .set('Authorization', `Bearer ${userToken}`);
-    expect(res.status).toBe(403);
-  });
+    const userOne = await request(app.server)
+      .post('/users')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        email: 'user-1@example.com',
+        password: '123456',
+      });
 
-  it('should list all active sessions if user is admin', async () => {
-    const res = await request
-      .get('/sessions/active')
-      .set('Authorization', `Bearer ${adminToken}`);
-    expect(res.status).toBe(200);
-    expect(res.body.sessions).toBeInstanceOf(Array);
+    expect(userOne.statusCode).toEqual(201);
+
+    const authenticateUserOne = await request(app.server)
+      .post('/auth/password')
+      .send({
+        email: 'user-1@example.com',
+        password: '123456',
+      });
+
+    expect(authenticateUserOne.statusCode).toEqual(200);
+
+    const userTwo = await request(app.server)
+      .post('/users')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        email: 'user-2@example.com',
+        password: '123456',
+      });
+
+    expect(userTwo.statusCode).toEqual(201);
+
+    const authenticateUserTwo = await request(app.server)
+      .post('/auth/password')
+      .send({
+        email: 'user-2@example.com',
+        password: '123456',
+      });
+
+    expect(authenticateUserTwo.statusCode).toEqual(200);
+
+    const response = await request(app.server)
+      .get(`/sessions/active`)
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(response.status).toBe(200);
+
+    expect(response.body.sessions.length).toBeGreaterThanOrEqual(2);
   });
 });

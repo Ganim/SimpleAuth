@@ -1,19 +1,21 @@
+import { BadRequestError } from '@/@errors/use-cases/bad-request-error';
 import { ResourceNotFoundError } from '@/@errors/use-cases/resource-not-found';
-import { makeAuthenticateWithPasswordUseCase } from '@/use-cases/core/auth/factories/make-authenticate-with-password-use-case';
+import { verifyJwt } from '@/http/middlewares/verify-jwt';
+import { makeChangeMyPasswordUseCase } from '@/use-cases/core/me/factories/make-change-my-password-use-case';
 
 import type { FastifyInstance } from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import z from 'zod';
 
-export async function authenticateWithPasswordController(app: FastifyInstance) {
+export async function changeMyPasswordController(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({
-    method: 'POST',
-    url: '/auth/password',
+    method: 'PATCH',
+    url: '/me/password',
+    preHandler: [verifyJwt],
     schema: {
-      tags: ['Auth'],
-      summary: 'Authenticate user with email and password',
+      tags: ['Me'],
+      summary: 'Change self password by authenticated user',
       body: z.object({
-        email: z.email(),
         password: z.string().min(6),
       }),
       response: {
@@ -41,43 +43,35 @@ export async function authenticateWithPasswordController(app: FastifyInstance) {
               .nullable()
               .optional(),
           }),
-          sessionId: z.string(),
-          token: z.string(),
-          refreshToken: z.string(),
+        }),
+        400: z.object({
+          message: z.string(),
         }),
         404: z.object({
           message: z.string(),
         }),
       },
-      required: ['email', 'password'],
+      required: ['password'],
     },
 
     handler: async (request, reply) => {
-      const { email, password } = request.body;
+      const userId = request.user.sub;
 
-      const ip = request.ip;
+      const { password } = request.body;
 
       try {
-        const authenticateUseCase = makeAuthenticateWithPasswordUseCase();
+        const changeMyPasswordUseCase = makeChangeMyPasswordUseCase();
 
-        const { user, sessionId, token, refreshToken } =
-          await authenticateUseCase.execute({
-            email,
-            password,
-            ip,
-            reply,
-          });
+        const { user } = await changeMyPasswordUseCase.execute({
+          userId,
+          password,
+        });
 
-        return reply
-          .setCookie('refreshToken', refreshToken, {
-            path: '/',
-            secure: true,
-            sameSite: true,
-            httpOnly: true,
-          })
-          .status(200)
-          .send({ user, sessionId, token, refreshToken });
+        return reply.status(200).send({ user });
       } catch (error) {
+        if (error instanceof BadRequestError) {
+          return reply.status(400).send({ message: error.message });
+        }
         if (error instanceof ResourceNotFoundError) {
           return reply.status(404).send({ message: error.message });
         }

@@ -1,4 +1,5 @@
 import { BadRequestError } from '@/@errors/use-cases/bad-request-error';
+import { isIPv4, isIPv6 } from 'node:net';
 
 export class IpAddress {
   private readonly _value: string;
@@ -11,10 +12,7 @@ export class IpAddress {
   }
 
   static isValid(value: string): boolean {
-    // Accepts IPv4 and IPv6
-    return (
-      /^(?:\d{1,3}\.){3}\d{1,3}$/.test(value) || /^[a-fA-F0-9:]+$/.test(value)
-    );
+    return isIPv4(value) || isIPv6(value);
   }
 
   get value(): string {

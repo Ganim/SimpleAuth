@@ -1,15 +1,18 @@
 import { ResourceNotFoundError } from '@/@errors/use-cases/resource-not-found';
 import { UniqueEntityID } from '@/entities/domain/unique-entity-id';
+import { InMemoryRefreshTokensRepository } from '@/repositories/core/in-memory/in-memory-refresh-tokens-repository';
 import { InMemorySessionsRepository } from '@/repositories/core/in-memory/in-memory-sessions-repository';
 import { InMemoryUsersRepository } from '@/repositories/core/in-memory/in-memory-users-repository';
 import { makeSession } from '@/utils/tests/factories/core/make-session';
 import { makeUser } from '@/utils/tests/factories/core/make-user';
+import { faker } from '@faker-js/faker/locale/en';
 import type { FastifyReply } from 'fastify';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { RevokeSessionUseCase } from './revoke-session';
 
 let sessionsRepository: InMemorySessionsRepository;
 let usersRepository: InMemoryUsersRepository;
+let refreshTokensRepository: InMemoryRefreshTokensRepository;
 let sut: RevokeSessionUseCase;
 let reply: FastifyReply;
 
@@ -17,8 +20,9 @@ describe('RevokeSessionUseCase', () => {
   beforeEach(() => {
     sessionsRepository = new InMemorySessionsRepository();
     usersRepository = new InMemoryUsersRepository();
+    refreshTokensRepository = new InMemoryRefreshTokensRepository();
     sut = new RevokeSessionUseCase(sessionsRepository);
-    const jwtSignMock = vi.fn().mockResolvedValue('new-refresh-token');
+    const jwtSignMock = vi.fn().mockResolvedValue(faker.internet.jwt());
     reply = { jwtSign: jwtSignMock } as unknown as FastifyReply;
   });
 
@@ -35,6 +39,7 @@ describe('RevokeSessionUseCase', () => {
       userId: user.id,
       sessionsRepository,
       usersRepository,
+      refreshTokensRepository,
       reply,
     });
 
@@ -66,6 +71,7 @@ it('should not revoke an already revoked session', async () => {
     userId: user.id,
     sessionsRepository,
     usersRepository,
+    refreshTokensRepository,
     reply,
   });
 
@@ -93,6 +99,7 @@ it('should revoke a session with a valid IP', async () => {
     ip: '192.168.0.1',
     sessionsRepository,
     usersRepository,
+    refreshTokensRepository,
     reply,
   });
   await sut.execute({ sessionId: session.id });
@@ -111,6 +118,7 @@ it('should revoke a session created a long time ago', async () => {
     userId: user.id,
     sessionsRepository,
     usersRepository,
+    refreshTokensRepository,
     reply,
   });
 
@@ -132,6 +140,7 @@ it('should revoke a session for user with ADMIN role', async () => {
     userId: user.id,
     sessionsRepository,
     usersRepository,
+    refreshTokensRepository,
     reply,
   });
   await sut.execute({ sessionId: session.id });
@@ -159,6 +168,7 @@ it('should revoke only the correct session among multiple users', async () => {
     userId: user1.id,
     sessionsRepository,
     usersRepository,
+    refreshTokensRepository,
     reply,
   });
 
@@ -166,6 +176,7 @@ it('should revoke only the correct session among multiple users', async () => {
     userId: user2.id,
     sessionsRepository,
     usersRepository,
+    refreshTokensRepository,
     reply,
   });
 
@@ -191,12 +202,14 @@ it('should not revoke other sessions when revoking one', async () => {
     userId: user.id,
     sessionsRepository,
     usersRepository,
+    refreshTokensRepository,
     reply,
   });
   const { session: session2 } = await makeSession({
     userId: user.id,
     sessionsRepository,
     usersRepository,
+    refreshTokensRepository,
     reply,
   });
   await sut.execute({ sessionId: session2.id });
@@ -217,6 +230,7 @@ it('should revoke session with same IP as another session', async () => {
     ip,
     sessionsRepository,
     usersRepository,
+    refreshTokensRepository,
     reply,
   });
   const { session: session2 } = await makeSession({
@@ -224,6 +238,7 @@ it('should revoke session with same IP as another session', async () => {
     ip,
     sessionsRepository,
     usersRepository,
+    refreshTokensRepository,
     reply,
   });
   await sut.execute({ sessionId: session2.id });
@@ -239,6 +254,7 @@ it('should throw error when revoking a session for deleted user', async () => {
       userId: 'deleted-user-id',
       sessionsRepository,
       usersRepository,
+      refreshTokensRepository,
       reply,
     }),
   ).rejects.toBeInstanceOf(ResourceNotFoundError);
@@ -254,6 +270,7 @@ it('should throw error when revoking a session already expired', async () => {
     userId: user.id,
     sessionsRepository,
     usersRepository,
+    refreshTokensRepository,
     reply,
   });
 
@@ -280,6 +297,7 @@ it('should revoke a session that was never used (lastUsedAt null)', async () => 
     userId: user.id,
     sessionsRepository,
     usersRepository,
+    refreshTokensRepository,
     reply,
   });
   expect(session.lastUsedAt).toBeNull();
@@ -302,6 +320,7 @@ it('should revoke sessions created in quick succession', async () => {
       userId: user.id,
       sessionsRepository,
       usersRepository,
+      refreshTokensRepository,
       reply,
     });
     sessions.push(session);
@@ -328,6 +347,7 @@ it('should revoke a session from a deleted User', async () => {
     userId: user.id,
     sessionsRepository,
     usersRepository,
+    refreshTokensRepository,
     reply,
   });
 

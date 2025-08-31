@@ -4,20 +4,18 @@ import { createAndAuthenticateUser } from '@/utils/tests/factories/core/create-a
 import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
-let token: string;
-
 describe('Change My Profile (e2e)', () => {
   beforeAll(async () => {
-    await app.ready();
-    const { token: userToken } = await createAndAuthenticateUser(app, 'USER');
-    token = userToken;
+    app.ready();
   });
 
   afterAll(async () => {
     await app.close();
   });
 
-  it('should update own user profile', async () => {
+  it('should allow a USER to CHANGE their OWN PROFILE', async () => {
+    const { token } = await createAndAuthenticateUser(app, 'USER');
+
     const response = await request(app.server)
       .patch('/me')
       .set('Authorization', `Bearer ${token}`)
@@ -30,12 +28,14 @@ describe('Change My Profile (e2e)', () => {
           avatarUrl: 'https://example.com/avatar.png',
         },
       });
+
     expect(response.statusCode).toBe(200);
-    expect(response.body.profile.name).toBe('NovoNome');
-    expect(response.body.profile.surname).toBe('NovoSobrenome');
-    expect(response.body.profile.location).toBe('Portugal');
-    expect(response.body.profile.bio).toBe('Bio editada');
-    expect(response.body.profile.avatarUrl).toBe(
+
+    expect(response.body.user.profile.name).toBe('NovoNome');
+    expect(response.body.user.profile.surname).toBe('NovoSobrenome');
+    expect(response.body.user.profile.location).toBe('Portugal');
+    expect(response.body.user.profile.bio).toBe('Bio editada');
+    expect(response.body.user.profile.avatarUrl).toBe(
       'https://example.com/avatar.png',
     );
   });

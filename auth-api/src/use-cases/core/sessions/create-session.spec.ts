@@ -1,12 +1,16 @@
+import { UniqueEntityID } from '@/entities/domain/unique-entity-id';
+import { InMemoryRefreshTokensRepository } from '@/repositories/core/in-memory/in-memory-refresh-tokens-repository';
 import { InMemorySessionsRepository } from '@/repositories/core/in-memory/in-memory-sessions-repository';
 import { InMemoryUsersRepository } from '@/repositories/core/in-memory/in-memory-users-repository';
 import { makeUser } from '@/utils/tests/factories/core/make-user';
+import { faker } from '@faker-js/faker/locale/en';
 import type { FastifyReply } from 'fastify';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CreateSessionUseCase } from './create-session';
 
 let sessionsRepository: InMemorySessionsRepository;
 let usersRepository: InMemoryUsersRepository;
+let refreshTokensRepository: InMemoryRefreshTokensRepository;
 let sut: CreateSessionUseCase;
 let reply: FastifyReply;
 
@@ -14,8 +18,13 @@ describe('CreateSessionUseCase', () => {
   beforeEach(() => {
     sessionsRepository = new InMemorySessionsRepository();
     usersRepository = new InMemoryUsersRepository();
-    sut = new CreateSessionUseCase(sessionsRepository, usersRepository);
-    const jwtSignMock = vi.fn().mockResolvedValue('mocked-token');
+    refreshTokensRepository = new InMemoryRefreshTokensRepository();
+    sut = new CreateSessionUseCase(
+      sessionsRepository,
+      usersRepository,
+      refreshTokensRepository,
+    );
+    const jwtSignMock = vi.fn().mockResolvedValue(faker.internet.jwt());
     reply = { jwtSign: jwtSignMock } as unknown as FastifyReply;
   });
 
@@ -42,6 +51,32 @@ describe('CreateSessionUseCase', () => {
     expect(session.revokedAt).toBeNull();
     expect(token).toBeDefined();
     expect(refreshToken).toBeDefined();
+  });
+
+  it('should persist the refresh token after session creation', async () => {
+    const { user } = await makeUser({
+      email: 'user2@example.com',
+      password: 'password123',
+      usersRepository,
+    });
+
+    const { session, refreshToken } = await sut.execute({
+      userId: user.id,
+      ip: '127.0.0.1',
+      reply,
+    });
+
+    const userId = new UniqueEntityID(user.id);
+    const sessionId = new UniqueEntityID(session.id);
+    const persistedRefreshToken =
+      await refreshTokensRepository.findBySessionId(sessionId);
+
+    expect(persistedRefreshToken).not.toBeNull();
+    if (persistedRefreshToken) {
+      expect(persistedRefreshToken.token.value).toBe(refreshToken);
+      expect(persistedRefreshToken.sessionId.equals(sessionId)).toBe(true);
+      expect(persistedRefreshToken.userId.equals(userId)).toBe(true);
+    }
   });
 
   // REJECTS

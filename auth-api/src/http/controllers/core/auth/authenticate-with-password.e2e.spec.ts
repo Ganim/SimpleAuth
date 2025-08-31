@@ -10,19 +10,16 @@ describe('Authenticate with password (e2e)', () => {
     await app.close();
   });
 
-  it('should be able to authenticate an user and return user/session/token/refreshToken', async () => {
+  it('should allow ANYONE to AUTHENTICATE with PASSWORD', async () => {
     await request(app.server).post('/register').send({
       email: 'johndoe@example.com',
       password: '123456',
     });
 
-    const response = await request(app.server)
-      .post('/auth/password')
-      .set('X-Forwarded-For', '127.0.0.1')
-      .send({
-        email: 'johndoe@example.com',
-        password: '123456',
-      });
+    const response = await request(app.server).post('/auth/password').send({
+      email: 'johndoe@example.com',
+      password: '123456',
+    });
 
     expect(response.statusCode).toEqual(200);
 

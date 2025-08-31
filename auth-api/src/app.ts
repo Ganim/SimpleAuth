@@ -12,7 +12,7 @@ import { meRoutes } from './http/controllers/core/me/routes';
 import { sessionsRoutes } from './http/controllers/core/sessions/routes';
 import { usersRoutes } from './http/controllers/core/users/routes';
 
-export const app = fastify();
+export const app = fastify({ trustProxy: true });
 
 app.setValidatorCompiler(validatorCompiler);
 app.setSerializerCompiler(serializerCompiler);

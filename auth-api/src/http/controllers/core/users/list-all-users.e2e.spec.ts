@@ -11,7 +11,7 @@ describe('List all Users (e2e)', () => {
     await app.close();
   });
 
-  it('should be able to managers/admin list all users ', async () => {
+  it('should allow MANAGER/ADMIN to LIST ALL users ', async () => {
     const { token } = await createAndAuthenticateUser(app, 'MANAGER');
 
     await request(app.server)

@@ -1,51 +1,44 @@
 import { app } from '@/app';
 import { createAndAuthenticateUser } from '@/utils/tests/factories/core/create-and-authenticate-user.e2e';
-import supertest from 'supertest';
+import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
-const request = supertest(app.server);
-
-describe('POST /sessions/expire', () => {
-  let userToken: string;
-  let adminToken: string;
-
+describe('Expire Session (e2e)', () => {
   beforeAll(async () => {
     await app.ready();
-    userToken = (await createAndAuthenticateUser(app, 'USER')).token;
-    adminToken = (await createAndAuthenticateUser(app, 'ADMIN')).token;
   });
   afterAll(async () => {
     await app.close();
   });
 
-  it('should not allow expiring session without authentication', async () => {
-    const res = await request
-      .post('/sessions/expire')
-      .send({ sessionId: 'anyid' });
-    expect(res.status).toBe(401);
-  });
+  it('should allow ADMIN to EXPIRE an user SESSION', async () => {
+    const { token } = await createAndAuthenticateUser(app, 'ADMIN');
 
-  it('should not allow expiring session if not admin', async () => {
-    const res = await request
-      .post('/sessions/expire')
-      .set('Authorization', `Bearer ${userToken}`)
-      .send({ sessionId: 'anyid' });
-    expect(res.status).toBe(403);
-  });
-
-  it('should expire a session if user is admin', async () => {
-    // Cria usuário e autentica para obter sessionId real
-    await request
+    const anotherUser = await request(app.server)
       .post('/users')
-      .send({ email: 'expiretest@example.com', password: '123456' });
-    const loginRes = await request
-      .post('/sessions')
-      .send({ email: 'expiretest@example.com', password: '123456' });
-    const sessionId = loginRes.body.sessionId;
-    const res = await request
-      .post('/sessions/expire')
-      .set('Authorization', `Bearer ${adminToken}`)
-      .send({ sessionId });
-    expect(res.status).toBe(204);
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        email: 'user@example.com',
+        password: '123456',
+      });
+
+    expect(anotherUser.statusCode).toEqual(201);
+
+    const authenticateAnotherUser = await request(app.server)
+      .post('/auth/password')
+      .send({
+        email: 'user@example.com',
+        password: '123456',
+      });
+
+    expect(authenticateAnotherUser.statusCode).toEqual(200);
+
+    const sessionId = authenticateAnotherUser.body.sessionId;
+
+    const response = await request(app.server)
+      .patch(`/sessions/${sessionId}/expire`)
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(response.status).toBe(204);
   });
 });

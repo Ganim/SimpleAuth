@@ -18,8 +18,16 @@ export class LogoutSessionUseCase {
 
     const session = await this.sessionsRepository.findById(validId);
 
-    if (!session || session.expiredAt || session.revokedAt) {
+    if (!session) {
       throw new ResourceNotFoundError('Session not found.');
+    }
+
+    if (session.expiredAt) {
+      throw new ResourceNotFoundError('Session is already expired.');
+    }
+
+    if (session.revokedAt) {
+      throw new ResourceNotFoundError('Session is already revoked.');
     }
 
     const refreshToken =

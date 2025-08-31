@@ -1,11 +1,13 @@
 import { BadRequestError } from '@/@errors/use-cases/bad-request-error';
 import { ResourceNotFoundError } from '@/@errors/use-cases/resource-not-found';
 import { IpAddress } from '@/entities/core/value-objects/ip-address';
+import { Token } from '@/entities/core/value-objects/token';
 import { UniqueEntityID } from '@/entities/domain/unique-entity-id';
 import {
   sessionToDTO,
   type SessionDTO,
 } from '@/mappers/core/session/session-to-dto';
+import type { RefreshTokensRepository } from '@/repositories/core/refresh-tokens-repository';
 import type { SessionsRepository } from '@/repositories/core/sessions-repository';
 import type { UsersRepository } from '@/repositories/core/users-repository';
 import type { FastifyReply } from 'fastify';
@@ -26,6 +28,7 @@ export class CreateSessionUseCase {
   constructor(
     private sessionsRepository: SessionsRepository,
     private usersRepository: UsersRepository,
+    private refreshTokensRepository: RefreshTokensRepository,
   ) {}
 
   async execute({
@@ -59,9 +62,26 @@ export class CreateSessionUseCase {
     );
 
     const refreshToken = await reply.jwtSign(
-      { role: user.role, sessionId: newSession.id.toString() },
+      {
+        role: user.role,
+        sessionId: newSession.id.toString(),
+        jti: new UniqueEntityID().toString(),
+      },
       { sign: { sub: user.id.toString(), expiresIn: '7d' } },
     );
+
+    const refreshTokenValue = new Token(refreshToken);
+
+    const newRefreshToken = await this.refreshTokensRepository.create({
+      userId: validId,
+      sessionId: newSession.id,
+      token: refreshTokenValue,
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 dias
+    });
+
+    if (!newRefreshToken) {
+      throw new BadRequestError('Unable to create refresh token.');
+    }
 
     const session = sessionToDTO(newSession);
 

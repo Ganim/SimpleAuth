@@ -1,17 +1,17 @@
 import { BadRequestError } from '@/@errors/use-cases/bad-request-error';
 import { ResourceNotFoundError } from '@/@errors/use-cases/resource-not-found';
 import { verifyJwt } from '@/http/middlewares/verify-jwt';
-import { verifyUserAdmin } from '@/http/middlewares/verify-user-admin';
+import { verifyUserManager } from '@/http/middlewares/verify-user-manager';
 import { makeChangeUserProfileUseCase } from '@/use-cases/core/users/factories/make-change-user-profile-use-case';
 import type { FastifyInstance } from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import z from 'zod';
 
-export async function changeUserProfile(app: FastifyInstance) {
+export async function changeUserProfileController(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({
     method: 'PATCH',
     url: '/users/:userId',
-    preHandler: [verifyJwt, verifyUserAdmin],
+    preHandler: [verifyJwt, verifyUserManager],
     schema: {
       tags: ['Users'],
       summary: 'Change user profile',

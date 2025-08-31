@@ -1,7 +1,6 @@
 import { BadRequestError } from '@/@errors/use-cases/bad-request-error';
 import { ResourceNotFoundError } from '@/@errors/use-cases/resource-not-found';
 import { IpAddress } from '@/entities/core/value-objects/ip-address';
-import { Role } from '@/entities/core/value-objects/role';
 import { Token } from '@/entities/core/value-objects/token';
 import { UniqueEntityID } from '@/entities/domain/unique-entity-id';
 import {
@@ -52,8 +51,6 @@ export class RefreshSessionUseCase {
       throw new ResourceNotFoundError('User not found.');
     }
 
-    const validUserRole = new Role(storedUser.role);
-
     const storedSession =
       await this.sessionsRepository.findById(validSessionId);
 
@@ -61,15 +58,35 @@ export class RefreshSessionUseCase {
       throw new ResourceNotFoundError('Session not found.');
     }
 
-    const storedToken =
-      await this.refreshTokensRepository.findBySessionId(validSessionId);
-
-    if (!storedToken) {
+    const tokens =
+      await this.refreshTokensRepository.listBySession(validSessionId);
+    if (!tokens || tokens.length === 0) {
       throw new ResourceNotFoundError('Refresh token not found.');
     }
 
+    tokens.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    const latestToken = tokens[0];
+
+    if (latestToken.revokedAt) {
+      throw new BadRequestError('Refresh token is revoked.');
+    }
+
+    if (latestToken.expiresAt.getTime() < Date.now()) {
+      throw new BadRequestError('Refresh token is expired.');
+    }
+
+    if (latestToken.userId.toString() !== validUserId.toString()) {
+      throw new BadRequestError('Session does not belong to this user.');
+    }
+
+    await this.refreshTokensRepository.revokeById(latestToken.id);
+
     const newJWTRefreshToken = await reply.jwtSign(
-      { role: validUserRole, sessionId: validSessionId },
+      {
+        role: storedUser.role,
+        sessionId: validSessionId.toString(),
+        jti: new UniqueEntityID().toString(),
+      },
       { sign: { sub: validUserId.toString(), expiresIn: '7d' } },
     );
 

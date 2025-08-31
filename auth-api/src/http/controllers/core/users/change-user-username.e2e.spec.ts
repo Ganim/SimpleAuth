@@ -3,7 +3,7 @@ import { createAndAuthenticateUser } from '@/utils/tests/factories/core/create-a
 import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
-describe('Change Username (e2e)', () => {
+describe('Change User Username (e2e)', () => {
   beforeAll(async () => {
     await app.ready();
   });
@@ -11,7 +11,7 @@ describe('Change Username (e2e)', () => {
     await app.close();
   });
 
-  it('should allow ADMIN to change username of another user', async () => {
+  it('should allow ADMIN to CHANGE another user USERNAME', async () => {
     const { token } = await createAndAuthenticateUser(app, 'ADMIN');
 
     const anotherUser = await request(app.server)
@@ -30,5 +30,7 @@ describe('Change Username (e2e)', () => {
       .send({ username: 'newusername' });
 
     expect(response.statusCode).toBe(200);
+
+    expect(response.body.user.username).toBe('newusername');
   });
 });
