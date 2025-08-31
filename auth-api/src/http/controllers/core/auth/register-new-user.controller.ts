@@ -57,7 +57,6 @@ export async function registerNewUserController(app: FastifyInstance) {
           message: z.string(),
         }),
       },
-      required: ['email', 'password'],
     },
 
     handler: async (request, reply) => {
@@ -71,6 +70,7 @@ export async function registerNewUserController(app: FastifyInstance) {
           username,
           profile,
         });
+
         return reply.status(201).send({ user });
       } catch (error) {
         if (error instanceof BadRequestError) {

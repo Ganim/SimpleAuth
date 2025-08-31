@@ -14,6 +14,7 @@ import { authRoutes } from './http/controllers/core/auth/routes';
 import { meRoutes } from './http/controllers/core/me/routes';
 import { sessionsRoutes } from './http/controllers/core/sessions/routes';
 import { usersRoutes } from './http/controllers/core/users/routes';
+import { healthRoutes } from './http/controllers/health/routes';
 
 export const app = fastify({ trustProxy: true });
 
@@ -61,10 +62,13 @@ app.register(fastifyJwt, {
 app.register(fastifyCookie);
 
 // Routes
-app.register(meRoutes);
-app.register(authRoutes);
-app.register(usersRoutes);
-app.register(sessionsRoutes);
+app.after(() => {
+  app.register(healthRoutes);
+  app.register(meRoutes);
+  app.register(authRoutes);
+  app.register(usersRoutes);
+  app.register(sessionsRoutes);
+});
 
 // Swagger UI
 const swaggerTheme = new SwaggerTheme();

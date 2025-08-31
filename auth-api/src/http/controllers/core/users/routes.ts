@@ -6,7 +6,9 @@ import { changeUserRoleController } from './change-user-role.controller';
 import { changeUserUsernameController } from './change-user-username.controller';
 import { createUserController } from './create-user.controller';
 import { DeleteUserByIdController } from './delete-user-by-id.controller';
+import { getUserByEmailController } from './get-user-by-email.controller';
 import { getUserByIdController } from './get-user-by-id.controller';
+import { getUserByUsernameController } from './get-user-by-username.controller';
 import { listAllUsersByRoleController } from './list-all-users-by-role.controller';
 import { listAllUsersController } from './list-all-users.controller';
 
@@ -26,4 +28,6 @@ export async function usersRoutes() {
 
   // Authenticated routes
   app.register(getUserByIdController);
+  app.register(getUserByEmailController);
+  app.register(getUserByUsernameController);
 }

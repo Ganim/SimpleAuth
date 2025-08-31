@@ -14,7 +14,7 @@ export async function revokeSessionController(app: FastifyInstance) {
     schema: {
       tags: ['Sessions'],
       summary: 'Revoke session',
-      params: z.object({ sessionId: z.string() }),
+      params: z.object({ sessionId: z.uuid() }),
       response: {
         204: z.void(),
         400: z.object({ message: z.string() }),

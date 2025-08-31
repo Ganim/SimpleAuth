@@ -15,7 +15,7 @@ export async function listUserSessionsByDateController(app: FastifyInstance) {
     schema: {
       tags: ['Sessions'],
       summary: 'List user sessions by date',
-      params: z.object({ userId: z.string() }),
+      params: z.object({ userId: z.uuid() }),
       querystring: z.object({
         from: z.coerce.date(),
         to: z.coerce.date(),

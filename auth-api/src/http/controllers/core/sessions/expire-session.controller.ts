@@ -14,9 +14,7 @@ export async function expireSessionController(app: FastifyInstance) {
     schema: {
       tags: ['Sessions'],
       summary: 'Expire session',
-      params: z.object({
-        sessionId: z.uuid(),
-      }),
+      params: z.object({ sessionId: z.uuid() }),
       response: {
         204: z.void(),
         404: z.object({ message: z.string() }),
