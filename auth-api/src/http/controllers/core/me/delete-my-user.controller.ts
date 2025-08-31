@@ -1,37 +1,33 @@
 import { ResourceNotFoundError } from '@/@errors/use-cases/resource-not-found';
 import { verifyJwt } from '@/http/middlewares/verify-jwt';
-import { verifyUserAdmin } from '@/http/middlewares/verify-user-admin';
-import { makeDeleteUserByIdUseCase } from '@/use-cases/core/users/factories/make-delete-user-by-id-use-case';
+import { makeDeleteMyUserUseCase } from '@/use-cases/core/me/factories/make-delete-my-user-use-case';
+
 import type { FastifyInstance } from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import z from 'zod';
 
-export async function DeleteUserByIdController(app: FastifyInstance) {
+export async function deleteMyUserController(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({
     method: 'DELETE',
-    url: '/users/:userId',
-    preHandler: [verifyJwt, verifyUserAdmin],
+    url: '/me',
+    preHandler: [verifyJwt],
     schema: {
-      tags: ['Users'],
-      summary: 'Delete a user',
-      params: z.object({
-        userId: z.uuid(),
-      }),
+      tags: ['Me'],
+      summary: 'Delete authenticated user',
       response: {
         200: z.void(),
         404: z.object({
           message: z.string(),
         }),
       },
-      required: ['userId'],
     },
 
     handler: async (request, reply) => {
-      const { userId } = request.params;
+      const userId = request.user.sub;
 
       try {
-        const deleteUserByIdUseCase = makeDeleteUserByIdUseCase();
-        await deleteUserByIdUseCase.execute({ userId });
+        const deleteMyUserUseCase = makeDeleteMyUserUseCase();
+        await deleteMyUserUseCase.execute({ userId });
         return reply.status(200).send();
       } catch (error) {
         if (error instanceof ResourceNotFoundError) {
