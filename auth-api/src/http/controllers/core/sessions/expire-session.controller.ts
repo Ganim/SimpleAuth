@@ -13,7 +13,7 @@ export async function expireSessionController(app: FastifyInstance) {
     preHandler: [verifyJwt, verifyUserManager],
     schema: {
       tags: ['Sessions'],
-      summary: 'Expire session by ID',
+      summary: 'Expire session',
       params: z.object({
         sessionId: z.uuid(),
       }),

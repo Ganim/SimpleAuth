@@ -13,7 +13,7 @@ export async function refreshSessionController(app: FastifyInstance) {
     preHandler: [verifyJwt],
     schema: {
       tags: ['Sessions'],
-      summary: 'Refresh session by ID',
+      summary: 'Refresh the current authenticated user session',
       response: {
         204: z.void(),
         400: z.object({ message: z.string() }),

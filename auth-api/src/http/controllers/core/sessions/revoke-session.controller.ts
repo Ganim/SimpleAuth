@@ -13,7 +13,7 @@ export async function revokeSessionController(app: FastifyInstance) {
     preHandler: [verifyJwt, verifyUserManager],
     schema: {
       tags: ['Sessions'],
-      summary: 'Revoke session by ID',
+      summary: 'Revoke session',
       params: z.object({ sessionId: z.string() }),
       response: {
         204: z.void(),

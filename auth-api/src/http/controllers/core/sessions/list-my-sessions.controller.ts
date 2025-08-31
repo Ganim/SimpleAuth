@@ -12,7 +12,7 @@ export async function listMySessionsController(app: FastifyInstance) {
     preHandler: [verifyJwt],
     schema: {
       tags: ['Sessions'],
-      summary: 'List my sessions',
+      summary: 'List all my sessions',
       response: {
         200: z.object({ sessions: z.array(z.any()) }),
         401: z.object({ message: z.string() }),
