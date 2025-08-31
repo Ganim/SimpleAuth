@@ -14,7 +14,7 @@ export async function listUserSessionsController(app: FastifyInstance) {
     schema: {
       tags: ['Sessions'],
       summary: 'List sessions by user',
-      params: z.object({ userId: z.string() }),
+      params: z.object({ userId: z.uuid() }),
       response: {
         200: z.object({ sessions: z.array(z.any()) }),
         404: z.object({ message: z.string() }),
