@@ -16,7 +16,7 @@ export async function changeMyProfileController(app: FastifyInstance) {
     preHandler: [verifyJwt],
     schema: {
       tags: ['Me'],
-      summary: 'Change self username by authenticated user',
+      summary: 'Change self profile by authenticated user',
       body: z.object({
         profile: z.object({
           name: z.string().optional(),
