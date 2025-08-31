@@ -30,6 +30,8 @@ export interface UpdateUserSchema {
   username?: Username;
   passwordHash?: Password;
   profile?: UserProfile;
+  failedLoginAttempts?: number;
+  blockedUntil?: Date | null;
   deletedAt?: Date | null;
 }
 

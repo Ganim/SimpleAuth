@@ -49,19 +49,20 @@ export class PrismaUsersRepository implements UsersRepository {
       const newUserData = await prisma.user.update({
         where: { id: data.id.toString() },
         data: {
-          ...(data.username && {
-            username:
-              data.username instanceof Username
-                ? data.username.value
-                : typeof data.username === 'string'
-                  ? data.username
-                  : '',
-          }),
-          ...(data.email && { email: data.email.toString() }),
-          ...(data.role && { role: data.role }),
-          ...(data.passwordHash && {
-            password_hash: data.passwordHash.toString(),
-          }),
+          username: data.username
+            ? data.username instanceof Username
+              ? data.username.value
+              : typeof data.username === 'string'
+                ? data.username
+                : ''
+            : undefined,
+          email: data.email ? data.email.toString() : undefined,
+          role: data.role ?? undefined,
+          password_hash: data.passwordHash
+            ? data.passwordHash.toString()
+            : undefined,
+          failedLoginAttempts: data.failedLoginAttempts,
+          blockedUntil: data.blockedUntil ?? undefined,
           profile: data.profile
             ? {
                 update: {

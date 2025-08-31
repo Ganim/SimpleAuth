@@ -5,6 +5,7 @@ import { UnauthorizedError } from '@/@errors/use-cases/unauthorized-error';
 import type { FastifyInstance } from 'fastify';
 import { env } from 'process';
 import z, { ZodError } from 'zod';
+import { UserBlockedError } from './use-cases/user-blocked-error';
 
 type FastifyErrorHandler = FastifyInstance['errorHandler'];
 
@@ -19,6 +20,13 @@ export const errorHandler: FastifyErrorHandler = (error, _, reply) => {
   if (error instanceof BadRequestError) {
     return reply.status(400).send({
       message: error.message,
+    });
+  }
+
+  if (error instanceof UserBlockedError) {
+    return reply.status(403).send({
+      message: error.message,
+      blockedUntil: error.blockedUntil,
     });
   }
 

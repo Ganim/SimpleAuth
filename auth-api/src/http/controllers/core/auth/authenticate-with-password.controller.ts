@@ -1,4 +1,6 @@
+import { BadRequestError } from '@/@errors/use-cases/bad-request-error';
 import { ResourceNotFoundError } from '@/@errors/use-cases/resource-not-found';
+import { UserBlockedError } from '@/@errors/use-cases/user-blocked-error';
 import { makeAuthenticateWithPasswordUseCase } from '@/use-cases/core/auth/factories/make-authenticate-with-password-use-case';
 
 import type { FastifyInstance } from 'fastify';
@@ -45,9 +47,9 @@ export async function authenticateWithPasswordController(app: FastifyInstance) {
           token: z.string(),
           refreshToken: z.string(),
         }),
-        404: z.object({
-          message: z.string(),
-        }),
+        400: z.object({ message: z.string() }),
+        403: z.object({ message: z.string(), blockedUntil: z.coerce.date() }),
+        404: z.object({ message: z.string() }),
       },
       required: ['email', 'password'],
     },
@@ -78,6 +80,15 @@ export async function authenticateWithPasswordController(app: FastifyInstance) {
           .status(200)
           .send({ user, sessionId, token, refreshToken });
       } catch (error) {
+        if (error instanceof BadRequestError) {
+          return reply.status(400).send({ message: error.message });
+        }
+        if (error instanceof UserBlockedError) {
+          return reply.status(403).send({
+            message: error.message,
+            blockedUntil: error.blockedUntil, //
+          });
+        }
         if (error instanceof ResourceNotFoundError) {
           return reply.status(404).send({ message: error.message });
         }

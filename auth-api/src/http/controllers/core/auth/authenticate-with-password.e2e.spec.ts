@@ -1,4 +1,5 @@
 import { app } from '@/app';
+import { MAX_ATTEMPTS } from '@/config/auth';
 import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
@@ -37,5 +38,48 @@ describe('Authenticate with password (e2e)', () => {
       token: expect.any(String),
       refreshToken: expect.any(String),
     });
+  });
+
+  it('should BLOCK user after exceeding max FAILED LOGIN ATTEMPTS (e2e)', async () => {
+    await request(app.server).post('/register').send({
+      email: 'blockme@example.com',
+      password: '123456',
+    });
+
+    for (let i = 0; i < MAX_ATTEMPTS; i++) {
+      const response = await request(app.server).post('/auth/password').send({
+        email: 'blockme@example.com',
+        password: 'wrongpassword',
+      });
+      if (i < MAX_ATTEMPTS - 1) {
+        expect(response.statusCode).toBe(400);
+        expect(response.body).toEqual(
+          expect.objectContaining({ message: 'Invalid credentials' }),
+        );
+      } else {
+        expect(response.statusCode).toBe(403);
+        expect(response.body).toEqual(
+          expect.objectContaining({
+            message: 'User is temporarily blocked due to failed login attempts',
+            blockedUntil: expect.any(String),
+          }),
+        );
+      }
+    }
+
+    const blockedResponse = await request(app.server)
+      .post('/auth/password')
+      .send({
+        email: 'blockme@example.com',
+        password: '123456',
+      });
+
+    expect(blockedResponse.statusCode).toBe(403);
+    expect(blockedResponse.body).toEqual(
+      expect.objectContaining({
+        message: 'User is temporarily blocked due to failed login attempts',
+        blockedUntil: expect.any(String),
+      }),
+    );
   });
 });

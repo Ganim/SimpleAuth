@@ -1,8 +1,8 @@
-import { env } from '@/@env';
+import { HASH_ROUNDS } from '@/config/auth';
 import { compare as bcryptCompare, hash as bcryptHash } from 'bcryptjs';
 
 export class Password {
-  private static readonly DEFAULT_ROUNDS = env.HASH_ROUNDS ?? 6;
+  private static readonly DEFAULT_ROUNDS = HASH_ROUNDS ?? 6;
 
   static fromHash(hash: string): Password {
     const password = Object.create(Password.prototype);

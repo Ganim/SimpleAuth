@@ -75,6 +75,11 @@ export class InMemoryUsersRepository implements UsersRepository {
         updatedAt: new Date(),
       });
     }
+    if (data.failedLoginAttempts)
+      user.failedLoginAttempts = data.failedLoginAttempts;
+    if (data.blockedUntil)
+      user.blockedUntil =
+        data.blockedUntil === null ? undefined : data.blockedUntil;
     if (data.deletedAt)
       user.deletedAt = data.deletedAt === null ? undefined : data.deletedAt;
 

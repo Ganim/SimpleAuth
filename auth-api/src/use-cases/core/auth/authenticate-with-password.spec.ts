@@ -5,13 +5,15 @@ import { InMemorySessionsRepository } from '@/repositories/core/in-memory/in-mem
 import { InMemoryUsersRepository } from '@/repositories/core/in-memory/in-memory-users-repository';
 import { makeUser } from '@/utils/tests/factories/core/make-user';
 import { faker } from '@faker-js/faker/locale/en';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AuthenticateWithPasswordUseCase } from './authenticate-with-password';
 
 let usersRepository: InMemoryUsersRepository;
 let sessionsRepository: InMemorySessionsRepository;
 let refreshTokensRepository: InMemoryRefreshTokensRepository;
 
+import { UserBlockedError } from '@/@errors/use-cases/user-blocked-error';
+import { BLOCK_MINUTES, MAX_ATTEMPTS } from '@/config/auth';
 import { CreateSessionUseCase } from '../sessions/create-session';
 let createSessionUseCase: CreateSessionUseCase;
 let authenticateWithPasswordUseCase: AuthenticateWithPasswordUseCase;
@@ -55,6 +57,97 @@ describe('Authenticate With Password Use Case', () => {
 
     const allUsers = await usersRepository.listAll();
     expect(allUsers).toHaveLength(1);
+  });
+
+  it('should block user after exceeding max failed login attempts', async () => {
+    await makeUser({
+      email: 'blockme@example.com',
+      password: '123456',
+      usersRepository,
+    });
+
+    for (let i = 0; i < MAX_ATTEMPTS; i++) {
+      await expect(
+        authenticateWithPasswordUseCase.execute({
+          email: 'blockme@example.com',
+          password: 'wrongpassword',
+          ip: '127.0.0.1',
+          reply: reply as unknown as import('fastify').FastifyReply,
+        }),
+      ).rejects.toSatisfy(
+        (error: unknown) =>
+          error instanceof BadRequestError || error instanceof UserBlockedError,
+      );
+    }
+
+    await expect(
+      authenticateWithPasswordUseCase.execute({
+        email: 'blockme@example.com',
+        password: '123456',
+        ip: '127.0.0.1',
+        reply: reply as unknown as import('fastify').FastifyReply,
+      }),
+    ).rejects.toThrow(UserBlockedError);
+
+    try {
+      await authenticateWithPasswordUseCase.execute({
+        email: 'blockme@example.com',
+        password: '123456',
+        ip: '127.0.0.1',
+        reply: reply as unknown as import('fastify').FastifyReply,
+      });
+    } catch (error) {
+      expect(error).toBeInstanceOf(UserBlockedError);
+      expect((error as UserBlockedError).blockedUntil).toBeInstanceOf(Date);
+    }
+  });
+
+  it('should allow login after block time expires', async () => {
+    await makeUser({
+      email: 'unlockme@example.com',
+      password: '123456',
+      usersRepository,
+    });
+
+    vi.useFakeTimers();
+
+    for (let i = 0; i < MAX_ATTEMPTS; i++) {
+      await expect(
+        authenticateWithPasswordUseCase.execute({
+          email: 'unlockme@example.com',
+          password: 'wrongpassword',
+          ip: '127.0.0.1',
+          reply: reply as unknown as import('fastify').FastifyReply,
+        }),
+      ).rejects.toSatisfy(
+        (error: unknown) =>
+          error instanceof BadRequestError || error instanceof UserBlockedError,
+      );
+    }
+
+    await expect(
+      authenticateWithPasswordUseCase.execute({
+        email: 'unlockme@example.com',
+        password: '123456',
+        ip: '127.0.0.1',
+        reply: reply as unknown as import('fastify').FastifyReply,
+      }),
+    ).rejects.toThrow(UserBlockedError);
+
+    vi.advanceTimersByTime(BLOCK_MINUTES * 60 * 1000);
+
+    // Agora deve conseguir logar
+    const result = await authenticateWithPasswordUseCase.execute({
+      email: 'unlockme@example.com',
+      password: '123456',
+      ip: '127.0.0.1',
+      reply: reply as unknown as import('fastify').FastifyReply,
+    });
+
+    expect(result.user).toBeDefined();
+    expect(result.user.email).toBe('unlockme@example.com');
+
+    vi.useRealTimers();
   });
 
   it('should not authenticate user with wrong password', async () => {
