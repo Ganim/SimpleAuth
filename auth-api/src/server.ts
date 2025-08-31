@@ -1,5 +1,5 @@
+import { env } from './@env';
 import { app } from './app';
-import { env } from './env';
 
 app
   .listen({
@@ -8,4 +8,7 @@ app
   })
   .then(() => {
     console.log(`🌐  HTTP server is running: http://localhost:${env.PORT}`);
+    console.log(
+      `📑  Swagger docs is running: http://localhost:${env.PORT}/docs`,
+    );
   });

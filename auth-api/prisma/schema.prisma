@@ -68,14 +68,14 @@ model UserProfile {
   userId String @unique @map("user_id")
 
   // Personal Information
-  name     String?   @db.VarChar(64)
-  surname  String?   @db.VarChar(64)
-  birthday DateTime?
-  location String?   @db.VarChar(128)
+  name     String    @default("") @db.VarChar(64)
+  surname  String    @default("") @db.VarChar(64)
+  birthday DateTime? @db.Date
+  location String    @default("") @db.VarChar(128)
 
   // Secondary Information
-  bio       String? @db.VarChar(256)
-  avatarUrl String? @map("avatar_url") @db.VarChar(512)
+  bio       String @default("") @db.VarChar(256)
+  avatarUrl String @default("") @map("avatar_url") @db.VarChar(512)
 
   // Audit
   createdAt DateTime @default(now()) @map("created_at")
