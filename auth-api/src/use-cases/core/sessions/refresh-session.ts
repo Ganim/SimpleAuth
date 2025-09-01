@@ -4,12 +4,12 @@ import { IpAddress } from '@/entities/core/value-objects/ip-address';
 import { Token } from '@/entities/core/value-objects/token';
 import { UniqueEntityID } from '@/entities/domain/unique-entity-id';
 import {
-  refreshTokenToDTO,
-  type RefreshTokenDTO,
+    refreshTokenToDTO,
+    type RefreshTokenDTO,
 } from '@/mappers/core/refresh-token/refresh-token-to-dto';
 import {
-  sessionToDTO,
-  type SessionDTO,
+    sessionToDTO,
+    type SessionDTO,
 } from '@/mappers/core/session/session-to-dto';
 import { RefreshTokensRepository } from '@/repositories/core/refresh-tokens-repository';
 import { SessionsRepository } from '@/repositories/core/sessions-repository';
@@ -43,7 +43,7 @@ export class RefreshSessionUseCase {
   }: RefreshSessionUseCaseRequest): Promise<RefreshSessionUseCaseResponse> {
     const validSessionId = new UniqueEntityID(sessionId);
     const validUserId = new UniqueEntityID(userId);
-    const validIp = new IpAddress(ip);
+    const validIp = IpAddress.create(ip);
 
     const storedUser = await this.usersRepository.findById(validUserId);
 
@@ -90,7 +90,7 @@ export class RefreshSessionUseCase {
       { sign: { sub: validUserId.toString(), expiresIn: '7d' } },
     );
 
-    const validJWTRefreshToken = new Token(newJWTRefreshToken);
+    const validJWTRefreshToken = Token.create(newJWTRefreshToken);
 
     const newDBRefreshToken = await this.refreshTokensRepository.create({
       userId: validUserId,

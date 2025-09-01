@@ -14,12 +14,12 @@ describe('Authenticate with password (e2e)', () => {
   it('should allow ANYONE to AUTHENTICATE with PASSWORD', async () => {
     await request(app.server).post('/register').send({
       email: 'johndoe@example.com',
-      password: '123456',
+      password: 'Pass@123',
     });
 
     const response = await request(app.server).post('/auth/password').send({
       email: 'johndoe@example.com',
-      password: '123456',
+      password: 'Pass@123',
     });
 
     expect(response.statusCode).toEqual(200);
@@ -43,7 +43,7 @@ describe('Authenticate with password (e2e)', () => {
   it('should BLOCK user after exceeding max FAILED LOGIN ATTEMPTS (e2e)', async () => {
     await request(app.server).post('/register').send({
       email: 'blockme@example.com',
-      password: '123456',
+      password: 'Pass@123',
     });
 
     for (let i = 0; i < MAX_ATTEMPTS; i++) {
@@ -71,7 +71,7 @@ describe('Authenticate with password (e2e)', () => {
       .post('/auth/password')
       .send({
         email: 'blockme@example.com',
-        password: '123456',
+        password: 'Pass@123',
       });
 
     expect(blockedResponse.statusCode).toBe(403);

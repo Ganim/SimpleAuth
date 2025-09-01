@@ -13,7 +13,7 @@ describe('Register New User (e2e)', () => {
   it('should allow ANYONE to REGISTER a NEW USER', async () => {
     const response = await request(app.server).post('/register').send({
       email: 'johndoe@example.com',
-      password: '123456',
+      password: 'Pass@123',
     });
 
     expect(response.statusCode).toEqual(201);

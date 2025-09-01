@@ -9,7 +9,7 @@ export function mapSessionPrismaToDomain(
   return Session.create(
     {
       userId: new UniqueEntityID(sessionDb.userId),
-      ip: new IpAddress(sessionDb.ip),
+      ip: IpAddress.create(sessionDb.ip),
       createdAt: sessionDb.createdAt,
       expiredAt: sessionDb.expiredAt ?? undefined,
       revokedAt: sessionDb.revokedAt ?? undefined,

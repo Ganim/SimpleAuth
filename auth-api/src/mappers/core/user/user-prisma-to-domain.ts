@@ -11,14 +11,14 @@ export function mapUserPrismaToDomain(
   return {
     id: new UniqueEntityID(userDb.id),
     username: Username.create(userDb.username ?? ''),
-    email: new Email(userDb.email),
+    email: Email.create(userDb.email),
     password: userDb.password_hash,
     role: userDb.role,
     failedLoginAttempts: userDb.failedLoginAttempts,
     blockedUntil: userDb.blockedUntil ?? undefined,
     deletedAt: userDb.deletedAt ?? undefined,
     passwordResetToken: userDb.passwordResetToken
-      ? new Token(userDb.passwordResetToken)
+      ? Token.create(userDb.passwordResetToken)
       : undefined,
     passwordResetExpires: userDb.passwordResetExpires ?? undefined,
     lastLoginAt: userDb.lastLoginAt ?? undefined,

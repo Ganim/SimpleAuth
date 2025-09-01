@@ -19,7 +19,7 @@ describe('Get User By Username (e2e)', () => {
       .set('Authorization', `Bearer ${token}`)
       .send({
         email: 'user3@example.com',
-        password: '123456',
+        password: 'Pass@123',
       });
 
     const username = anotherUser.body.user?.username;

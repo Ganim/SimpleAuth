@@ -32,19 +32,19 @@ describe('ListUserSessionsUseCase', () => {
 
     await sessionsRepository.create({
       userId: new UniqueEntityID(user1.id),
-      ip: new IpAddress('127.0.0.1'),
+      ip: IpAddress.create('127.0.0.1'),
     });
     await sessionsRepository.create({
       userId: new UniqueEntityID(user1.id),
-      ip: new IpAddress('127.0.0.1'),
+      ip: IpAddress.create('127.0.0.1'),
     });
     await sessionsRepository.create({
       userId: new UniqueEntityID(user2.id),
-      ip: new IpAddress('127.0.0.2'),
+      ip: IpAddress.create('127.0.0.2'),
     });
     await sessionsRepository.create({
       userId: new UniqueEntityID(user1.id),
-      ip: new IpAddress('127.0.0.3'),
+      ip: IpAddress.create('127.0.0.3'),
     });
     const { sessions } = await sut.execute({ userId: user1.id });
     expect(sessions.length).toBe(3);

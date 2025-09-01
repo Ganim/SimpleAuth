@@ -25,7 +25,7 @@ export class ChangeUserEmailUseCase {
     email,
   }: ChangeUserEmailUseCaseRequest): Promise<ChangeUserEmailUseCaseResponse> {
     const validId = new UniqueEntityID(userId);
-    const validEmail = new Email(email);
+    const validEmail = Email.create(email);
 
     const existingUser = await this.usersRepository.findById(validId);
 

@@ -19,7 +19,7 @@ describe('Expire Session (e2e)', () => {
       .set('Authorization', `Bearer ${token}`)
       .send({
         email: 'user@example.com',
-        password: '123456',
+        password: 'Pass@123',
       });
 
     expect(anotherUser.statusCode).toEqual(201);
@@ -28,7 +28,7 @@ describe('Expire Session (e2e)', () => {
       .post('/auth/password')
       .send({
         email: 'user@example.com',
-        password: '123456',
+        password: 'Pass@123',
       });
 
     expect(authenticateAnotherUser.statusCode).toEqual(200);

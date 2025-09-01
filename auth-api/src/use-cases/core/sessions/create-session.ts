@@ -4,8 +4,8 @@ import { IpAddress } from '@/entities/core/value-objects/ip-address';
 import { Token } from '@/entities/core/value-objects/token';
 import { UniqueEntityID } from '@/entities/domain/unique-entity-id';
 import {
-  sessionToDTO,
-  type SessionDTO,
+    sessionToDTO,
+    type SessionDTO,
 } from '@/mappers/core/session/session-to-dto';
 import type { RefreshTokensRepository } from '@/repositories/core/refresh-tokens-repository';
 import type { SessionsRepository } from '@/repositories/core/sessions-repository';
@@ -37,7 +37,7 @@ export class CreateSessionUseCase {
     reply,
   }: CreateSessionUseCaseRequest): Promise<CreateSessionUseCaseResponse> {
     const validId = new UniqueEntityID(userId);
-    const validIp = new IpAddress(ip);
+    const validIp = IpAddress.create(ip);
 
     const user = await this.usersRepository.findById(validId);
 
@@ -70,7 +70,7 @@ export class CreateSessionUseCase {
       { sign: { sub: user.id.toString(), expiresIn: '7d' } },
     );
 
-    const refreshTokenValue = new Token(refreshToken);
+    const refreshTokenValue = Token.create(refreshToken);
 
     const newRefreshToken = await this.refreshTokensRepository.create({
       userId: validId,

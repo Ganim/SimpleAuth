@@ -19,7 +19,7 @@ describe('List all Users (e2e)', () => {
       .set('Authorization', `Bearer ${token}`)
       .send({
         email: 'user-1@example.com',
-        password: '123456',
+        password: 'Pass@123',
       });
 
     const response = await request(app.server)

@@ -23,7 +23,7 @@ describe('List all Users By Role (e2e)', () => {
       .set('Authorization', `Bearer ${managerToken}`)
       .send({
         email: 'user@example.com',
-        password: '123456',
+        password: 'Pass@123',
       });
 
     const adminResponse = await request(app.server)

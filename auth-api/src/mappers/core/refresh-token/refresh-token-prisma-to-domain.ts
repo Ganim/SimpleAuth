@@ -10,7 +10,7 @@ export function mapRefreshTokenPrismaToDomain(
     {
       userId: new UniqueEntityID(refreshTokenDb.userId),
       sessionId: new UniqueEntityID(refreshTokenDb.sessionId),
-      token: new Token(refreshTokenDb.token, refreshTokenDb.expiresAt),
+      token: Token.create(refreshTokenDb.token, refreshTokenDb.expiresAt),
       expiresAt: refreshTokenDb.expiresAt,
       createdAt: refreshTokenDb.createdAt,
       revokedAt: refreshTokenDb.revokedAt ?? undefined,

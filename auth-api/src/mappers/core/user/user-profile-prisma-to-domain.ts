@@ -14,7 +14,7 @@ export function mapUserProfilePrismaToDomain(
     birthday: userProfileDB.birthday ?? undefined,
     location: userProfileDB.location ?? '',
     bio: userProfileDB.bio ?? '',
-    avatarUrl: new Url(userProfileDB.avatarUrl ?? ''),
+    avatarUrl: Url.create(userProfileDB.avatarUrl ?? ''),
     createdAt: userProfileDB.createdAt ?? new Date(),
     updatedAt: userProfileDB.updatedAt ?? undefined,
   });

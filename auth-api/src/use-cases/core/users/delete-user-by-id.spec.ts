@@ -19,7 +19,7 @@ describe('Delete User By Id Use Case', () => {
   it('should soft delete user by id', async () => {
     const { user } = await makeUser({
       email: 'DeleteUserById@example.com',
-      password: '123456',
+      password: 'Pass@123',
       usersRepository,
     });
 
@@ -47,7 +47,7 @@ describe('Delete User By Id Use Case', () => {
   it('should not allow deleting an already deleted user', async () => {
     const { user } = await makeUser({
       email: 'alreadydeleted@example.com',
-      password: '123456',
+      password: 'Pass@123',
       deletedAt: new Date(),
       usersRepository,
     });
@@ -62,17 +62,17 @@ describe('Delete User By Id Use Case', () => {
   it('should keep correct user count after deletion', async () => {
     await makeUser({
       email: 'user1@example.com',
-      password: '123456',
+      password: 'Pass@123',
       usersRepository,
     });
     await makeUser({
       email: 'user2@example.com',
-      password: '123456',
+      password: 'Pass@123',
       usersRepository,
     });
     const { user } = await makeUser({
       email: 'user3@example.com',
-      password: '123456',
+      password: 'Pass@123',
       usersRepository,
     });
 

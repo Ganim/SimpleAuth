@@ -38,7 +38,7 @@ describe('ChangeUserPasswordUseCase', () => {
 
   it('should throw ResourceNotFoundError if user not found', async () => {
     await expect(() =>
-      sut.execute({ userId: 'notfound', password: 'fail' }),
+      sut.execute({ userId: 'notfound', password: 'Wrong@123' }),
     ).rejects.toBeInstanceOf(ResourceNotFoundError);
   });
 

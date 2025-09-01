@@ -18,7 +18,7 @@ describe('Register New User Use Case', () => {
   it('should register a new user with profile data', async () => {
     const { user } = await sut.execute({
       email: 'johndoe@example.com',
-      password: '123456',
+      password: 'Pass@123',
       profile: {
         name: 'John',
         surname: 'Doe',
@@ -41,14 +41,14 @@ describe('Register New User Use Case', () => {
 
     await sut.execute({
       email,
-      password: '123456',
+      password: 'Pass@123',
       profile: { name: 'John' },
     });
 
     await expect(() =>
       sut.execute({
         email,
-        password: '123456',
+        password: 'Pass@123',
         profile: { name: 'John' },
       }),
     ).rejects.toBeInstanceOf(BadRequestError);
@@ -59,7 +59,7 @@ describe('Register New User Use Case', () => {
 
     await sut.execute({
       email: 'johnny@example.com',
-      password: '123456',
+      password: 'Pass@123',
       username,
       profile: { name: 'Johnny' },
     });
@@ -67,7 +67,7 @@ describe('Register New User Use Case', () => {
     await expect(() =>
       sut.execute({
         email: 'other@example.com',
-        password: '123456',
+        password: 'Pass@123',
         username,
         profile: { name: 'Johnny' },
       }),
@@ -79,7 +79,7 @@ describe('Register New User Use Case', () => {
   it('should generate a unique username if not provided', async () => {
     const { user } = await sut.execute({
       email: 'uniqueuser@example.com',
-      password: '123456',
+      password: 'Pass@123',
     });
 
     expect(user.username).toMatch(/^user[0-9a-f]{8}$/);
@@ -94,28 +94,28 @@ describe('Register New User Use Case', () => {
   it('should hash the password upon registration', async () => {
     const { user } = await sut.execute({
       email: 'johndoe@example.com',
-      password: '123456',
+      password: 'Pass@123',
       profile: {
         name: 'John',
       },
     });
 
     const storagedUser = await usersRepository.findByEmail(
-      new Email(user.email),
+      Email.create(user.email),
     );
     expect(storagedUser).toBeDefined();
     const isPasswordHashed = await compare(
-      '123456',
+      'Pass@123',
       storagedUser!.password.toString(),
     );
     expect(isPasswordHashed).toBe(true);
   });
 
   it('should not allow invalid email format', () => {
-    expect(() => new Email('invalid-email')).toThrow(BadRequestError);
-    expect(() => new Email('user@invalid')).toThrow(BadRequestError);
-    expect(() => new Email('user@.com')).toThrow(BadRequestError);
-    expect(() => new Email('user@com')).toThrow(BadRequestError);
-    expect(() => new Email('user.com')).toThrow(BadRequestError);
+    expect(() => Email.create('invalid-email')).toThrow(BadRequestError);
+    expect(() => Email.create('user@invalid')).toThrow(BadRequestError);
+    expect(() => Email.create('user@.com')).toThrow(BadRequestError);
+    expect(() => Email.create('user@com')).toThrow(BadRequestError);
+    expect(() => Email.create('user.com')).toThrow(BadRequestError);
   });
 });

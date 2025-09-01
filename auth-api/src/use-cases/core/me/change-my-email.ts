@@ -22,7 +22,7 @@ export class ChangeMyEmailUseCase {
     email,
   }: ChangeMyEmailUseCaseRequest): Promise<ChangeMyEmailUseCaseResponse> {
     const validId = new UniqueEntityID(userId);
-    const validEmail = new Email(email);
+    const validEmail = Email.create(email);
 
     const existingUser = await this.usersRepository.findById(validId);
 

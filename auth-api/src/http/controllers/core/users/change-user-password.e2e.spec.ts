@@ -19,7 +19,7 @@ describe('Change User Password (e2e)', () => {
       .set('Authorization', `Bearer ${token}`)
       .send({
         email: 'user@example.com',
-        password: '123456',
+        password: 'Pass@123',
       });
 
     const userId = anotherUser.body.user?.id;

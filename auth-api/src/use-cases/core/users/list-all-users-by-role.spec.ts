@@ -19,19 +19,19 @@ describe('List All Users By Role Use Case', () => {
   it('should list only users with the specified role USER', async () => {
     await makeUser({
       email: 'user-1@example.com',
-      password: 'hash',
+      password: 'Pass@123',
       role: 'USER',
       usersRepository,
     });
     await makeUser({
       email: 'manager-1@example.com',
-      password: 'hash',
+      password: 'Pass@123',
       role: 'MANAGER',
       usersRepository,
     });
     await makeUser({
       email: 'admin-1@example.com',
-      password: 'hash',
+      password: 'Pass@123',
       role: 'ADMIN',
       usersRepository,
     });
@@ -46,19 +46,19 @@ describe('List All Users By Role Use Case', () => {
   it('should list only users with the specified role MANAGER', async () => {
     await makeUser({
       email: 'user-1@example.com',
-      password: 'hash',
+      password: 'Pass@123',
       role: 'USER',
       usersRepository,
     });
     await makeUser({
       email: 'manager-1@example.com',
-      password: 'hash',
+      password: 'Pass@123',
       role: 'MANAGER',
       usersRepository,
     });
     await makeUser({
       email: 'admin-1@example.com',
-      password: 'hash',
+      password: 'Pass@123',
       role: 'ADMIN',
       usersRepository,
     });
@@ -73,19 +73,19 @@ describe('List All Users By Role Use Case', () => {
   it('should list only users with the specified role ADMIN', async () => {
     await makeUser({
       email: 'user-1@example.com',
-      password: 'hash',
+      password: 'Pass@123',
       role: 'USER',
       usersRepository,
     });
     await makeUser({
       email: 'manager-1@example.com',
-      password: 'hash',
+      password: 'Pass@123',
       role: 'MANAGER',
       usersRepository,
     });
     await makeUser({
       email: 'admin-1@example.com',
-      password: 'hash',
+      password: 'Pass@123',
       role: 'ADMIN',
       usersRepository,
     });
@@ -101,7 +101,7 @@ describe('List All Users By Role Use Case', () => {
   it('should return profile data for each user', async () => {
     await makeUser({
       email: 'manager-2@example.com',
-      password: 'hash',
+      password: 'Pass@123',
       role: 'MANAGER',
       profile: {
         name: 'Manager Two',
@@ -130,7 +130,7 @@ describe('List All Users By Role Use Case', () => {
   it('should not list users that are soft deleted', async () => {
     const { user } = await makeUser({
       email: 'manager-3@example.com',
-      password: 'hash',
+      password: 'Pass@123',
       role: 'MANAGER',
       usersRepository,
     });
@@ -146,7 +146,7 @@ describe('List All Users By Role Use Case', () => {
   it('should not list deleted users by role', async () => {
     await makeUser({
       email: 'deleted-manager@example.com',
-      password: 'hash',
+      password: 'Pass@123',
       role: 'MANAGER',
       usersRepository,
       deletedAt: new Date(),
@@ -154,7 +154,7 @@ describe('List All Users By Role Use Case', () => {
 
     await makeUser({
       email: 'active-manager@example.com',
-      password: 'hash',
+      password: 'Pass@123',
       role: 'MANAGER',
       usersRepository,
     });

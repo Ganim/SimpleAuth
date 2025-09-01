@@ -1,14 +1,17 @@
 import { BadRequestError } from '@/@errors/use-cases/bad-request-error';
 
-// Value Object para Role
 export class Role {
-  private readonly value: string;
+  private readonly _value: string;
 
-  constructor(value: string) {
+  private constructor(value: string) {
     if (!Role.isValid(value)) {
       throw new BadRequestError(`${value} role is invalid.`);
     }
-    this.value = value;
+    this._value = value;
+  }
+
+  static create(value: string): Role {
+    return new Role(value);
   }
 
   static isValid(value: string): boolean {
@@ -16,11 +19,15 @@ export class Role {
     return validRoles.includes(value);
   }
 
+  get value(): string {
+    return this._value;
+  }
+
   toString(): string {
-    return this.value;
+    return this._value;
   }
 
   equals(other: Role): boolean {
-    return this.value === other.value;
+    return this._value === other.value;
   }
 }

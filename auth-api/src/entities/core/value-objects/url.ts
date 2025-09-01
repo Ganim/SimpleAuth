@@ -1,13 +1,17 @@
 import { BadRequestError } from '@/@errors/use-cases/bad-request-error';
 
 export class Url {
-  private readonly value: string;
+  private readonly _value: string;
 
-  constructor(url: string) {
+  private constructor(url: string) {
     if (url !== '' && !Url.isValid(url)) {
       throw new BadRequestError(`Invalid URL: ${url}`);
     }
-    this.value = url;
+    this._value = url;
+  }
+
+  public static create(url: string): Url {
+    return new Url(url);
   }
 
   public static isValid(url: string): boolean {
@@ -23,31 +27,35 @@ export class Url {
     return new Url('');
   }
 
+  public get value(): string {
+    return this._value;
+  }
+
   public toString(): string {
-    return this.value;
+    return this._value;
   }
 
   public equals(url: Url): boolean {
-    return this.value === url.value;
+    return this._value === url.value;
   }
 
   public get protocol(): string {
-    return this.value === '' ? '' : new globalThis.URL(this.value).protocol;
+    return this._value === '' ? '' : new globalThis.URL(this._value).protocol;
   }
 
   public get host(): string {
-    return this.value === '' ? '' : new globalThis.URL(this.value).host;
+    return this._value === '' ? '' : new globalThis.URL(this._value).host;
   }
 
   public get pathname(): string {
-    return this.value === '' ? '' : new globalThis.URL(this.value).pathname;
+    return this._value === '' ? '' : new globalThis.URL(this._value).pathname;
   }
 
   public get search(): string {
-    return this.value === '' ? '' : new globalThis.URL(this.value).search;
+    return this._value === '' ? '' : new globalThis.URL(this._value).search;
   }
 
   public get hash(): string {
-    return this.value === '' ? '' : new globalThis.URL(this.value).hash;
+    return this._value === '' ? '' : new globalThis.URL(this._value).hash;
   }
 }

@@ -33,7 +33,7 @@ export class AuthenticateWithPasswordUseCase {
     ip,
     reply,
   }: AuthenticateWithPasswordUseCaseRequest): Promise<AuthenticateWithPasswordUseCaseResponse> {
-    const validEmail = new Email(email);
+    const validEmail = Email.create(email);
 
     const existingUser = await this.usersRepository.findByEmail(validEmail);
 

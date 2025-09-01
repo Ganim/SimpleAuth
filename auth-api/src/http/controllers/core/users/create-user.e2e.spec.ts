@@ -19,7 +19,7 @@ describe('Create User (e2e)', () => {
       .set('Authorization', `Bearer ${token}`)
       .send({
         email: 'johndoe@example.com',
-        password: '123456',
+        password: 'Pass@123',
         profile: {
           name: 'John',
           surname: 'Doe',

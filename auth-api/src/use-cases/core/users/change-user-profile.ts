@@ -48,7 +48,7 @@ export class ChangeUserProfileUseCase {
       location: profile.location ?? existingUser.profile?.location ?? '',
       bio: profile.bio ?? existingUser.profile?.bio ?? '',
       avatarUrl: profile.avatarUrl
-        ? new Url(profile.avatarUrl)
+        ? Url.create(profile.avatarUrl)
         : existingUser.profile?.avatarUrl
           ? existingUser.profile.avatarUrl
           : Url.empty(),

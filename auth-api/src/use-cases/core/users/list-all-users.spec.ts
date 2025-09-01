@@ -18,19 +18,19 @@ describe('List All Users Use Case', () => {
   it('should list all active users', async () => {
     await makeUser({
       email: 'user-1@example.com',
-      password: '123456',
+      password: 'Pass@123',
       profile: { name: 'User One' },
       usersRepository,
     });
     await makeUser({
       email: 'user-2@example.com',
-      password: '123456',
+      password: 'Pass@123',
       profile: { name: 'User Two' },
       usersRepository,
     });
     await makeUser({
       email: 'user-3@example.com',
-      password: '123456',
+      password: 'Pass@123',
       profile: { name: 'User Three' },
       usersRepository,
     });
@@ -58,7 +58,7 @@ describe('List All Users Use Case', () => {
   it('should not list deleted users (deletedAt filled)', async () => {
     await makeUser({
       email: 'deleted@example.com',
-      password: '123456',
+      password: 'Pass@123',
       profile: { name: 'Deleted User' },
       deletedAt: new Date(),
       usersRepository,
@@ -66,7 +66,7 @@ describe('List All Users Use Case', () => {
 
     await makeUser({
       email: 'active@example.com',
-      password: '123456',
+      password: 'Pass@123',
       profile: { name: 'Active User' },
       usersRepository,
     });

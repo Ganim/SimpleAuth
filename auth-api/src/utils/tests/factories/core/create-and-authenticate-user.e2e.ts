@@ -15,14 +15,14 @@ export async function createAndAuthenticateUser(
   const createUserUseCase = makeCreateUserUseCase();
   const userResponse = await createUserUseCase.execute({
     email: fakeEmail,
-    password: '123456',
+    password: 'Pass@123',
     username,
     role,
   });
 
   const authResponse = await request(app.server).post('/auth/password').send({
     email: fakeEmail,
-    password: '123456',
+    password: 'Pass@123',
   });
 
   const { token, refreshToken, sessionId } = authResponse.body;

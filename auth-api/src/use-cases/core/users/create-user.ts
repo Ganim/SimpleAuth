@@ -37,13 +37,14 @@ export class CreateUserUseCase {
     profile = {},
     deletedAt = null,
   }: CreateUserUseCaseRequest): Promise<CreateUserUseCaseResponse> {
-    const validEmail = new Email(email);
-    const validAvatarUrl = new Url(profile?.avatarUrl ? profile.avatarUrl : '');
+    const validEmail = Email.create(email);
+    const validAvatarUrl = Url.create(
+      profile?.avatarUrl ? profile.avatarUrl : '',
+    );
+    const validPassword = await Password.create(password);
     const validUsername = username
       ? Username.create(username)
       : Username.random();
-
-    const passwordHash = await Password.hash(password);
 
     const userWithSameEmail =
       await this.userRespository.findByEmail(validEmail);
@@ -60,7 +61,7 @@ export class CreateUserUseCase {
     const newUser = await this.userRespository.create({
       email: validEmail,
       username: validUsername,
-      passwordHash: passwordHash,
+      passwordHash: validPassword,
       role,
       deletedAt,
       profile: {

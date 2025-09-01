@@ -19,7 +19,7 @@ describe('List All Active Sessions (e2e)', () => {
       .set('Authorization', `Bearer ${token}`)
       .send({
         email: 'user-1@example.com',
-        password: '123456',
+        password: 'Pass@123',
       });
 
     expect(userOne.statusCode).toEqual(201);
@@ -28,7 +28,7 @@ describe('List All Active Sessions (e2e)', () => {
       .post('/auth/password')
       .send({
         email: 'user-1@example.com',
-        password: '123456',
+        password: 'Pass@123',
       });
 
     expect(authenticateUserOne.statusCode).toEqual(200);
@@ -38,7 +38,7 @@ describe('List All Active Sessions (e2e)', () => {
       .set('Authorization', `Bearer ${token}`)
       .send({
         email: 'user-2@example.com',
-        password: '123456',
+        password: 'Pass@123',
       });
 
     expect(userTwo.statusCode).toEqual(201);
@@ -47,7 +47,7 @@ describe('List All Active Sessions (e2e)', () => {
       .post('/auth/password')
       .send({
         email: 'user-2@example.com',
-        password: '123456',
+        password: 'Pass@123',
       });
 
     expect(authenticateUserTwo.statusCode).toEqual(200);

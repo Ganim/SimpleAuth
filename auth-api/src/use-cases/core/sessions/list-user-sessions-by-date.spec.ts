@@ -39,19 +39,19 @@ describe('ListUserSessionsByDateUseCase', () => {
 
     const s1 = await sessionsRepository.create({
       userId: new UniqueEntityID(user1.id),
-      ip: new IpAddress('127.0.0.1'),
+      ip: IpAddress.create('127.0.0.1'),
     });
     s1.createdAt = now;
 
     const s2 = await sessionsRepository.create({
       userId: new UniqueEntityID(user1.id),
-      ip: new IpAddress('127.0.0.2'),
+      ip: IpAddress.create('127.0.0.2'),
     });
     s2.createdAt = new Date(now.getTime() - 1000 * 60 * 120);
 
     await sessionsRepository.create({
       userId: new UniqueEntityID(user2.id),
-      ip: new IpAddress('127.0.0.3'),
+      ip: IpAddress.create('127.0.0.3'),
     });
     const { sessions } = await sut.execute({
       userId: user1.id,

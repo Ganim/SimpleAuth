@@ -1,13 +1,17 @@
-import { HASH_ROUNDS } from '@/config/auth';
+import { BadRequestError } from '@/@errors/use-cases/bad-request-error';
+import { HASH_ROUNDS, PASSWORD_PATTERN } from '@/config/auth';
 import { compare as bcryptCompare, hash as bcryptHash } from 'bcryptjs';
 
 export class Password {
   private static readonly DEFAULT_ROUNDS = HASH_ROUNDS ?? 6;
+  private _value!: string;
+
+  private constructor(hash: string) {
+    this._value = hash;
+  }
 
   static fromHash(hash: string): Password {
-    const password = Object.create(Password.prototype);
-    password._value = hash;
-    return password;
+    return new Password(hash);
   }
 
   static async hash(
@@ -59,5 +63,30 @@ export class Password {
       valid: errors.length === 0,
       errors,
     };
+  }
+
+  static async create(password: string): Promise<Password> {
+    const passwordStrong = await Password.isStrong(password, PASSWORD_PATTERN);
+
+    if (!passwordStrong.valid) {
+      throw new BadRequestError('Password is not strong enough.');
+    }
+
+    const passwordHash = await Password.hash(password);
+    const validPassword = Password.fromHash(passwordHash);
+
+    return validPassword;
+  }
+
+  get value(): string {
+    return this._value;
+  }
+
+  toString(): string {
+    return this._value;
+  }
+
+  equals(other: Password): boolean {
+    return this._value === other.value;
   }
 }

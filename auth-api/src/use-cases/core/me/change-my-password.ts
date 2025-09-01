@@ -22,7 +22,7 @@ export class ChangeMyPasswordUseCase {
     password,
   }: ChangeMyPasswordUseCaseRequest): Promise<ChangeMyPasswordUseCaseResponse> {
     const validId = new UniqueEntityID(userId);
-    const passwordHash = await Password.hash(password);
+    const validPassword = await Password.create(password);
 
     const existingUser = await this.usersRepository.findById(validId);
     if (!existingUser || existingUser.deletedAt) {
@@ -31,7 +31,7 @@ export class ChangeMyPasswordUseCase {
 
     const updatedUser = await this.usersRepository.update({
       id: validId,
-      passwordHash,
+      passwordHash: validPassword,
     });
 
     if (!updatedUser) {

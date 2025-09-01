@@ -21,7 +21,7 @@ export async function makeRefreshToken({
   const refreshToken = await refreshTokensRepository.create({
     userId: new UniqueEntityID(userId),
     sessionId: new UniqueEntityID(sessionId),
-    token: new Token(token, expiresAt),
+    token: Token.create(token, expiresAt),
     expiresAt,
   });
 

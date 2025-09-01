@@ -41,13 +41,13 @@ describe('Authenticate With Password Use Case', () => {
   it('should authenticate user with correct credentials', async () => {
     await makeUser({
       email: 'johndoe@example.com',
-      password: '123456',
+      password: 'Pass@123',
       usersRepository,
     });
 
     const result = await authenticateWithPasswordUseCase.execute({
       email: 'johndoe@example.com',
-      password: '123456',
+      password: 'Pass@123',
       ip: '127.0.0.1',
       reply: reply as unknown as import('fastify').FastifyReply,
     });
@@ -62,7 +62,7 @@ describe('Authenticate With Password Use Case', () => {
   it('should block user after exceeding max failed login attempts', async () => {
     await makeUser({
       email: 'blockme@example.com',
-      password: '123456',
+      password: 'Pass@123',
       usersRepository,
     });
 
@@ -83,7 +83,7 @@ describe('Authenticate With Password Use Case', () => {
     await expect(
       authenticateWithPasswordUseCase.execute({
         email: 'blockme@example.com',
-        password: '123456',
+        password: 'Pass@123',
         ip: '127.0.0.1',
         reply: reply as unknown as import('fastify').FastifyReply,
       }),
@@ -92,7 +92,7 @@ describe('Authenticate With Password Use Case', () => {
     try {
       await authenticateWithPasswordUseCase.execute({
         email: 'blockme@example.com',
-        password: '123456',
+        password: 'Pass@123',
         ip: '127.0.0.1',
         reply: reply as unknown as import('fastify').FastifyReply,
       });
@@ -105,7 +105,7 @@ describe('Authenticate With Password Use Case', () => {
   it('should allow login after block time expires', async () => {
     await makeUser({
       email: 'unlockme@example.com',
-      password: '123456',
+      password: 'Pass@123',
       usersRepository,
     });
 
@@ -128,7 +128,7 @@ describe('Authenticate With Password Use Case', () => {
     await expect(
       authenticateWithPasswordUseCase.execute({
         email: 'unlockme@example.com',
-        password: '123456',
+        password: 'Pass@123',
         ip: '127.0.0.1',
         reply: reply as unknown as import('fastify').FastifyReply,
       }),
@@ -139,7 +139,7 @@ describe('Authenticate With Password Use Case', () => {
     // Agora deve conseguir logar
     const result = await authenticateWithPasswordUseCase.execute({
       email: 'unlockme@example.com',
-      password: '123456',
+      password: 'Pass@123',
       ip: '127.0.0.1',
       reply: reply as unknown as import('fastify').FastifyReply,
     });
@@ -153,7 +153,7 @@ describe('Authenticate With Password Use Case', () => {
   it('should not authenticate user with wrong password', async () => {
     await makeUser({
       email: 'johndoe@example.com',
-      password: '123456',
+      password: 'Pass@123',
       usersRepository,
     });
 
@@ -171,7 +171,7 @@ describe('Authenticate With Password Use Case', () => {
     await expect(
       authenticateWithPasswordUseCase.execute({
         email: 'notfound@example.com',
-        password: '123456',
+        password: 'Pass@123',
         ip: '127.0.0.1',
         reply: reply as unknown as import('fastify').FastifyReply,
       }),
@@ -181,7 +181,7 @@ describe('Authenticate With Password Use Case', () => {
   it('should not authenticate deleted user', async () => {
     await makeUser({
       email: 'deleted@example.com',
-      password: '123456',
+      password: 'Pass@123',
       deletedAt: new Date(),
       usersRepository,
     });
@@ -189,7 +189,7 @@ describe('Authenticate With Password Use Case', () => {
     await expect(
       authenticateWithPasswordUseCase.execute({
         email: 'deleted@example.com',
-        password: '123456',
+        password: 'Pass@123',
         ip: '127.0.0.1',
         reply: reply as unknown as import('fastify').FastifyReply,
       }),
@@ -199,13 +199,13 @@ describe('Authenticate With Password Use Case', () => {
   it('should update lastLoginAt when authenticating', async () => {
     await makeUser({
       email: 'lastlogin@example.com',
-      password: '123456',
+      password: 'Pass@123',
       usersRepository,
     });
 
     const { user } = await authenticateWithPasswordUseCase.execute({
       email: 'lastlogin@example.com',
-      password: '123456',
+      password: 'Pass@123',
       ip: '127.0.0.1',
       reply: reply as unknown as import('fastify').FastifyReply,
     });
@@ -218,10 +218,10 @@ describe('Authenticate With Password Use Case', () => {
   });
 
   it('should not allow invalid email format (Email VO)', () => {
-    expect(() => new Email('invalid-email')).toThrow(BadRequestError);
-    expect(() => new Email('user@invalid')).toThrow(BadRequestError);
-    expect(() => new Email('user@.com')).toThrow(BadRequestError);
-    expect(() => new Email('user@com')).toThrow(BadRequestError);
-    expect(() => new Email('user.com')).toThrow(BadRequestError);
+    expect(() => Email.create('invalid-email')).toThrow(BadRequestError);
+    expect(() => Email.create('user@invalid')).toThrow(BadRequestError);
+    expect(() => Email.create('user@.com')).toThrow(BadRequestError);
+    expect(() => Email.create('user@com')).toThrow(BadRequestError);
+    expect(() => Email.create('user.com')).toThrow(BadRequestError);
   });
 });

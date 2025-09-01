@@ -18,7 +18,7 @@ describe('ChangeMyProfileUseCase', () => {
   it('should update own profile fields', async () => {
     const { user } = await makeUser({
       email: 'user@example.com',
-      password: '123456',
+      password: 'Pass@123',
       usersRepository,
     });
 
@@ -50,7 +50,7 @@ describe('ChangeMyProfileUseCase', () => {
   it('should throw ResourceNotFoundError if user is deleted', async () => {
     const { user } = await makeUser({
       email: 'deleted@example.com',
-      password: '123456',
+      password: 'Pass@123',
       deletedAt: new Date(),
       usersRepository,
     });
@@ -64,12 +64,12 @@ describe('ChangeMyProfileUseCase', () => {
   it('should keep correct user count after profile change', async () => {
     await makeUser({
       email: 'user1@example.com',
-      password: '123456',
+      password: 'Pass@123',
       usersRepository,
     });
     const { user } = await makeUser({
       email: 'user2@example.com',
-      password: '123456',
+      password: 'Pass@123',
       usersRepository,
     });
     await sut.execute({
