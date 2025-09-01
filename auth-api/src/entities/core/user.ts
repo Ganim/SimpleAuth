@@ -128,6 +128,10 @@ export class User extends Entity<UserProps> {
     this.props.blockedUntil = date;
   }
 
+  set passwordResetExpires(date: Date | undefined) {
+    this.props.passwordResetExpires = date;
+  }
+
   set deletedAt(date: Date | undefined) {
     this.props.deletedAt = date;
     this.touch();
