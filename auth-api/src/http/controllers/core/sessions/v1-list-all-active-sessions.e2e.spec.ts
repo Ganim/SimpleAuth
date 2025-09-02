@@ -25,7 +25,7 @@ describe('List All Active Sessions (e2e)', () => {
     expect(userOne.statusCode).toEqual(201);
 
     const authenticateUserOne = await request(app.server)
-      .post('/v1/auth/password')
+      .post('/v1/auth/login/password')
       .send({
         email: 'user-1@example.com',
         password: 'Pass@123',
@@ -44,7 +44,7 @@ describe('List All Active Sessions (e2e)', () => {
     expect(userTwo.statusCode).toEqual(201);
 
     const authenticateUserTwo = await request(app.server)
-      .post('/v1/auth/password')
+      .post('/v1/auth/login/password')
       .send({
         email: 'user-2@example.com',
         password: 'Pass@123',

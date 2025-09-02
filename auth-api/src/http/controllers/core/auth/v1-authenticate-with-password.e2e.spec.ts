@@ -12,12 +12,12 @@ describe('Authenticate with password (e2e)', () => {
   });
 
   it('should allow ANYONE to AUTHENTICATE with PASSWORD', async () => {
-    await request(app.server).post('/v1/auth/register').send({
+    await request(app.server).post('/v1/auth/register/password').send({
       email: 'johndoe@example.com',
       password: 'Pass@123',
     });
 
-    const response = await request(app.server).post('/v1/auth/password').send({
+    const response = await request(app.server).post('/v1/auth/login/password').send({
       email: 'johndoe@example.com',
       password: 'Pass@123',
     });
@@ -41,14 +41,14 @@ describe('Authenticate with password (e2e)', () => {
   });
 
   it('should BLOCK user after exceeding max FAILED LOGIN ATTEMPTS (e2e)', async () => {
-    await request(app.server).post('/v1/auth/register').send({
+    await request(app.server).post('/v1/auth/register/password').send({
       email: 'blockme@example.com',
       password: 'Pass@123',
     });
 
     for (let i = 0; i < MAX_ATTEMPTS; i++) {
       const response = await request(app.server)
-        .post('/v1/auth/password')
+        .post('/v1/auth/login/password')
         .send({
           email: 'blockme@example.com',
           password: 'wrongpassword',
@@ -70,7 +70,7 @@ describe('Authenticate with password (e2e)', () => {
     }
 
     const blockedResponse = await request(app.server)
-      .post('/v1/auth/password')
+      .post('/v1/auth/login/password')
       .send({
         email: 'blockme@example.com',
         password: 'Pass@123',

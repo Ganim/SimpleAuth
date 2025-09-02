@@ -8,7 +8,7 @@ import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 export async function registerNewUserController(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({
     method: 'POST',
-    url: '/v1/auth/register',
+    url: '/v1/auth/register/password',
     schema: {
       tags: ['Auth'],
       summary: 'Register a new user',

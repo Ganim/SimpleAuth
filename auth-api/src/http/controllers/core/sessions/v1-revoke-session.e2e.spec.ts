@@ -25,7 +25,7 @@ describe('Revoke Session (e2e)', () => {
     expect(anotherUser.statusCode).toEqual(201);
 
     const authenticateAnotherUser = await request(app.server)
-      .post('/v1/auth/password')
+      .post('/v1/auth/login/password')
       .send({
         email: 'user@example.com',
         password: 'Pass@123',

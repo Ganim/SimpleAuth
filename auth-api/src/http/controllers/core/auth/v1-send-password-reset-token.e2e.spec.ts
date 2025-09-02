@@ -12,7 +12,7 @@ describe('Send Password Reset Token (e2e)', () => {
 
   it('should allow ANYONE to REQUEST a PASSWORD RESET TOKEN', async () => {
     await request(app.server)
-      .post('/v1/auth/register')
+      .post('/v1/auth/register/password')
       .send({
         email: 'leila.ernser@ethereal.email',
         password: 'Pass@123',

@@ -21,7 +21,7 @@ export async function createAndAuthenticateUser(
   });
 
   const authResponse = await request(app.server)
-    .post('/v1/auth/password')
+    .post('/v1/auth/login/password')
     .send({
       email: fakeEmail,
       password: 'Pass@123',

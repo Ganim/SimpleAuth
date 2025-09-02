@@ -11,7 +11,7 @@ describe('Register New User (e2e)', () => {
   });
 
   it('should allow ANYONE to REGISTER a NEW USER', async () => {
-    const response = await request(app.server).post('/v1/auth/register').send({
+    const response = await request(app.server).post('/v1/auth/register/password').send({
       email: 'johndoe@example.com',
       password: 'Pass@123',
     });
