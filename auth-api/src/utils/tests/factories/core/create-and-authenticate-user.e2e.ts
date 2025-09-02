@@ -20,10 +20,12 @@ export async function createAndAuthenticateUser(
     role,
   });
 
-  const authResponse = await request(app.server).post('/auth/password').send({
-    email: fakeEmail,
-    password: 'Pass@123',
-  });
+  const authResponse = await request(app.server)
+    .post('/v1/auth/password')
+    .send({
+      email: fakeEmail,
+      password: 'Pass@123',
+    });
 
   const { token, refreshToken, sessionId } = authResponse.body;
 

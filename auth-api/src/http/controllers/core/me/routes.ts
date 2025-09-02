@@ -1,10 +1,10 @@
 import { app } from '@/app';
-import { changeMyEmailController } from './change-my-email.controller';
-import { changeMyPasswordController } from './change-my-password.controller';
-import { changeMyProfileController } from './change-my-profile.controller';
-import { changeMyUsernameController } from './change-my-username.controller';
-import { deleteMyUserController } from './delete-my-user.controller';
-import { getMyUserController } from './get-my-user.controller';
+import { changeMyEmailController } from './v1-change-my-email.controller';
+import { changeMyPasswordController } from './v1-change-my-password.controller';
+import { changeMyProfileController } from './v1-change-my-profile.controller';
+import { changeMyUsernameController } from './v1-change-my-username.controller';
+import { deleteMyUserController } from './v1-delete-my-user.controller';
+import { getMyUserController } from './v1-get-my-user.controller';
 
 export async function meRoutes() {
   // Authenticated Routes
