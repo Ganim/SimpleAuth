@@ -1,6 +1,6 @@
 import { app } from '@/app';
 import { createAndAuthenticateUser } from '@/utils/tests/factories/core/create-and-authenticate-user.e2e';
-import { uniqueEmail } from '@/utils/tests/factories/core/make-unique-email';
+import { makeUniqueEmail } from '@/utils/tests/factories/core/make-unique-email';
 import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
@@ -15,7 +15,7 @@ describe('Update User Profile (e2e)', () => {
   it('should allow MANAGER/ADMIN to CHANGE another user PROFILE', async () => {
     const { token } = await createAndAuthenticateUser(app, 'MANAGER');
 
-    const email = uniqueEmail('change-user-profile');
+    const email = makeUniqueEmail('change-user-profile');
     const anotherUser = await request(app.server)
       .post('/v1/users')
       .set('Authorization', `Bearer ${token}`)

@@ -1,5 +1,5 @@
 import { app } from '@/app';
-import { uniqueEmail } from '@/utils/tests/factories/core/make-unique-email';
+import { makeUniqueEmail } from '@/utils/tests/factories/core/make-unique-email';
 import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
@@ -12,7 +12,7 @@ describe('Register New User (e2e)', () => {
   });
 
   it('should allow ANYONE to REGISTER a NEW USER', async () => {
-    const email = uniqueEmail('register');
+    const email = makeUniqueEmail('register');
     const response = await request(app.server)
       .post('/v1/auth/register/password')
       .send({

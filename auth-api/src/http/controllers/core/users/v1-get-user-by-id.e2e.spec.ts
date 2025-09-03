@@ -1,6 +1,6 @@
 import { app } from '@/app';
 import { createAndAuthenticateUser } from '@/utils/tests/factories/core/create-and-authenticate-user.e2e';
-import { uniqueEmail } from '@/utils/tests/factories/core/make-unique-email';
+import { makeUniqueEmail } from '@/utils/tests/factories/core/make-unique-email';
 import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
@@ -15,7 +15,7 @@ describe('Get User By ID (e2e)', () => {
   it('should allow ADMIN to GET another user BY ID', async () => {
     const { token } = await createAndAuthenticateUser(app, 'ADMIN');
 
-    const email = uniqueEmail('get-user-by-id');
+    const email = makeUniqueEmail('get-user-by-id');
     const anotherUser = await request(app.server)
       .post('/v1/users')
       .set('Authorization', `Bearer ${token}`)

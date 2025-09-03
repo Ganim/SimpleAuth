@@ -1,6 +1,6 @@
 import { app } from '@/app';
 import { MAX_ATTEMPTS } from '@/config/auth';
-import { uniqueEmail } from '@/utils/tests/factories/core/make-unique-email';
+import { makeUniqueEmail } from '@/utils/tests/factories/core/make-unique-email';
 import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
@@ -13,7 +13,7 @@ describe('Authenticate with password (e2e)', () => {
   });
 
   it('should allow ANYONE to AUTHENTICATE with PASSWORD', async () => {
-    const email = uniqueEmail('auth-login');
+    const email = makeUniqueEmail('auth-login');
     await request(app.server).post('/v1/auth/register/password').send({
       email,
       password: 'Pass@123',
@@ -45,7 +45,7 @@ describe('Authenticate with password (e2e)', () => {
   });
 
   it('should BLOCK user after exceeding max FAILED LOGIN ATTEMPTS (e2e)', async () => {
-    const blockEmail = uniqueEmail('auth-block');
+    const blockEmail = makeUniqueEmail('auth-block');
     await request(app.server).post('/v1/auth/register/password').send({
       email: blockEmail,
       password: 'Pass@123',
