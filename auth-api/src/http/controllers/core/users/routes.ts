@@ -11,6 +11,7 @@ import { getUserByIdController } from './v1-get-user-by-id.controller';
 import { getUserByUsernameController } from './v1-get-user-by-username.controller';
 import { listAllUsersByRoleController } from './v1-list-all-users-by-role.controller';
 import { listAllUsersController } from './v1-list-all-users.controller';
+import { listOnlineUsersController } from './v1-list-online-users.controller';
 
 export async function usersRoutes() {
   // Admin routes
@@ -30,4 +31,5 @@ export async function usersRoutes() {
   app.register(getUserByIdController);
   app.register(getUserByEmailController);
   app.register(getUserByUsernameController);
+  app.register(listOnlineUsersController);
 }
