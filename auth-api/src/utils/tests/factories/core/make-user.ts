@@ -1,12 +1,12 @@
-import type { UserRole } from '@/@types/user-role';
 import { InMemoryUsersRepository } from '@/repositories/core/in-memory/in-memory-users-repository';
 import { CreateUserUseCase } from '@/use-cases/core/users/create-user';
+import type { Role as PrismaRole } from '@prisma/client';
 
 interface makeUserProps {
   email: string;
   password: string;
   username?: string;
-  role?: UserRole;
+  role?: PrismaRole;
   profile?: {
     name?: string;
     surname?: string;

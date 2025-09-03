@@ -1,7 +1,7 @@
 import { Session } from '@/entities/core/session';
 import { IpAddress } from '@/entities/core/value-objects/ip-address';
 import { UniqueEntityID } from '@/entities/domain/unique-entity-id';
-import type { Prisma } from 'generated/prisma';
+import type { Prisma } from '@prisma/client';
 
 export function mapSessionPrismaToDomain(
   sessionDb: Prisma.SessionGetPayload<object>,

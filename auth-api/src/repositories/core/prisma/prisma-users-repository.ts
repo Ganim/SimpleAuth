@@ -1,4 +1,3 @@
-import type { UserRole } from '@/@types/user-role';
 import { User } from '@/entities/core/user';
 import type { Email } from '@/entities/core/value-objects/email';
 import type { Token } from '@/entities/core/value-objects/token';
@@ -6,6 +5,7 @@ import { Username } from '@/entities/core/value-objects/username';
 import type { UniqueEntityID } from '@/entities/domain/unique-entity-id';
 import { prisma } from '@/lib/prisma';
 import { mapUserPrismaToDomain } from '@/mappers/core/user/user-prisma-to-domain';
+import type { Role as PrismaRole } from '@prisma/client';
 import type {
   CreateUserSchema,
   UpdateUserSchema,
@@ -22,7 +22,7 @@ export class PrismaUsersRepository implements UsersRepository {
         username: data.username.toString(),
         email: data.email.toString(),
         password_hash: data.passwordHash.toString(),
-        role: data.role,
+        role: data.role.value as PrismaRole,
         profile: {
           create: {
             name: data.profile.name,
@@ -59,7 +59,7 @@ export class PrismaUsersRepository implements UsersRepository {
                 : ''
             : undefined,
           email: data.email ? data.email.toString() : undefined,
-          role: data.role ?? undefined,
+          role: data.role ? (data.role.value as PrismaRole) : undefined,
           password_hash: data.passwordHash
             ? data.passwordHash.toString()
             : undefined,
@@ -222,9 +222,9 @@ export class PrismaUsersRepository implements UsersRepository {
     return userList;
   }
 
-  async listAllByRole(role: UserRole): Promise<User[] | null> {
+  async listAllByRole(role: PrismaRole): Promise<User[] | null> {
     const usersDb = await prisma.user.findMany({
-      where: { role, deletedAt: null },
+      where: { role: role, deletedAt: null },
       orderBy: { email: 'asc' },
       include: { profile: true },
     });

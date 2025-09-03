@@ -1,5 +1,6 @@
 import { app } from '@/app';
 import { createAndAuthenticateUser } from '@/utils/tests/factories/core/create-and-authenticate-user.e2e';
+import { uniqueEmail } from '@/utils/tests/factories/core/make-unique-email';
 import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
@@ -14,11 +15,12 @@ describe('Create User (e2e)', () => {
   it('should allow MANAGER/ADMIN to CREATE a NEW USER', async () => {
     const { token } = await createAndAuthenticateUser(app, 'MANAGER');
 
+    const email = uniqueEmail('newuser');
     const response = await request(app.server)
       .post('/v1/users')
       .set('Authorization', `Bearer ${token}`)
       .send({
-        email: 'johndoe@example.com',
+        email,
         password: 'Pass@123',
         profile: {
           name: 'John',
@@ -30,7 +32,7 @@ describe('Create User (e2e)', () => {
 
     expect(response.statusCode).toEqual(201);
 
-    expect(response.body.user.email).toBe('johndoe@example.com');
+    expect(response.body.user.email).toBe(email);
     expect(response.body.user.profile).toBeDefined();
     expect(response.body.user.profile.name).toBe('John');
     expect(response.body.user.profile.surname).toBe('Doe');

@@ -1,3 +1,4 @@
+import { env } from '@/@env';
 import { Email } from '@/entities/core/value-objects/email';
 import { Token } from '@/entities/core/value-objects/token';
 import nodemailer from 'nodemailer';
@@ -21,12 +22,12 @@ interface EmailServiceResponse {
 
 export class EmailService {
   private transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT),
+    host: env.SMTP_HOST,
+    port: Number(env.SMTP_PORT),
     secure: false, // true para 465, false para outros
     auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
+      user: env.SMTP_USER,
+      pass: env.SMTP_PASS,
     },
   });
 
@@ -36,7 +37,7 @@ export class EmailService {
   ): Promise<EmailServiceResponse> {
     await this.transporter.verify();
 
-    const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${token.toString()}`;
+    const resetUrl = `${env.FRONTEND_URL}/reset-password?token=${token.toString()}`;
 
     try {
       const sentInformation = await this.transporter.sendMail({

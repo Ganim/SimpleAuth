@@ -1,5 +1,6 @@
 import { app } from '@/app';
 import { createAndAuthenticateUser } from '@/utils/tests/factories/core/create-and-authenticate-user.e2e';
+import { uniqueEmail } from '@/utils/tests/factories/core/make-unique-email';
 import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
@@ -14,11 +15,12 @@ describe('Expire Session (e2e)', () => {
   it('should allow ADMIN to EXPIRE an user SESSION', async () => {
     const { token } = await createAndAuthenticateUser(app, 'ADMIN');
 
+    const email = uniqueEmail('expire-session');
     const anotherUser = await request(app.server)
       .post('/v1/users')
       .set('Authorization', `Bearer ${token}`)
       .send({
-        email: 'user@example.com',
+        email,
         password: 'Pass@123',
       });
 
@@ -27,7 +29,7 @@ describe('Expire Session (e2e)', () => {
     const authenticateAnotherUser = await request(app.server)
       .post('/v1/auth/login/password')
       .send({
-        email: 'user@example.com',
+        email,
         password: 'Pass@123',
       });
 

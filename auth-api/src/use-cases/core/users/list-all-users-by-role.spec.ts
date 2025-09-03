@@ -1,8 +1,8 @@
 import { ResourceNotFoundError } from '@/@errors/use-cases/resource-not-found';
-import { UserRole } from '@/@types/user-role';
 import { UniqueEntityID } from '@/entities/domain/unique-entity-id';
 import { InMemoryUsersRepository } from '@/repositories/core/in-memory/in-memory-users-repository';
 import { makeUser } from '@/utils/tests/factories/core/make-user';
+import type { Role as PrismaRole } from '@prisma/client';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { ListAllUserByRoleUseCase } from './list-all-users-by-role';
 
@@ -113,7 +113,7 @@ describe('List All Users By Role Use Case', () => {
       usersRepository,
     });
 
-    const { users } = await sut.execute({ role: 'MANAGER' as UserRole });
+    const { users } = await sut.execute({ role: 'MANAGER' as PrismaRole });
     expect(users).toHaveLength(1);
     expect(users[0].profile).toBeDefined();
     expect(users[0].profile?.name).toBe('Manager Two');
@@ -139,7 +139,7 @@ describe('List All Users By Role Use Case', () => {
     await usersRepository.delete(userId);
 
     await expect(
-      sut.execute({ role: 'MANAGER' as UserRole }),
+      sut.execute({ role: 'MANAGER' as PrismaRole }),
     ).rejects.toBeInstanceOf(ResourceNotFoundError);
   });
 
@@ -162,9 +162,11 @@ describe('List All Users By Role Use Case', () => {
     const { users } = await sut.execute({ role: 'MANAGER' });
 
     expect(users).toHaveLength(1);
-    expect(users.map((u) => u.email)).not.toContain(
+    expect(users.map((user) => user.email)).not.toContain(
       'deleted-manager@example.com',
     );
-    expect(users.map((u) => u.email)).toContain('active-manager@example.com');
+    expect(users.map((user) => user.email)).toContain(
+      'active-manager@example.com',
+    );
   });
 });

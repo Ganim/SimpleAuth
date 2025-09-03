@@ -4,12 +4,12 @@ import { IpAddress } from '@/entities/core/value-objects/ip-address';
 import { Token } from '@/entities/core/value-objects/token';
 import { UniqueEntityID } from '@/entities/domain/unique-entity-id';
 import {
-    refreshTokenToDTO,
-    type RefreshTokenDTO,
+  refreshTokenToDTO,
+  type RefreshTokenDTO,
 } from '@/mappers/core/refresh-token/refresh-token-to-dto';
 import {
-    sessionToDTO,
-    type SessionDTO,
+  sessionToDTO,
+  type SessionDTO,
 } from '@/mappers/core/session/session-to-dto';
 import { RefreshTokensRepository } from '@/repositories/core/refresh-tokens-repository';
 import { SessionsRepository } from '@/repositories/core/sessions-repository';
@@ -83,7 +83,7 @@ export class RefreshSessionUseCase {
 
     const newJWTRefreshToken = await reply.jwtSign(
       {
-        role: storedUser.role,
+        role: storedUser.role.value,
         sessionId: validSessionId.toString(),
         jti: new UniqueEntityID().toString(),
       },

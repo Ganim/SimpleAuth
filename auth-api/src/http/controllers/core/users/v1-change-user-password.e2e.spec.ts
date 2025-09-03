@@ -1,5 +1,6 @@
 import { app } from '@/app';
 import { createAndAuthenticateUser } from '@/utils/tests/factories/core/create-and-authenticate-user.e2e';
+import { uniqueEmail } from '@/utils/tests/factories/core/make-unique-email';
 import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
@@ -14,11 +15,12 @@ describe('Change User Password (e2e)', () => {
   it('should allow ADMIN to CHANGE another user PASSWORD', async () => {
     const { token } = await createAndAuthenticateUser(app, 'ADMIN');
 
+    const email = uniqueEmail('change-user-password');
     const anotherUser = await request(app.server)
       .post('/v1/users')
       .set('Authorization', `Bearer ${token}`)
       .send({
-        email: 'user@example.com',
+        email,
         password: 'Pass@123',
       });
 

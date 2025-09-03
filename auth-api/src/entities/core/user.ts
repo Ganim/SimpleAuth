@@ -1,4 +1,3 @@
-import { UserRole } from '@/@types/user-role';
 import dayjs from 'dayjs';
 import { Entity } from '../domain/entities';
 import { Optional } from '../domain/optional';
@@ -7,6 +6,7 @@ import { UserProfile } from './user-profile';
 import { Email } from './value-objects/email';
 import { IpAddress } from './value-objects/ip-address';
 import { Password } from './value-objects/password';
+import { Role } from './value-objects/role';
 import { Token } from './value-objects/token';
 import { Username } from './value-objects/username';
 
@@ -15,7 +15,7 @@ export interface UserProps {
   username: Username;
   email: Email;
   password: Password;
-  role: UserRole;
+  role: Role;
   lastLoginIp?: IpAddress;
   failedLoginAttempts: number;
   blockedUntil?: Date;
@@ -41,7 +41,7 @@ export class User extends Entity<UserProps> {
   get password(): Password {
     return this.props.password;
   }
-  get role(): UserRole {
+  get role(): Role {
     return this.props.role;
   }
   get lastLoginIp(): IpAddress | undefined {
@@ -83,18 +83,6 @@ export class User extends Entity<UserProps> {
     return !!this.deletedAt;
   }
 
-  get isAdmin(): boolean {
-    return this.role === 'ADMIN';
-  }
-
-  get isManager(): boolean {
-    return this.role === 'MANAGER';
-  }
-
-  get isUser(): boolean {
-    return this.role === 'USER';
-  }
-
   private touch() {
     this.props.updatedAt = new Date();
   }
@@ -119,7 +107,7 @@ export class User extends Entity<UserProps> {
     this.touch();
   }
 
-  set role(role: UserRole) {
+  set role(role: Role) {
     this.props.role = role;
     this.touch();
   }
@@ -163,7 +151,7 @@ export class User extends Entity<UserProps> {
     const user = new User(
       {
         ...props,
-        role: props.role ?? 'USER',
+        role: props.role ?? Role.create('USER'),
         failedLoginAttempts: props.failedLoginAttempts ?? 0,
         createdAt: props.createdAt ?? new Date(),
         deletedAt: props.deletedAt ?? undefined,

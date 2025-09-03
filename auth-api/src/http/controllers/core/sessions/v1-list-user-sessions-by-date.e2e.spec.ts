@@ -1,5 +1,6 @@
 import { app } from '@/app';
 import { createAndAuthenticateUser } from '@/utils/tests/factories/core/create-and-authenticate-user.e2e';
+import { uniqueEmail } from '@/utils/tests/factories/core/make-unique-email';
 import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
@@ -14,11 +15,12 @@ describe('List All User Sessions By Date (e2e)', () => {
   it('should allow ADMIN to LIST user SESSIONS by DATE', async () => {
     const { token } = await createAndAuthenticateUser(app, 'ADMIN');
 
+    const email = uniqueEmail('sessions-by-date');
     const anotherUser = await request(app.server)
       .post('/v1/users')
       .set('Authorization', `Bearer ${token}`)
       .send({
-        email: 'user@example.com',
+        email,
         password: 'Pass@123',
       });
 
@@ -27,7 +29,7 @@ describe('List All User Sessions By Date (e2e)', () => {
     const authenticateAnotherUser = await request(app.server)
       .post('/v1/auth/login/password')
       .send({
-        email: 'user@example.com',
+        email,
         password: 'Pass@123',
       });
 

@@ -1,17 +1,18 @@
 import { BadRequestError } from '@/@errors/use-cases/bad-request-error';
-import { UserRole } from '@/@types/user-role';
 import { Email } from '@/entities/core/value-objects/email';
 import { Password } from '@/entities/core/value-objects/password';
+import { Role } from '@/entities/core/value-objects/role';
 import { Url } from '@/entities/core/value-objects/url';
 import { Username } from '@/entities/core/value-objects/username';
 import { UserDTO, userToDTO } from '@/mappers/core/user/user-to-dto';
 import { UsersRepository } from '@/repositories/core/users-repository';
+import type { Role as PrismaRole } from '@prisma/client';
 
 interface CreateUserUseCaseRequest {
   username?: string;
   email: string;
   password: string;
-  role?: UserRole;
+  role?: PrismaRole;
   profile?: {
     name?: string;
     surname?: string;
@@ -45,6 +46,7 @@ export class CreateUserUseCase {
     const validUsername = username
       ? Username.create(username)
       : Username.random();
+    const validRole = Role.create(role);
 
     const userWithSameEmail =
       await this.userRespository.findByEmail(validEmail);
@@ -62,7 +64,7 @@ export class CreateUserUseCase {
       email: validEmail,
       username: validUsername,
       passwordHash: validPassword,
-      role,
+      role: validRole,
       deletedAt,
       profile: {
         name: profile?.name ?? '',

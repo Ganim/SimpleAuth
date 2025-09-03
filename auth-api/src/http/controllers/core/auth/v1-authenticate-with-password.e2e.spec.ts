@@ -1,5 +1,6 @@
 import { app } from '@/app';
 import { MAX_ATTEMPTS } from '@/config/auth';
+import { uniqueEmail } from '@/utils/tests/factories/core/make-unique-email';
 import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
@@ -12,22 +13,25 @@ describe('Authenticate with password (e2e)', () => {
   });
 
   it('should allow ANYONE to AUTHENTICATE with PASSWORD', async () => {
+    const email = uniqueEmail('auth-login');
     await request(app.server).post('/v1/auth/register/password').send({
-      email: 'johndoe@example.com',
+      email,
       password: 'Pass@123',
     });
 
-    const response = await request(app.server).post('/v1/auth/login/password').send({
-      email: 'johndoe@example.com',
-      password: 'Pass@123',
-    });
+    const response = await request(app.server)
+      .post('/v1/auth/login/password')
+      .send({
+        email,
+        password: 'Pass@123',
+      });
 
     expect(response.statusCode).toEqual(200);
 
     expect(response.body).toEqual({
       user: expect.objectContaining({
         id: expect.any(String),
-        email: 'johndoe@example.com',
+        email,
         username: expect.any(String),
         role: expect.any(String),
         lastLoginAt: expect.any(String),
@@ -41,8 +45,9 @@ describe('Authenticate with password (e2e)', () => {
   });
 
   it('should BLOCK user after exceeding max FAILED LOGIN ATTEMPTS (e2e)', async () => {
+    const blockEmail = uniqueEmail('auth-block');
     await request(app.server).post('/v1/auth/register/password').send({
-      email: 'blockme@example.com',
+      email: blockEmail,
       password: 'Pass@123',
     });
 
@@ -50,7 +55,7 @@ describe('Authenticate with password (e2e)', () => {
       const response = await request(app.server)
         .post('/v1/auth/login/password')
         .send({
-          email: 'blockme@example.com',
+          email: blockEmail,
           password: 'wrongpassword',
         });
       if (i < MAX_ATTEMPTS - 1) {
@@ -72,7 +77,7 @@ describe('Authenticate with password (e2e)', () => {
     const blockedResponse = await request(app.server)
       .post('/v1/auth/login/password')
       .send({
-        email: 'blockme@example.com',
+        email: blockEmail,
         password: 'Pass@123',
       });
 

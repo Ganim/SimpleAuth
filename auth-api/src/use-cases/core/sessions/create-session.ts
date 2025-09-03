@@ -4,8 +4,8 @@ import { IpAddress } from '@/entities/core/value-objects/ip-address';
 import { Token } from '@/entities/core/value-objects/token';
 import { UniqueEntityID } from '@/entities/domain/unique-entity-id';
 import {
-    sessionToDTO,
-    type SessionDTO,
+  sessionToDTO,
+  type SessionDTO,
 } from '@/mappers/core/session/session-to-dto';
 import type { RefreshTokensRepository } from '@/repositories/core/refresh-tokens-repository';
 import type { SessionsRepository } from '@/repositories/core/sessions-repository';
@@ -56,32 +56,30 @@ export class CreateSessionUseCase {
       );
     }
 
+    // Assina tokens com a string da role (role.value) para compatibilidade com middlewares
     const token = await reply.jwtSign(
-      { role: user.role, sessionId: newSession.id.toString() },
+      { role: user.role.value, sessionId: newSession.id.toString() },
       { sign: { sub: user.id.toString() } },
     );
 
     const refreshToken = await reply.jwtSign(
       {
-        role: user.role,
+        role: user.role.value,
         sessionId: newSession.id.toString(),
         jti: new UniqueEntityID().toString(),
       },
       { sign: { sub: user.id.toString(), expiresIn: '7d' } },
     );
 
-    const refreshTokenValue = Token.create(refreshToken);
+    // Persistir refresh token para que os casos de uso de logout/refresh funcionem
+    const validRefreshToken = Token.create(refreshToken);
 
-    const newRefreshToken = await this.refreshTokensRepository.create({
+    await this.refreshTokensRepository.create({
       userId: validId,
       sessionId: newSession.id,
-      token: refreshTokenValue,
+      token: validRefreshToken,
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 dias
     });
-
-    if (!newRefreshToken) {
-      throw new BadRequestError('Unable to create refresh token.');
-    }
 
     const session = sessionToDTO(newSession);
 

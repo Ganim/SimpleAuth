@@ -1,4 +1,3 @@
-import { UserRole } from '@/@types/user-role';
 import { User } from '@/entities/core/user';
 import { UserProfile } from '@/entities/core/user-profile';
 import { Email } from '@/entities/core/value-objects/email';
@@ -11,6 +10,7 @@ import {
   UpdateUserSchema,
   UsersRepository,
 } from '@/repositories/core/users-repository';
+import type { Role as PrismaRole } from '@prisma/client';
 
 export class InMemoryUsersRepository implements UsersRepository {
   // IN MEMORY DATABASE
@@ -174,13 +174,15 @@ export class InMemoryUsersRepository implements UsersRepository {
 
   // LIST
   // - listAll(): Promise<User[] | null>;
-  // - listAllByRole(role: UserRole): Promise<User[] | null>;
+  // - listAllByRole(role: PrismaRole): Promise<User[] | null>;
 
   async listAll(): Promise<User[] | null> {
     return this.items.filter((user) => !user.isDeleted);
   }
 
-  async listAllByRole(role: UserRole): Promise<User[] | null> {
-    return this.items.filter((user) => !user.isDeleted && user.role === role);
+  async listAllByRole(role: PrismaRole): Promise<User[] | null> {
+    return this.items.filter(
+      (user) => !user.isDeleted && user.role.value === role,
+    );
   }
 }
