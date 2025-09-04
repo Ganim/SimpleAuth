@@ -26,7 +26,7 @@ describe('ListAllActiveSessionsUseCase', () => {
     });
     await sessionsRepository.create({
       userId: new UniqueEntityID(user1.id),
-      ip: new IpAddress('127.0.0.1'),
+      ip: IpAddress.create('127.0.0.1'),
     });
 
     const { user: user2 } = await makeUser({
@@ -36,7 +36,7 @@ describe('ListAllActiveSessionsUseCase', () => {
     });
     const expired = await sessionsRepository.create({
       userId: new UniqueEntityID(user2.id),
-      ip: new IpAddress('127.0.0.2'),
+      ip: IpAddress.create('127.0.0.2'),
     });
     await sessionsRepository.expire(expired.id);
 
@@ -47,7 +47,7 @@ describe('ListAllActiveSessionsUseCase', () => {
     });
     const revoked = await sessionsRepository.create({
       userId: new UniqueEntityID(user3.id),
-      ip: new IpAddress('127.0.0.3'),
+      ip: IpAddress.create('127.0.0.3'),
     });
     await sessionsRepository.revoke(revoked.id);
 

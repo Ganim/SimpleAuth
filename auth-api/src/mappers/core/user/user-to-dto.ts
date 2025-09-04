@@ -16,7 +16,7 @@ export function userToDTO(user: User): UserDTO {
     id: user.id.toString(),
     email: user.email.value,
     username: user.username.value,
-    role: user.role,
+    role: user.role.value,
     lastLoginAt: user.lastLoginAt ?? null,
     profile: user.profile ? userProfileToDTO(user.profile) : null,
     deletedAt: user.deletedAt ?? null,

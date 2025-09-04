@@ -18,7 +18,7 @@ describe('Get User By Email Use Case', () => {
   it('should return the user by email', async () => {
     const { user } = await makeUser({
       email: 'getuser@example.com',
-      password: 'hash',
+      password: 'Pass@123',
       profile: {
         name: 'Get',
         surname: 'User',
@@ -44,7 +44,7 @@ describe('Get User By Email Use Case', () => {
   it('should throw ResourceNotFoundError if user is deleted', async () => {
     const { user } = await makeUser({
       email: 'deleteduser@example.com',
-      password: 'hash',
+      password: 'Pass@123',
       deletedAt: new Date(),
       usersRepository,
     });
@@ -58,7 +58,7 @@ describe('Get User By Email Use Case', () => {
   it('should return the user with empty profile if profile data does not exist', async () => {
     const { user } = await makeUser({
       email: 'noprofile@example.com',
-      password: 'hash',
+      password: 'Pass@123',
       usersRepository,
     });
     const result = await sut.execute({ email: user.email });

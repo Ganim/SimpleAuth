@@ -43,7 +43,7 @@ export class RefreshSessionUseCase {
   }: RefreshSessionUseCaseRequest): Promise<RefreshSessionUseCaseResponse> {
     const validSessionId = new UniqueEntityID(sessionId);
     const validUserId = new UniqueEntityID(userId);
-    const validIp = new IpAddress(ip);
+    const validIp = IpAddress.create(ip);
 
     const storedUser = await this.usersRepository.findById(validUserId);
 
@@ -83,14 +83,14 @@ export class RefreshSessionUseCase {
 
     const newJWTRefreshToken = await reply.jwtSign(
       {
-        role: storedUser.role,
+        role: storedUser.role.value,
         sessionId: validSessionId.toString(),
         jti: new UniqueEntityID().toString(),
       },
       { sign: { sub: validUserId.toString(), expiresIn: '7d' } },
     );
 
-    const validJWTRefreshToken = new Token(newJWTRefreshToken);
+    const validJWTRefreshToken = Token.create(newJWTRefreshToken);
 
     const newDBRefreshToken = await this.refreshTokensRepository.create({
       userId: validUserId,

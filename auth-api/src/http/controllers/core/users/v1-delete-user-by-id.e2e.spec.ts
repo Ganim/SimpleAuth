@@ -1,0 +1,45 @@
+import { app } from '@/app';
+import { createAndAuthenticateUser } from '@/utils/tests/factories/core/create-and-authenticate-user.e2e';
+import { makeUniqueEmail } from '@/utils/tests/factories/core/make-unique-email';
+import request from 'supertest';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+
+describe('Delete User By Id (e2e)', () => {
+  beforeAll(async () => {
+    await app.ready();
+  });
+  afterAll(async () => {
+    await app.close();
+  });
+
+  it('should allow ADMIN to DELETE another user BY ID', async () => {
+    const { token } = await createAndAuthenticateUser(app, 'ADMIN');
+
+    const email = makeUniqueEmail('delete-user');
+    const anotherUser = await request(app.server)
+      .post('/v1/users')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        email,
+        password: 'Pass@123',
+      });
+
+    const userId = anotherUser.body.user?.id;
+
+    const response = await request(app.server)
+      .delete(`/v1/users/${userId}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ role: 'ADMIN' });
+
+    expect(response.statusCode).toBe(200);
+
+    const userResponse = await request(app.server)
+      .get(`/v1/users/${userId}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send();
+
+    expect(userId).toBeDefined();
+
+    expect(userResponse.statusCode).toBe(404);
+  });
+});

@@ -1,7 +1,7 @@
 import { Session } from '@/entities/core/session';
 import { IpAddress } from '@/entities/core/value-objects/ip-address';
 import { UniqueEntityID } from '@/entities/domain/unique-entity-id';
-import type { Prisma } from 'generated/prisma';
+import type { Prisma } from '@prisma/client';
 
 export function mapSessionPrismaToDomain(
   sessionDb: Prisma.SessionGetPayload<object>,
@@ -9,7 +9,7 @@ export function mapSessionPrismaToDomain(
   return Session.create(
     {
       userId: new UniqueEntityID(sessionDb.userId),
-      ip: new IpAddress(sessionDb.ip),
+      ip: IpAddress.create(sessionDb.ip),
       createdAt: sessionDb.createdAt,
       expiredAt: sessionDb.expiredAt ?? undefined,
       revokedAt: sessionDb.revokedAt ?? undefined,

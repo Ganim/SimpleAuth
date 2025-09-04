@@ -1,7 +1,7 @@
-import { UserRole } from '@/@types/user-role';
 import { User } from '@/entities/core/user';
 import { UserProfile } from '@/entities/core/user-profile';
 import { Email } from '@/entities/core/value-objects/email';
+import type { Token } from '@/entities/core/value-objects/token';
 import { Url } from '@/entities/core/value-objects/url';
 import { Username } from '@/entities/core/value-objects/username';
 import { UniqueEntityID } from '@/entities/domain/unique-entity-id';
@@ -10,6 +10,7 @@ import {
   UpdateUserSchema,
   UsersRepository,
 } from '@/repositories/core/users-repository';
+import type { Role as PrismaRole } from '@prisma/client';
 
 export class InMemoryUsersRepository implements UsersRepository {
   // IN MEMORY DATABASE
@@ -50,8 +51,9 @@ export class InMemoryUsersRepository implements UsersRepository {
   }
 
   // UPDATE / PATCH
-  // - update(data: UpdateUserSchema): Promise<User>;
-  // - updateLastLoginAt(id: UniqueEntityID, date: Date): Promise<void>;
+  // - update(data: UpdateUserSchema): Promise<User | null>;
+  // - updateLastLoginAt(id: UniqueEntityID, date: Date): Promise<User | null>;
+  // - updatePasswordReset(id: UniqueEntityID, token: Token, expires: Date): Promise<User | null>;
 
   async update(data: UpdateUserSchema): Promise<User | null> {
     const user = this.items.find((item) => item.id.equals(data.id));
@@ -75,6 +77,11 @@ export class InMemoryUsersRepository implements UsersRepository {
         updatedAt: new Date(),
       });
     }
+    if (data.failedLoginAttempts)
+      user.failedLoginAttempts = data.failedLoginAttempts;
+    if (data.blockedUntil)
+      user.blockedUntil =
+        data.blockedUntil === null ? undefined : data.blockedUntil;
     if (data.deletedAt)
       user.deletedAt = data.deletedAt === null ? undefined : data.deletedAt;
 
@@ -94,6 +101,21 @@ export class InMemoryUsersRepository implements UsersRepository {
     return user;
   }
 
+  async updatePasswordReset(
+    id: UniqueEntityID,
+    token: Token,
+    expires: Date,
+  ): Promise<User | null> {
+    const user = await this.findById(id);
+
+    if (!user) return null;
+
+    user.passwordResetToken = token;
+    user.passwordResetExpires = expires;
+
+    return user;
+  }
+
   // DELETE
   // - delete(id: UniqueEntityID): Promise<void | null>;
 
@@ -109,6 +131,7 @@ export class InMemoryUsersRepository implements UsersRepository {
   // - findByEmail(email: Email): Promise<User | null>;
   // - findById(id: UniqueEntityID): Promise<User | null>;
   // - findByUsername(username: Username): Promise<User | null>;
+  // - findByPasswordResetToken(token: Token): Promise<User | null>;
 
   async findByEmail(email: Email): Promise<User | null> {
     const user = this.items.find((user) => user.email.equals(email));
@@ -139,15 +162,27 @@ export class InMemoryUsersRepository implements UsersRepository {
     return user;
   }
 
+  async findByPasswordResetToken(token: Token): Promise<User | null> {
+    const user = this.items.find((item) =>
+      item.passwordResetToken?.equals(token),
+    );
+
+    if (!user) return null;
+
+    return user;
+  }
+
   // LIST
   // - listAll(): Promise<User[] | null>;
-  // - listAllByRole(role: UserRole): Promise<User[] | null>;
+  // - listAllByRole(role: PrismaRole): Promise<User[] | null>;
 
   async listAll(): Promise<User[] | null> {
     return this.items.filter((user) => !user.isDeleted);
   }
 
-  async listAllByRole(role: UserRole): Promise<User[] | null> {
-    return this.items.filter((user) => !user.isDeleted && user.role === role);
+  async listAllByRole(role: PrismaRole): Promise<User[] | null> {
+    return this.items.filter(
+      (user) => !user.isDeleted && user.role.value === role,
+    );
   }
 }

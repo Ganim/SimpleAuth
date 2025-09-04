@@ -1,4 +1,6 @@
 import { BadRequestError } from '@/@errors/use-cases/bad-request-error';
+import { UserBlockedError } from '@/@errors/use-cases/user-blocked-error';
+import { BLOCK_MINUTES, MAX_ATTEMPTS } from '@/config/auth';
 import { Email } from '@/entities/core/value-objects/email';
 import { Password } from '@/entities/core/value-objects/password';
 import { UserDTO, userToDTO } from '@/mappers/core/user/user-to-dto';
@@ -31,12 +33,16 @@ export class AuthenticateWithPasswordUseCase {
     ip,
     reply,
   }: AuthenticateWithPasswordUseCaseRequest): Promise<AuthenticateWithPasswordUseCaseResponse> {
-    const validEmail = new Email(email);
+    const validEmail = Email.create(email);
 
     const existingUser = await this.usersRepository.findByEmail(validEmail);
 
     if (!existingUser || existingUser.deletedAt) {
       throw new BadRequestError('Invalid credentials');
+    }
+
+    if (existingUser.blockedUntil && new Date() < existingUser.blockedUntil) {
+      throw new UserBlockedError(existingUser.blockedUntil);
     }
 
     const doesPasswordMatches = await Password.compare(
@@ -45,8 +51,38 @@ export class AuthenticateWithPasswordUseCase {
     );
 
     if (!doesPasswordMatches) {
+      existingUser.failedLoginAttempts += 1;
+
+      if (existingUser.failedLoginAttempts >= MAX_ATTEMPTS) {
+        existingUser.blockedUntil = new Date(
+          Date.now() + BLOCK_MINUTES * 60 * 1000,
+        );
+
+        await this.usersRepository.update({
+          id: existingUser.id,
+          blockedUntil: existingUser.blockedUntil,
+          failedLoginAttempts: existingUser.failedLoginAttempts,
+        });
+
+        throw new UserBlockedError(existingUser.blockedUntil);
+      } else {
+        await this.usersRepository.update({
+          id: existingUser.id,
+          failedLoginAttempts: existingUser.failedLoginAttempts,
+        });
+      }
+
       throw new BadRequestError('Invalid credentials');
     }
+
+    existingUser.failedLoginAttempts = 0;
+    existingUser.blockedUntil = undefined;
+
+    await this.usersRepository.update({
+      id: existingUser.id,
+      failedLoginAttempts: 0,
+      blockedUntil: null,
+    });
 
     existingUser.lastLoginAt = new Date();
 

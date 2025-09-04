@@ -1,10 +1,11 @@
-import type { UserRole } from '@/@types/user-role';
 import { User } from '@/entities/core/user';
 import type { Email } from '@/entities/core/value-objects/email';
+import type { Token } from '@/entities/core/value-objects/token';
 import { Username } from '@/entities/core/value-objects/username';
 import type { UniqueEntityID } from '@/entities/domain/unique-entity-id';
 import { prisma } from '@/lib/prisma';
 import { mapUserPrismaToDomain } from '@/mappers/core/user/user-prisma-to-domain';
+import type { Role as PrismaRole } from '@prisma/client';
 import type {
   CreateUserSchema,
   UpdateUserSchema,
@@ -21,7 +22,7 @@ export class PrismaUsersRepository implements UsersRepository {
         username: data.username.toString(),
         email: data.email.toString(),
         password_hash: data.passwordHash.toString(),
-        role: data.role,
+        role: data.role.value as PrismaRole,
         profile: {
           create: {
             name: data.profile.name,
@@ -41,27 +42,29 @@ export class PrismaUsersRepository implements UsersRepository {
   }
 
   // UPDATE / PATCH
-  // - update(data: UpdateUserSchema): Promise<User>;
-  // - updateLastLoginAt(id: UniqueEntityID, date: Date): Promise<void>;
+  // - update(data: UpdateUserSchema): Promise<User | null>;
+  // - updateLastLoginAt(id: UniqueEntityID, date: Date): Promise<User | null>;
+  // - updatePasswordReset(id: UniqueEntityID, token: Token, expires: Date): Promise<User | null>;
 
   async update(data: UpdateUserSchema): Promise<User | null> {
     try {
       const newUserData = await prisma.user.update({
         where: { id: data.id.toString() },
         data: {
-          ...(data.username && {
-            username:
-              data.username instanceof Username
-                ? data.username.value
-                : typeof data.username === 'string'
-                  ? data.username
-                  : '',
-          }),
-          ...(data.email && { email: data.email.toString() }),
-          ...(data.role && { role: data.role }),
-          ...(data.passwordHash && {
-            password_hash: data.passwordHash.toString(),
-          }),
+          username: data.username
+            ? data.username instanceof Username
+              ? data.username.value
+              : typeof data.username === 'string'
+                ? data.username
+                : ''
+            : undefined,
+          email: data.email ? data.email.toString() : undefined,
+          role: data.role ? (data.role.value as PrismaRole) : undefined,
+          password_hash: data.passwordHash
+            ? data.passwordHash.toString()
+            : undefined,
+          failedLoginAttempts: data.failedLoginAttempts,
+          blockedUntil: data.blockedUntil ?? undefined,
           profile: data.profile
             ? {
                 update: {
@@ -101,6 +104,26 @@ export class PrismaUsersRepository implements UsersRepository {
     }
   }
 
+  async updatePasswordReset(
+    id: UniqueEntityID,
+    token: Token,
+    expires: Date,
+  ): Promise<User | null> {
+    try {
+      const newUserData = await prisma.user.update({
+        where: { id: id.toString() },
+        data: {
+          passwordResetToken: token.value,
+          passwordResetExpires: expires,
+        },
+        include: { profile: true },
+      });
+      return User.create(mapUserPrismaToDomain(newUserData));
+    } catch {
+      return null;
+    }
+  }
+
   // DELETE
   // - delete(id: UniqueEntityID): Promise<void>;
 
@@ -119,6 +142,7 @@ export class PrismaUsersRepository implements UsersRepository {
   // - findByEmail(email: Email): Promise<User | null>;
   // - findById(id: UniqueEntityID): Promise<User | null>;
   // - findByUsername(username: Username): Promise<User | null>;
+  // - findByPasswordResetToken(token: Token): Promise<User | null>;
 
   async findByEmail(email: Email): Promise<User | null> {
     const newUserData = await prisma.user.findFirst({
@@ -166,6 +190,18 @@ export class PrismaUsersRepository implements UsersRepository {
     return user;
   }
 
+  async findByPasswordResetToken(token: Token): Promise<User | null> {
+    const newUserData = await prisma.user.findFirst({
+      where: { passwordResetToken: token.value, deletedAt: null },
+      include: { profile: true },
+    });
+
+    if (!newUserData) return null;
+
+    const user = User.create(mapUserPrismaToDomain(newUserData));
+    return user;
+  }
+
   // LIST
   // - listAll(): Promise<User[]>;
   // - listAllByRole(role: UserRole): Promise<User[]>;
@@ -186,9 +222,9 @@ export class PrismaUsersRepository implements UsersRepository {
     return userList;
   }
 
-  async listAllByRole(role: UserRole): Promise<User[] | null> {
+  async listAllByRole(role: PrismaRole): Promise<User[] | null> {
     const usersDb = await prisma.user.findMany({
-      where: { role, deletedAt: null },
+      where: { role: role, deletedAt: null },
       orderBy: { email: 'asc' },
       include: { profile: true },
     });

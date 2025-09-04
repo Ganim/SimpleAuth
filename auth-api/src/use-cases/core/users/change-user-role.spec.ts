@@ -19,7 +19,7 @@ describe('ChangeUserRoleUseCase', () => {
   it('should change user role', async () => {
     const { user } = await makeUser({
       email: 'user@example.com',
-      password: '123456',
+      password: 'Pass@123',
       role: 'USER',
       usersRepository,
     });
@@ -32,7 +32,7 @@ describe('ChangeUserRoleUseCase', () => {
   it('should not allow role change for deleted user', async () => {
     const { user } = await makeUser({
       email: 'deleted@example.com',
-      password: '123456',
+      password: 'Pass@123',
       role: 'USER',
       usersRepository,
     });

@@ -20,7 +20,7 @@ describe('ChangeMyEmailUseCase', () => {
   it('should change own email', async () => {
     const { user } = await makeUser({
       email: 'old@example.com',
-      password: '123456',
+      password: 'Pass@123',
       usersRepository,
     });
     const result = await sut.execute({
@@ -41,7 +41,7 @@ describe('ChangeMyEmailUseCase', () => {
   it('should throw ResourceNotFoundError if user is deleted', async () => {
     const { user } = await makeUser({
       email: 'deleted@example.com',
-      password: '123456',
+      password: 'Pass@123',
       deletedAt: new Date(),
       usersRepository,
     });
@@ -53,12 +53,12 @@ describe('ChangeMyEmailUseCase', () => {
   it('should not allow changing to an already existing email', async () => {
     await makeUser({
       email: 'user1@example.com',
-      password: '123456',
+      password: 'Pass@123',
       usersRepository,
     });
     const { user: user2 } = await makeUser({
       email: 'user2@example.com',
-      password: '123456',
+      password: 'Pass@123',
       usersRepository,
     });
     await expect(() =>
@@ -69,11 +69,11 @@ describe('ChangeMyEmailUseCase', () => {
   // VALIDATIONS
 
   it('should not allow invalid email format', () => {
-    expect(() => new Email('invalid-email')).toThrow(BadRequestError);
-    expect(() => new Email('user@invalid')).toThrow(BadRequestError);
-    expect(() => new Email('user@.com')).toThrow(BadRequestError);
-    expect(() => new Email('user@com')).toThrow(BadRequestError);
-    expect(() => new Email('user.com')).toThrow(BadRequestError);
+    expect(() => Email.create('invalid-email')).toThrow(BadRequestError);
+    expect(() => Email.create('user@invalid')).toThrow(BadRequestError);
+    expect(() => Email.create('user@.com')).toThrow(BadRequestError);
+    expect(() => Email.create('user@com')).toThrow(BadRequestError);
+    expect(() => Email.create('user.com')).toThrow(BadRequestError);
   });
 
   // INTEGRATION
@@ -81,12 +81,12 @@ describe('ChangeMyEmailUseCase', () => {
   it('should keep correct user count after email change', async () => {
     await makeUser({
       email: 'user1@example.com',
-      password: '123456',
+      password: 'Pass@123',
       usersRepository,
     });
     const { user } = await makeUser({
       email: 'user2@example.com',
-      password: '123456',
+      password: 'Pass@123',
       usersRepository,
     });
     await sut.execute({ userId: user.id, email: 'changed@example.com' });

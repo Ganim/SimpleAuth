@@ -1,7 +1,7 @@
 import { UserProfile } from '@/entities/core/user-profile';
 import { Url } from '@/entities/core/value-objects/url';
 import { UniqueEntityID } from '@/entities/domain/unique-entity-id';
-import { Prisma } from 'generated/prisma';
+import { Prisma } from '@prisma/client';
 
 export function mapUserProfilePrismaToDomain(
   userProfileDB: Prisma.UserProfileGetPayload<object>,
@@ -14,7 +14,7 @@ export function mapUserProfilePrismaToDomain(
     birthday: userProfileDB.birthday ?? undefined,
     location: userProfileDB.location ?? '',
     bio: userProfileDB.bio ?? '',
-    avatarUrl: new Url(userProfileDB.avatarUrl ?? ''),
+    avatarUrl: Url.create(userProfileDB.avatarUrl ?? ''),
     createdAt: userProfileDB.createdAt ?? new Date(),
     updatedAt: userProfileDB.updatedAt ?? undefined,
   });

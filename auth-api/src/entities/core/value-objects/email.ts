@@ -3,16 +3,24 @@ import { BadRequestError } from '@/@errors/use-cases/bad-request-error';
 export class Email {
   private readonly _value: string;
 
-  constructor(value: string) {
-    if (!Email.isValid(value)) {
+  private constructor(value: string) {
+    this._value = Email.format(value);
+    if (!Email.isValid(this._value)) {
       throw new BadRequestError('Invalid email address.');
     }
-    this._value = value.trim().toLowerCase();
+  }
+
+  static create(value: string): Email {
+    return new Email(value);
   }
 
   static isValid(value: string): boolean {
     // Simple regex for email validation
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+  }
+
+  static format(value: string): string {
+    return value.trim().toLowerCase();
   }
 
   get value(): string {
@@ -24,6 +32,6 @@ export class Email {
   }
 
   equals(other: Email): boolean {
-    return this.value === other.value;
+    return this._value === other.value;
   }
 }

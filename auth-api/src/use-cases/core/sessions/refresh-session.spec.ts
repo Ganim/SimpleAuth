@@ -150,7 +150,7 @@ describe('RefreshSessionUseCase', () => {
   it('should throw if user is not found', async () => {
     const session = await sessionsRepository.create({
       userId: new UniqueEntityID('user-x'),
-      ip: new IpAddress('1.1.1.1'),
+      ip: IpAddress.create('1.1.1.1'),
     });
 
     const token = await reply.jwtSign(

@@ -1,8 +1,8 @@
 import { ResourceNotFoundError } from '@/@errors/use-cases/resource-not-found';
-import { UserRole } from '@/@types/user-role';
 import { UniqueEntityID } from '@/entities/domain/unique-entity-id';
 import { InMemoryUsersRepository } from '@/repositories/core/in-memory/in-memory-users-repository';
 import { makeUser } from '@/utils/tests/factories/core/make-user';
+import type { Role as PrismaRole } from '@prisma/client';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { ListAllUserByRoleUseCase } from './list-all-users-by-role';
 
@@ -19,19 +19,19 @@ describe('List All Users By Role Use Case', () => {
   it('should list only users with the specified role USER', async () => {
     await makeUser({
       email: 'user-1@example.com',
-      password: 'hash',
+      password: 'Pass@123',
       role: 'USER',
       usersRepository,
     });
     await makeUser({
       email: 'manager-1@example.com',
-      password: 'hash',
+      password: 'Pass@123',
       role: 'MANAGER',
       usersRepository,
     });
     await makeUser({
       email: 'admin-1@example.com',
-      password: 'hash',
+      password: 'Pass@123',
       role: 'ADMIN',
       usersRepository,
     });
@@ -46,19 +46,19 @@ describe('List All Users By Role Use Case', () => {
   it('should list only users with the specified role MANAGER', async () => {
     await makeUser({
       email: 'user-1@example.com',
-      password: 'hash',
+      password: 'Pass@123',
       role: 'USER',
       usersRepository,
     });
     await makeUser({
       email: 'manager-1@example.com',
-      password: 'hash',
+      password: 'Pass@123',
       role: 'MANAGER',
       usersRepository,
     });
     await makeUser({
       email: 'admin-1@example.com',
-      password: 'hash',
+      password: 'Pass@123',
       role: 'ADMIN',
       usersRepository,
     });
@@ -73,19 +73,19 @@ describe('List All Users By Role Use Case', () => {
   it('should list only users with the specified role ADMIN', async () => {
     await makeUser({
       email: 'user-1@example.com',
-      password: 'hash',
+      password: 'Pass@123',
       role: 'USER',
       usersRepository,
     });
     await makeUser({
       email: 'manager-1@example.com',
-      password: 'hash',
+      password: 'Pass@123',
       role: 'MANAGER',
       usersRepository,
     });
     await makeUser({
       email: 'admin-1@example.com',
-      password: 'hash',
+      password: 'Pass@123',
       role: 'ADMIN',
       usersRepository,
     });
@@ -101,7 +101,7 @@ describe('List All Users By Role Use Case', () => {
   it('should return profile data for each user', async () => {
     await makeUser({
       email: 'manager-2@example.com',
-      password: 'hash',
+      password: 'Pass@123',
       role: 'MANAGER',
       profile: {
         name: 'Manager Two',
@@ -113,7 +113,7 @@ describe('List All Users By Role Use Case', () => {
       usersRepository,
     });
 
-    const { users } = await sut.execute({ role: 'MANAGER' as UserRole });
+    const { users } = await sut.execute({ role: 'MANAGER' as PrismaRole });
     expect(users).toHaveLength(1);
     expect(users[0].profile).toBeDefined();
     expect(users[0].profile?.name).toBe('Manager Two');
@@ -130,7 +130,7 @@ describe('List All Users By Role Use Case', () => {
   it('should not list users that are soft deleted', async () => {
     const { user } = await makeUser({
       email: 'manager-3@example.com',
-      password: 'hash',
+      password: 'Pass@123',
       role: 'MANAGER',
       usersRepository,
     });
@@ -139,14 +139,14 @@ describe('List All Users By Role Use Case', () => {
     await usersRepository.delete(userId);
 
     await expect(
-      sut.execute({ role: 'MANAGER' as UserRole }),
+      sut.execute({ role: 'MANAGER' as PrismaRole }),
     ).rejects.toBeInstanceOf(ResourceNotFoundError);
   });
 
   it('should not list deleted users by role', async () => {
     await makeUser({
       email: 'deleted-manager@example.com',
-      password: 'hash',
+      password: 'Pass@123',
       role: 'MANAGER',
       usersRepository,
       deletedAt: new Date(),
@@ -154,7 +154,7 @@ describe('List All Users By Role Use Case', () => {
 
     await makeUser({
       email: 'active-manager@example.com',
-      password: 'hash',
+      password: 'Pass@123',
       role: 'MANAGER',
       usersRepository,
     });
@@ -162,9 +162,11 @@ describe('List All Users By Role Use Case', () => {
     const { users } = await sut.execute({ role: 'MANAGER' });
 
     expect(users).toHaveLength(1);
-    expect(users.map((u) => u.email)).not.toContain(
+    expect(users.map((user) => user.email)).not.toContain(
       'deleted-manager@example.com',
     );
-    expect(users.map((u) => u.email)).toContain('active-manager@example.com');
+    expect(users.map((user) => user.email)).toContain(
+      'active-manager@example.com',
+    );
   });
 });

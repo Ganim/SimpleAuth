@@ -1,16 +1,17 @@
 import { app } from '@/app';
-import { changeUserEmailController } from './change-user-email.controller';
-import { changeUserPasswordController } from './change-user-password.controller';
-import { changeUserProfileController } from './change-user-profile.controller';
-import { changeUserRoleController } from './change-user-role.controller';
-import { changeUserUsernameController } from './change-user-username.controller';
-import { createUserController } from './create-user.controller';
-import { DeleteUserByIdController } from './delete-user-by-id.controller';
-import { getUserByEmailController } from './get-user-by-email.controller';
-import { getUserByIdController } from './get-user-by-id.controller';
-import { getUserByUsernameController } from './get-user-by-username.controller';
-import { listAllUsersByRoleController } from './list-all-users-by-role.controller';
-import { listAllUsersController } from './list-all-users.controller';
+import { changeUserEmailController } from './v1-change-user-email.controller';
+import { changeUserPasswordController } from './v1-change-user-password.controller';
+import { changeUserProfileController } from './v1-change-user-profile.controller';
+import { changeUserRoleController } from './v1-change-user-role.controller';
+import { changeUserUsernameController } from './v1-change-user-username.controller';
+import { createUserController } from './v1-create-user.controller';
+import { DeleteUserByIdController } from './v1-delete-user-by-id.controller';
+import { getUserByEmailController } from './v1-get-user-by-email.controller';
+import { getUserByIdController } from './v1-get-user-by-id.controller';
+import { getUserByUsernameController } from './v1-get-user-by-username.controller';
+import { listAllUsersByRoleController } from './v1-list-all-users-by-role.controller';
+import { listAllUsersController } from './v1-list-all-users.controller';
+import { listOnlineUsersController } from './v1-list-online-users.controller';
 
 export async function usersRoutes() {
   // Admin routes
@@ -30,4 +31,5 @@ export async function usersRoutes() {
   app.register(getUserByIdController);
   app.register(getUserByEmailController);
   app.register(getUserByUsernameController);
+  app.register(listOnlineUsersController);
 }

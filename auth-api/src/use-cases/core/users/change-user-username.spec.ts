@@ -20,7 +20,7 @@ describe('ChangeUserUsernameUseCase', () => {
   it('should change user username', async () => {
     const { user } = await makeUser({
       email: 'user@example.com',
-      password: '123456',
+      password: 'Pass@123',
       username: 'olduser',
       usersRepository,
     });
@@ -39,13 +39,13 @@ describe('ChangeUserUsernameUseCase', () => {
   it('should not allow changing to a username already in use', async () => {
     await makeUser({
       email: 'user1@example.com',
-      password: '123456',
+      password: 'Pass@123',
       username: 'userone',
       usersRepository,
     });
     const { user: user2 } = await makeUser({
       email: 'user2@example.com',
-      password: '123456',
+      password: 'Pass@123',
       username: 'usertwo',
       usersRepository,
     });
@@ -57,7 +57,7 @@ describe('ChangeUserUsernameUseCase', () => {
   it('should not allow username change for deleted user', async () => {
     const { user } = await makeUser({
       email: 'deleted@example.com',
-      password: '123456',
+      password: 'Pass@123',
       username: 'deleteduser',
       usersRepository,
     });

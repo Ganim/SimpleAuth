@@ -1,11 +1,12 @@
 import { BadRequestError } from '@/@errors/use-cases/bad-request-error';
 import { ResourceNotFoundError } from '@/@errors/use-cases/resource-not-found';
-import { UserRole } from '@/@types/user-role';
+import { Role } from '@/entities/core/value-objects/role';
 import { UserDTO, userToDTO } from '@/mappers/core/user/user-to-dto';
 import { UsersRepository } from '@/repositories/core/users-repository';
+import type { Role as PrismaRole } from '@prisma/client';
 
 interface ListAllUserByRoleUseCaseRequest {
-  role: UserRole;
+  role: PrismaRole;
 }
 
 interface ListAllUserByRoleUseCaseResponse {
@@ -18,9 +19,9 @@ export class ListAllUserByRoleUseCase {
   async execute({
     role,
   }: ListAllUserByRoleUseCaseRequest): Promise<ListAllUserByRoleUseCaseResponse> {
-    const allowedRoles: UserRole[] = ['USER', 'MANAGER', 'ADMIN'];
+    const validRole = Role.isValid(role);
 
-    if (!role || !allowedRoles.includes(role)) {
+    if (!role || !validRole) {
       throw new BadRequestError('Invalid or missing role parameter.');
     }
 

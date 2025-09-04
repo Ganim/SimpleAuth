@@ -20,7 +20,7 @@ describe('Create User Use Case', () => {
   it('should create a user with profile', async () => {
     const { user } = await sut.execute({
       email: 'johndoe@example.com',
-      password: '123456',
+      password: 'Pass@123',
       profile: {
         name: 'John',
         surname: 'Doe',
@@ -43,14 +43,14 @@ describe('Create User Use Case', () => {
 
     await sut.execute({
       email,
-      password: '123456',
+      password: 'Pass@123',
       profile: { name: 'John' },
     });
 
     await expect(() =>
       sut.execute({
         email,
-        password: '123456',
+        password: 'Pass@123',
         profile: { name: 'John' },
       }),
     ).rejects.toBeInstanceOf(BadRequestError);
@@ -61,7 +61,7 @@ describe('Create User Use Case', () => {
 
     await sut.execute({
       email: 'johnny@example.com',
-      password: '123456',
+      password: 'Pass@123',
       username,
       profile: { name: 'Johnny' },
     });
@@ -69,7 +69,7 @@ describe('Create User Use Case', () => {
     await expect(() =>
       sut.execute({
         email: 'other@example.com',
-        password: '123456',
+        password: 'Pass@123',
         username,
         profile: { name: 'Johnny' },
       }),
@@ -81,7 +81,7 @@ describe('Create User Use Case', () => {
   it('should generate a unique username if not provided', async () => {
     const { user } = await sut.execute({
       email: 'uniqueuser@example.com',
-      password: '123456',
+      password: 'Pass@123',
     });
 
     expect(user.username).toMatch(/^user[0-9a-f]{8}$/);
@@ -96,18 +96,18 @@ describe('Create User Use Case', () => {
   it('should hash the password upon registration', async () => {
     const { user } = await sut.execute({
       email: 'johndoe@example.com',
-      password: '123456',
+      password: 'Pass@123',
       profile: {
         name: 'John',
       },
     });
 
     const storagedUser = await usersRepository.findByEmail(
-      new Email(user.email),
+      Email.create(user.email),
     );
     expect(storagedUser).toBeDefined();
     const isPasswordHashed = await compare(
-      '123456',
+      'Pass@123',
       storagedUser!.password.toString(),
     );
     expect(isPasswordHashed).toBe(true);
@@ -117,7 +117,7 @@ describe('Create User Use Case', () => {
     const deletedDate = new Date('2020-01-01');
     const { user } = await sut.execute({
       email: 'deleteduser@example.com',
-      password: '123456',
+      password: 'Pass@123',
       profile: {
         name: 'Deleted',
         surname: 'User',
@@ -129,7 +129,7 @@ describe('Create User Use Case', () => {
     expect(user.deletedAt).toEqual(deletedDate);
 
     const storagedUser = await usersRepository.findByEmail(
-      new Email(user.email),
+      Email.create(user.email),
     );
     expect(storagedUser).toBeDefined();
     expect(storagedUser?.deletedAt).toEqual(deletedDate);
@@ -137,10 +137,10 @@ describe('Create User Use Case', () => {
   });
 
   it('should not allow invalid email format', () => {
-    expect(() => new Email('invalid-email')).toThrow(BadRequestError);
-    expect(() => new Email('user@invalid')).toThrow(BadRequestError);
-    expect(() => new Email('user@.com')).toThrow(BadRequestError);
-    expect(() => new Email('user@com')).toThrow(BadRequestError);
-    expect(() => new Email('user.com')).toThrow(BadRequestError);
+    expect(() => Email.create('invalid-email')).toThrow(BadRequestError);
+    expect(() => Email.create('user@invalid')).toThrow(BadRequestError);
+    expect(() => Email.create('user@.com')).toThrow(BadRequestError);
+    expect(() => Email.create('user@com')).toThrow(BadRequestError);
+    expect(() => Email.create('user.com')).toThrow(BadRequestError);
   });
 });

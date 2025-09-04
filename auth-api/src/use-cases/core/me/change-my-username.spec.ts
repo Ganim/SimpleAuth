@@ -19,7 +19,7 @@ describe('ChangeMyUsernameUseCase', () => {
   it('should change own username', async () => {
     const { user } = await makeUser({
       email: 'user@example.com',
-      password: '123456',
+      password: 'Pass@123',
       username: 'olduser',
       usersRepository,
     });
@@ -38,7 +38,7 @@ describe('ChangeMyUsernameUseCase', () => {
   it('should throw ResourceNotFoundError if user is deleted', async () => {
     const { user } = await makeUser({
       email: 'deleted@example.com',
-      password: '123456',
+      password: 'Pass@123',
       username: 'deleteduser',
       deletedAt: new Date(),
       usersRepository,
@@ -51,13 +51,13 @@ describe('ChangeMyUsernameUseCase', () => {
   it('should not allow changing to an already existing username', async () => {
     await makeUser({
       email: 'user1@example.com',
-      password: '123456',
+      password: 'Pass@123',
       username: 'userone',
       usersRepository,
     });
     const { user: user2 } = await makeUser({
       email: 'user2@example.com',
-      password: '123456',
+      password: 'Pass@123',
       username: 'usertwo',
       usersRepository,
     });
@@ -71,13 +71,13 @@ describe('ChangeMyUsernameUseCase', () => {
   it('should keep correct user count after username change', async () => {
     await makeUser({
       email: 'user1@example.com',
-      password: '123456',
+      password: 'Pass@123',
       username: 'userone',
       usersRepository,
     });
     const { user } = await makeUser({
       email: 'user2@example.com',
-      password: '123456',
+      password: 'Pass@123',
       username: 'usertwo',
       usersRepository,
     });

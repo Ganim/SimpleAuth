@@ -39,19 +39,19 @@ describe('ChangeMyPasswordUseCase', () => {
 
   it('should throw ResourceNotFoundError if user does not exist', async () => {
     await expect(() =>
-      sut.execute({ userId: 'notfound', password: 'fail' }),
+      sut.execute({ userId: 'notfound', password: 'Wrong@123' }),
     ).rejects.toBeInstanceOf(ResourceNotFoundError);
   });
 
   it('should throw ResourceNotFoundError if user is deleted', async () => {
     const { user } = await makeUser({
       email: 'deleted@example.com',
-      password: '123456',
+      password: 'Pass@123',
       deletedAt: new Date(),
       usersRepository,
     });
     await expect(() =>
-      sut.execute({ userId: user.id, password: 'fail' }),
+      sut.execute({ userId: user.id, password: 'Wrong@123' }),
     ).rejects.toBeInstanceOf(ResourceNotFoundError);
   });
 
@@ -60,12 +60,12 @@ describe('ChangeMyPasswordUseCase', () => {
   it('should keep correct user count after password change', async () => {
     await makeUser({
       email: 'user1@example.com',
-      password: '123456',
+      password: 'Pass@123',
       usersRepository,
     });
     const { user } = await makeUser({
       email: 'user2@example.com',
-      password: '123456',
+      password: 'Pass@123',
       usersRepository,
     });
     await sut.execute({ userId: user.id, password: 'changedpass' });

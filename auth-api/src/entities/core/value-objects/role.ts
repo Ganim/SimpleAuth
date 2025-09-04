@@ -1,26 +1,49 @@
 import { BadRequestError } from '@/@errors/use-cases/bad-request-error';
+import { Role as PrismaRole } from '@prisma/client';
 
-// Value Object para Role
+// Lista dinâmica derivada do enum do Prisma (evita duplicação)
+const USER_ROLES = Object.values(PrismaRole) as PrismaRole[];
+
+// Traduções das roles
+export const userRolesLabels: Record<PrismaRole, string> = {
+  ADMIN: 'Administrador',
+  MANAGER: 'Gerente',
+  USER: 'Usuário',
+};
+
 export class Role {
-  private readonly value: string;
+  private readonly _value: PrismaRole;
 
-  constructor(value: string) {
-    if (!Role.isValid(value)) {
-      throw new BadRequestError(`${value} role is invalid.`);
-    }
-    this.value = value;
+  private constructor(value: PrismaRole) {
+    this._value = value;
   }
 
-  static isValid(value: string): boolean {
-    const validRoles = ['USER', 'MANAGER', 'ADMIN'];
-    return validRoles.includes(value);
+  static create(value: string): Role {
+    if (!Role.isValid(value)) {
+      throw new BadRequestError(
+        `Role '${value}' is invalid. Valid roles: ${USER_ROLES.join(', ')}`,
+      );
+    }
+    return new Role(value as PrismaRole);
+  }
+
+  static isValid(value: string): value is PrismaRole {
+    return USER_ROLES.includes(value as PrismaRole);
+  }
+
+  static checkRole(value: string, compare: PrismaRole): boolean {
+    return value === compare;
+  }
+
+  get value(): PrismaRole {
+    return this._value;
   }
 
   toString(): string {
-    return this.value;
+    return this._value;
   }
 
   equals(other: Role): boolean {
-    return this.value === other.value;
+    return this._value === other._value;
   }
 }

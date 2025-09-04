@@ -18,7 +18,7 @@ describe('ChangeUserProfileUseCase', () => {
   it('should update user profile fields', async () => {
     const { user } = await makeUser({
       email: 'user@example.com',
-      password: '123456',
+      password: 'Pass@123',
       usersRepository,
     });
 

@@ -4,12 +4,16 @@ export class Token {
   private readonly _value: string;
   private readonly _expiresAt?: Date;
 
-  constructor(value: string, expiresAt?: Date) {
+  private constructor(value: string, expiresAt?: Date) {
     if (!Token.isValid(value)) {
       throw new BadRequestError('Invalid token.');
     }
     this._value = value;
     this._expiresAt = expiresAt;
+  }
+
+  static create(value: string, expiresAt?: Date): Token {
+    return new Token(value, expiresAt);
   }
 
   static isValid(value: string): boolean {
@@ -32,5 +36,12 @@ export class Token {
 
   toString(): string {
     return this._value;
+  }
+
+  equals(other: Token): boolean {
+    return (
+      this._value === other.value &&
+      this._expiresAt?.getTime() === other.expiresAt?.getTime()
+    );
   }
 }

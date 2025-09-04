@@ -21,7 +21,7 @@ describe('ChangeUserEmailUseCase', () => {
   it('should change user email', async () => {
     const { user } = await makeUser({
       email: 'old@example.com',
-      password: '123456',
+      password: 'Pass@123',
       usersRepository,
     });
 
@@ -44,12 +44,12 @@ describe('ChangeUserEmailUseCase', () => {
   it('should not allow changing to an email already in use', async () => {
     await makeUser({
       email: 'user1@example.com',
-      password: '123456',
+      password: 'Pass@123',
       usersRepository,
     });
     const { user: user2 } = await makeUser({
       email: 'user2@example.com',
-      password: '123456',
+      password: 'Pass@123',
       usersRepository,
     });
     await expect(() =>
@@ -60,7 +60,7 @@ describe('ChangeUserEmailUseCase', () => {
   it('should not allow email change for deleted user', async () => {
     const { user } = await makeUser({
       email: 'deleted@example.com',
-      password: '123456',
+      password: 'Pass@123',
       usersRepository,
     });
     const storedUser = await usersRepository.findById(
@@ -75,10 +75,10 @@ describe('ChangeUserEmailUseCase', () => {
   // VALIDATIONS
 
   it('should not allow invalid email format', () => {
-    expect(() => new Email('invalid-email')).toThrow(BadRequestError);
-    expect(() => new Email('user@invalid')).toThrow(BadRequestError);
-    expect(() => new Email('user@.com')).toThrow(BadRequestError);
-    expect(() => new Email('user@com')).toThrow(BadRequestError);
-    expect(() => new Email('user.com')).toThrow(BadRequestError);
+    expect(() => Email.create('invalid-email')).toThrow(BadRequestError);
+    expect(() => Email.create('user@invalid')).toThrow(BadRequestError);
+    expect(() => Email.create('user@.com')).toThrow(BadRequestError);
+    expect(() => Email.create('user@com')).toThrow(BadRequestError);
+    expect(() => Email.create('user.com')).toThrow(BadRequestError);
   });
 });

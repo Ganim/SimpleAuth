@@ -4,7 +4,11 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'node',
-    include: ['src/http/controllers/auth/*.spec.ts'],
+    include: [
+      'src/**/*.e2e.spec.ts',
+      'src/**/*.e2e-spec.ts',
+      'src/http/controllers/auth/*.spec.ts',
+    ],
     setupFiles: [],
     coverage: {
       reporter: ['text', 'json', 'html'],

@@ -33,7 +33,7 @@ Permite cadastro, login, encerramento de sessão e gerenciamento do perfil de fo
 De Autenticação:
 - [x] Deve ser possível se cadastrar;
 - [x] Deve ser possível se autenticar;
-- [ ] Deve ser possível recuperar a senha via e-mail;
+- [x] Deve ser possível recuperar a senha via e-mail;
 
 De Perfil:
 - [x] Deve ser possível obter o perfil de um usuário qualquer;
@@ -62,8 +62,8 @@ De Sessions:
 
 ### Regras de Negócio
 De Autenticação:
-- [ ] Se o usuário errar a senha 3 vezes terá o perfil bloqueado por 5 minutos;
-- [ ] Não deve ser possivel fazer login se o usuário estiver bloqueado;
+- [x] Se o usuário errar a senha 3 vezes terá o perfil bloqueado por 5 minutos;
+- [x] Não deve ser possivel fazer login se o usuário estiver bloqueado;
 
 De Deleção de Usuários:
 - [x] Toda a deleção da API deve ser SOFT DELETE;
@@ -77,9 +77,8 @@ De Sessions:
 - [x] É permitido multi-sessions;
 
 
-
 ### Requisitos Não Funcionais
-- [ ] A API deve ser documentada pelo Swagger;
+- [x] A API deve ser documentada pelo Swagger;
 - [x] As operações de criar e excluir perfil devem ser feitas junto com a de usuários;
 - [x] A senha do usuário deve estar criptografada;
 - [x] Os dados da aplicação precisam estar persistidos em um banco de dados PostgreSQL;

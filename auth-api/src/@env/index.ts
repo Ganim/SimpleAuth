@@ -3,9 +3,14 @@ import z from 'zod';
 
 const envSchema = z.object({
   NODE_ENV: z.enum(['dev', 'test', 'production']).default('dev'),
-  PORT: z.coerce.number().default(3333),
-  HASH_ROUNDS: z.coerce.number().default(6),
   JWT_SECRET: z.string(),
+  DATABASE_URL: z.url(),
+  PORT: z.coerce.number().default(3333),
+  SMTP_HOST: z.string().default('localhost'),
+  SMTP_PORT: z.coerce.number().default(587),
+  SMTP_USER: z.string().default('user'),
+  SMTP_PASS: z.string().default('pass'),
+  FRONTEND_URL: z.url().default('http://localhost:3000'),
 });
 
 const _env = envSchema.safeParse(process.env);
