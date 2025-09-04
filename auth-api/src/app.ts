@@ -1,5 +1,7 @@
 import fastifyCookie from '@fastify/cookie';
+import cors from '@fastify/cors';
 import fastifyJwt from '@fastify/jwt';
+import rateLimit from '@fastify/rate-limit';
 import swagger from '@fastify/swagger';
 import swaggerUI from '@fastify/swagger-ui';
 import fastify from 'fastify';
@@ -23,6 +25,18 @@ app.setSerializerCompiler(serializerCompiler);
 
 // Error handler
 app.setErrorHandler(errorHandler);
+
+// Rate limit
+app.register(rateLimit, {
+  max: 100,
+  timeWindow: '1 minute',
+});
+
+// CORS - Cross-Origin Resource Sharing
+app.register(cors, {
+  origin: env.FRONTEND_URL,
+  credentials: true,
+});
 
 // Swagger
 app.register(swagger, {

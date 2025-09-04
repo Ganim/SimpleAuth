@@ -31,7 +31,9 @@
   "description": "Uma aplicação web simplificada para autenticação de usuários. Utiliza tecnologias modernas e princípios de design para garantir Segurança e Eficiência.",
   "dependencies": {
     "@fastify/cookie": "11.0.2",
+    "@fastify/cors": "11.1.0",
     "@fastify/jwt": "9.1.0",
+    "@fastify/rate-limit": "10.3.0",
     "@fastify/swagger": "9.5.1",
     "@fastify/swagger-ui": "5.2.3",
     "@prisma/client": "6.14.0",
